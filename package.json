@@ -1,0 +1,38 @@
+{
+  "name": "haute-couture",
+  "version": "1.0.0",
+  "description": "directory structure as hapi plugin API",
+  "main": "lib/index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "lab -a code -t 100 -L",
+    "coveralls": "lab -r lcov | coveralls"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/devinivy/haute-couture.git"
+  },
+  "keywords": [
+    "api",
+    "directory",
+    "structure",
+    "utility"
+  ],
+  "author": "Devin Ivy <devin@bigroomstudios.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/devinivy/haute-couture/issues"
+  },
+  "homepage": "https://github.com/devinivy/haute-couture#readme",
+  "dependencies": {
+    "haute": "1.x.x"
+  },
+  "devDependencies": {
+    "code": "2.x.x",
+    "coveralls": "2.x.x",
+    "hapi": "13.x.x",
+    "lab": "10.x.x"
+  }
+}
