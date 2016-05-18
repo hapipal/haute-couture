@@ -1,6 +1,6 @@
 {
   "name": "haute-couture",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "directory structure as hapi plugin API",
   "main": "lib/index.js",
   "directories": {
@@ -30,7 +30,8 @@
   "homepage": "https://github.com/devinivy/haute-couture#readme",
   "dependencies": {
     "haute": "1.x.x",
-    "hoek": "3.x.x"
+    "hoek": "3.x.x",
+    "parent-module": "0.1.x"
   },
   "peerDependencies": {
     "hapi": ">=10 <14"
