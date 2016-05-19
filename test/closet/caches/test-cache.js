@@ -1,5 +1,5 @@
 'use strict';
 
 module.exports = {
-    someContext: true
+    engine: require('catbox-memory')
 };
