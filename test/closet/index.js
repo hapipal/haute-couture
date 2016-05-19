@@ -1,8 +1,8 @@
 'use strict';
 
-const Haute = require('haute');
+const HauteCouture = require('../..');
 
-module.exports = Haute();
+module.exports = HauteCouture();
 
 module.exports.attributes = {
     name: 'plugin'
