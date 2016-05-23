@@ -4,7 +4,10 @@ module.exports = {
     engines: {
         html: {
             module: {
-                compile: () => () => undefined
+                compile: () => {
+
+                    return () => undefined;
+                }
             }
         }
     }

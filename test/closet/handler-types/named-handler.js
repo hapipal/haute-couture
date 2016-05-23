@@ -2,5 +2,8 @@
 
 module.exports = {
     name: 'myNamedHandler',
-    method: (route, options) => (request, reply) => reply({ myNamedHandler: options })
+    method: (route, options) => {
+
+        return (request, reply) => reply({ myNamedHandler: options });
+    }
 };

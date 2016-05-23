@@ -1,5 +1,8 @@
 'use strict';
 
 module.exports = {
-    method: (route, options) => (request, reply) => reply({ testHandler: options })
+    method: (route, options) => {
+
+        return (request, reply) => reply({ testHandler: options });
+    }
 };
