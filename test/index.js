@@ -82,7 +82,10 @@ describe('HauteCouture', () => {
     before((done) => {
 
         reset();
-        notUsing(['connections', 'decorations/server.bad.test-dec.js']);
+        notUsing([
+            'connections',
+            'decorations/server.bad.test-dec.js'
+        ]);
 
         bigServer.connection();
         bigServer.register(Closet, (err) => {
@@ -325,7 +328,7 @@ describe('HauteCouture', () => {
         done();
     });
 
-    it('registers connections in /connections.', (done, onCleanup) => {
+    it('registers connections in connections/.', (done, onCleanup) => {
 
         onCleanup((next) => {
 
@@ -341,7 +344,11 @@ describe('HauteCouture', () => {
             connections: false
         };
 
-        using(['connections', 'connections/labeled-connection.js', 'connections/test-connection.js']);
+        using([
+            'connections',
+            'connections/labeled-connection.js',
+            'connections/test-connection.js'
+        ]);
 
         server.register(plugin, (err) => {
 
@@ -366,7 +373,10 @@ describe('HauteCouture', () => {
         const server = new Hapi.Server();
         server.connection();
 
-        using(['decorations', 'decorations/server.bad.test-dec.js']);
+        using([
+            'decorations',
+            'decorations/server.bad.test-dec.js'
+        ]);
 
         expect(() => {
 
