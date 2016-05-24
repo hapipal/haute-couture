@@ -10,7 +10,7 @@ module.exports = (server, options, next) => {
             return next(err);
         }
 
-        server.expose('realm', server.realm);
+        server.app.realm = server.realm;
         next();
     });
 };
