@@ -5,6 +5,7 @@
 const Lab = require('lab');
 const Code = require('code');
 const Hapi = require('hapi');
+const Hoek = require('hoek');
 const Renamer = require('renamer');
 const Glob = require('glob');
 const Closet = require('./closet');
@@ -21,6 +22,14 @@ const expect = Code.expect;
 const internals = {};
 
 describe('HauteCouture', () => {
+
+    const invalidateCache = () => {
+
+        Object.keys(require.cache).forEach((key) => {
+
+            delete require.cache[key];
+        });
+    };
 
     const makeAbsolute = (file) => `${__dirname}/closet/${file}`;
 
@@ -42,6 +51,8 @@ describe('HauteCouture', () => {
             replace: '.off',
             regex: true
         }));
+
+        invalidateCache();
     };
 
     const notUsing = (files) => {
@@ -52,6 +63,8 @@ describe('HauteCouture', () => {
             replace: '.off',
             regex: true
         }));
+
+        invalidateCache();
     };
 
     const reset = () => {
@@ -68,7 +81,8 @@ describe('HauteCouture', () => {
 
     before((done) => {
 
-        notUsing(['connections.js', 'decorations/server.bad.test-dec.js']);
+        reset();
+        notUsing(['connections', 'decorations/server.bad.test-dec.js']);
 
         bigServer.connection();
         bigServer.register(Closet, (err) => {
@@ -88,6 +102,26 @@ describe('HauteCouture', () => {
         // Just an example to show it used the caller's directory
         expect(bigServer.registrations.vision).to.exist();
         done();
+    });
+
+    it('can look in specific directory.', (done) => {
+
+        const server = new Hapi.Server();
+        server.connection();
+
+        const plugin = HauteCouture(`${__dirname}/closet/specific`);
+        plugin.attributes = { name: 'my-specific-plugin' };
+
+        server.register(plugin, (err) => {
+
+            if (err) {
+                return done(err);
+            }
+
+            // Just an example to show it used the caller's directory
+            expect(server.registrations['specific-sub-plugin']).to.exist();
+            done();
+        });
     });
 
     it('registers plugins in plugins.js.', (done) => {
@@ -290,4 +324,97 @@ describe('HauteCouture', () => {
         expect(bigServer.match('get', '/arr-route-two')).to.exist();
         done();
     });
+
+    it('registers connections in /connections.', (done, onCleanup) => {
+
+        onCleanup((next) => {
+
+            reset();
+            return next();
+        });
+
+        const server = new Hapi.Server();
+
+        const plugin = HauteCouture(`${__dirname}/closet`);
+        plugin.attributes = {
+            name: 'my-conn-plugin',
+            connections: false
+        };
+
+        using(['connections', 'connections/labeled-connection.js', 'connections/test-connection.js']);
+
+        server.register(plugin, (err) => {
+
+            if (err) {
+                return done(err);
+            }
+
+            expect(server.select('my-labeled-connection').connections.length).to.equal(1);
+            expect(server.select('test-connection').connections.length).to.equal(1);
+            done();
+        });
+    });
+
+    it('does not apply filename to decorations with more than two parts.', (done, onCleanup) => {
+
+        onCleanup((next) => {
+
+            reset();
+            return next();
+        });
+
+        const server = new Hapi.Server();
+        server.connection();
+
+        using(['decorations', 'decorations/server.bad.test-dec.js']);
+
+        expect(() => {
+
+            server.register(Closet, Hoek.ignore);
+        }).to.throw('Missing decoration property name');
+
+        done();
+    });
+
+    it('accepts additional manifest items.', (done, onCleanup) => {
+
+        onCleanup((next) => {
+
+            reset();
+            return next();
+        });
+
+        const server = new Hapi.Server();
+        server.connection();
+
+        const called = {};
+        server.decorate('server', 'special', function (myArg) {
+
+            called.myArg = myArg;
+            called.length = arguments.length;
+        });
+
+        const plugin = HauteCouture(`${__dirname}/closet`, [{
+            place: 'special',
+            method: 'special',
+            signature: ['myArg'],
+            list: false
+        }]);
+
+        plugin.attributes = { name: 'my-special-plugin' };
+
+        using(['special.js']);
+
+        server.register(plugin, (err) => {
+
+            if (err) {
+                return done(err);
+            }
+
+            expect(called.myArg).to.equal('mySpecialValue');
+            expect(called.length).to.equal(1);
+            done();
+        });
+    });
+
 });
