@@ -131,3 +131,56 @@ Here's the complete rundown of how files and directories are mapped to API calls
   - **`extensions.js`** - export an array of `events`.
   - **`extensions/index.js`** - export an array of `events`.
   - **`extensions/[event-type].js`** - export `events`.  The `type` (of each item if there are multiple) will be assigned `[event-type]` camel-cased from the filename if it isn't already specified.  E.g. `onPreHandler`-type events can be placed in `extensions/on-pre-handler.js`.
+
+#### Exposed properties
+> [`server.expose(key, value)`](https://github.com/hapijs/hapi/blob/master/API.md#serverexposekey-value)
+
+  - **`expose.js`** - export an array of objects `{ key, value }`.
+  - **`expose/index.js`** - export an array of objects.
+  - **`expose/property-name.js`** - export an object.  The `key` will be assigned `'propertyName'` camel-cased from the filename if it isn't already specified.
+
+#### Path prefix
+> [`server.path(relativeTo)`](https://github.com/hapijs/hapi/blob/master/API.md#serverpathrelativeto)
+
+  - **`path.js`** - export `relativeTo`.
+  - **`path/index.js`** - export `relativeTo`.
+
+#### Globally bound context
+> [`server.bind(context)`](https://github.com/hapijs/hapi/blob/master/API.md#serverbindcontext)
+
+  - **`bind.js`** - export `context`.
+  - **`bind/index.js`** - export `context`.
+
+#### Authentication schemes
+> [`server.auth.scheme(name, scheme)`](https://github.com/hapijs/hapi/blob/master/API.md#serverauthschemename-scheme)
+
+  - **`auth/schemes.js`** - export an array of objects `{ name, scheme }`.
+  - **`auth/schemes/index.js`** - export an array of objects.
+  - **`auth/schemes/scheme-name.js`** - export an object.  The `name` will be assigned `'scheme-name'` from the filename if it isn't already specified.
+
+#### Authentication strategies
+> [`server.auth.strategy(name, scheme, [mode], [options])`](https://github.com/hapijs/hapi/blob/master/API.md#serverauthschemename-scheme)
+
+  - **`auth/strategies.js`** - export an array of objects `{ name, scheme, mode, options }`.
+  - **`auth/strategies/index.js`** - export an array of objects.
+  - **`auth/strategies/strategy-name.js`** - export an object.  The `name` will be assigned `'strategy-name'` from the filename if it isn't already specified.
+
+#### Default auth strategy
+> [`server.auth.default(options)`](https://github.com/hapijs/hapi/blob/master/API.md#serverauthdefaultoptions)
+
+  - **`auth/default.js`** - export `options`.
+  - **`auth/default/index.js`** - export `options`.
+
+#### Cookies
+> [`server.state(name, [options])`](https://github.com/hapijs/hapi/blob/master/API.md#serverstatename-options)
+
+  - **`cookies.js`** - export an array of objects `{ name, options }`.
+  - **`cookies/index.js`** - export an array of objects.
+  - **`cookies/cookie-name.js`** - export an object.  The `name` will be assigned `'cookie-name'` from the filename if it isn't already specified.
+
+#### Routes
+> [`server.route(options)`](https://github.com/hapijs/hapi/blob/master/API.md#serverrouteoptions)
+
+  - **`routes.js`** - export an array of `options`.
+  - **`routes/index.js`** - export an array of `options`.
+  - **`routes/route-id.js`** - export `options`.  If `options` is a single route config object, the route's `config.id` will be assigned `'route-id'` from the filename if it isn't already specified.  The filename could just as easily represent a group of routes (rather than an id) and the file could export an array of route configs.
