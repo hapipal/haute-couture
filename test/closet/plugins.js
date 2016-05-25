@@ -1,5 +1,6 @@
 'use strict';
 
+const Loveboat = require('loveboat');
 const Vision = require('vision');
 
 const internals = {};
@@ -14,7 +15,7 @@ internals.plugin.attributes = { name: 'test-dep' };
 
 module.exports = [
     {
-        plugins: [Vision]
+        plugins: [Vision, Loveboat]
     },
     {
         plugins: [internals.plugin],

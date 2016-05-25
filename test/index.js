@@ -84,7 +84,8 @@ describe('HauteCouture', () => {
         reset();
         notUsing([
             'connections',
-            'decorations/server.bad.test-dec.js'
+            'decorations/server.bad.test-dec.js',
+            'route-transforms/bad-arr-transform.js'
         ]);
 
         bigServer.connection();
@@ -130,6 +131,7 @@ describe('HauteCouture', () => {
     it('registers plugins in plugins.js.', (done) => {
 
         expect(bigServer.registrations.vision).to.exist();
+        expect(bigServer.registrations.loveboat).to.exist();
         expect(bigServer.registrations['test-dep']).to.exist();
         expect(bigServer.app.sawPluginOptions).to.equal('/options');
         done();
@@ -318,6 +320,26 @@ describe('HauteCouture', () => {
         done();
     });
 
+    it('defines loveboat transforms in route-transforms/.', (done) => {
+
+        const transforms = bigServer.app.realm.plugins.loveboat.transforms.nodes;
+        const transformNames = transforms.map((transform) => transform.transform.name).sort();
+
+        expect(transformNames).to.equal(['my-named-transform', 'test-transform']);
+        done();
+    });
+
+    it('defines loveboat routes in routes-loveboat/.', (done) => {
+
+        const route = bigServer.lookup('loveboat');
+        expect(route).to.exist();
+        expect(route.settings.app).to.equal({
+            myNamedTransform: true,
+            testTransform: true
+        });
+        done();
+    });
+
     it('defines routes in routes/.', (done) => {
 
         expect(bigServer.lookup('my-id-route')).to.exist();
@@ -382,6 +404,31 @@ describe('HauteCouture', () => {
 
             server.register(Closet, Hoek.ignore);
         }).to.throw('Missing decoration property name');
+
+        done();
+    });
+
+    it('does not apply filename to loveboat transforms in array.', (done, onCleanup) => {
+
+        onCleanup((next) => {
+
+            reset();
+            return next();
+        });
+
+        const server = new Hapi.Server();
+        server.connection();
+
+        using([
+            'plugins.js',
+            'route-transforms',
+            'route-transforms/bad-arr-transform.js'
+        ]);
+
+        expect(() => {
+
+            server.register(Closet, Hoek.ignore);
+        }).to.throw(/\"name\" is required/);
 
         done();
     });
