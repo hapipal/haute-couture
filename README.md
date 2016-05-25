@@ -73,61 +73,61 @@ Here's the complete rundown of how files and directories are mapped to API calls
 #### Connections
 > [`server.connection(options)`](https://github.com/hapijs/hapi/blob/master/API.md#serverconnectionoptions)
 
-  - Export an array of `options` from **`connections.js`**.
-  - Export an array of `options` from **`connections/index.js`**.
-  - Export `options` from **`connections/some-label.js`**, and `options.labels` will be assigned `'some-label'` from the filename if no labels are already specified.
+  - **`connections.js`** - export an array of `options`.
+  - **`connections/index.js`** - export an array of `options`.
+  - **`connections/some-label.js`** - export `options`. `options.labels` will be assigned `'some-label'` from the filename if no labels are already specified.
 
 #### Plugin registrations
 > [`server.register(plugins, [options], [cb])`](https://github.com/hapijs/hapi/blob/master/API.md#serverregisterplugins-options-callback)
 
-  - Export an array of objects `{ plugins, options }` from **`plugins.js`**.
-  - Export an array of objects from **`plugins/index.js`**.
+  - **`plugins.js`** - export an array of objects `{ plugins, options }`.
+  - **`plugins/index.js`** - export an array of objects.
 
 #### Dependencies
 > [`server.dependency(dependencies, [after])`](https://github.com/hapijs/hapi/blob/master/API.md#serverdependencydependencies-after)
 
-  - Export an array of objects `{ dependencies, after }` from **`dependencies.js`**.
-  - Export an array of objects from **`dependencies/index.js`**.
-  - Export an object from `dependencies/plugin-name.js`, and `dependencies` will be derived from the filename if it is not already specified.
+  - **`dependencies.js`** - export an array of objects `{ dependencies, after }`.
+  - **`dependencies/index.js`** - export an array of objects.
+  - **`dependencies/plugin-name.js`** - export an object. `dependencies` will be derived from the filename if it is not already specified.
 
 #### Provisioning caches
 > [`server.cache.provision(options, [cb])`](https://github.com/hapijs/hapi/blob/master/API.md#servercacheprovisionoptions-callback)
 
-  - Export an array of `options` from **`caches.js`**.
-  - Export an array of `options` from **`caches/index.js`**.
-  - Export `options` from **`caches/some-cache-name.js`**, and the cache's `options.name` will be assigned `'cache-name'` from the filename if a name isn't already specified.
+  - **`caches.js`** - export an array of `options`.
+  - **`caches/index.js`** - export an array of `options`.
+  - **`caches/some-cache-name.js`** - export `options`.  The cache's `options.name` will be assigned `'cache-name'` from the filename if a name isn't already specified.
 
 #### Server methods
 > [`server.method(name, method, [options])`](https://github.com/hapijs/hapi/blob/master/API.md#servermethodname-method-options)
 
-  - Export an array of objects `{ name, method, options }` from **`methods.js`**.
-  - Export an array of objects from **`methods/index.js`**.
-  - Export an object from **`methods/method-name.js`**, and the `name` will be assigned `'methodName'` camel-cased from the filename if it isn't already specified.
+  - **`methods.js`** - export an array of objects `{ name, method, options }`.
+  - **`methods/index.js`** - export an array of objects.
+  - **`methods/method-name.js`** - export an object.  The `name` will be assigned `'methodName'` camel-cased from the filename if it isn't already specified.
 
 #### View manager (for [vision](https://github.com/hapijs/vision))
 > [`server.views(options)`](https://github.com/hapijs/vision/blob/master/API.md#serverviewsoptions)
 
-  - Export `options` from **`view-manager.js`**.
-  - Export `options` from **`view-manager/index.js`**.
+  - **`view-manager.js`** - export `options`.
+  - **`view-manager/index.js`** - export `options`.
 
 #### Decorations
 > [`server.decorate(type, property, method, [options])`](https://github.com/hapijs/hapi/blob/master/API.md#serverdecoratetype-property-method-options)
 
-  - Export an array of objects `{ type, property, method, options }` from **`decorations.js`**.
-  - Export an array of objects from **`decorations/index.js`**.
-  - Export an object from **`decorations/decoration-name.js`**, and `property` will be assigned `'decorationName'` camel-cased from the filename if it isn't already specified.
-  - Export an object from **`decorations/[type].decoration-name.js`**, and `type` will additionally be inferred from the filename if it isn't already specified.
+  - **`decorations.js`** - export an array of objects `{ type, property, method, options }`.
+  - **`decorations/index.js`** - export an array of objects.
+  - **`decorations/decoration-name.js`** - export an object.  The `property` will be assigned `'decorationName'` camel-cased from the filename if it isn't already specified.
+  - **`decorations/[type].decoration-name.js`** - export an object.  The `type` will additionally be inferred from the filename if it isn't already specified.
 
 #### Handler types
 > [`server.handler(name, method)`](https://github.com/hapijs/hapi/blob/master/API.md#serverhandlername-method)
 
-  - Export an array of objects `{ name, method }` from **`handler-types.js`**.
-  - Export an array of objects from **`handler-types/index.js`**.
-  - Export an object from **`handler-types/handler-name.js`**, and `name` will be assigned `'handlerName'` camel-cased from the filename if it isn't already specified.
+  - **`handler-types.js`** - export an array of objects `{ name, method }`.
+  - **`handler-types/index.js`** - export an array of objects.
+  - **`handler-types/handler-name.js`** - export an object.  The `name` will be assigned `'handlerName'` camel-cased from the filename if it isn't already specified.
 
 #### Server/request extensions
 > [`server.ext(events)`](https://github.com/hapijs/hapi/blob/master/API.md#serverextevents)
 
-  - Export an array of `events` from **`extensions.js`**.
-  - Export an array of `events` from **`extensions/index.js`**.
-  - Export `events` from **`extensions/[event-type].js`**, and the `type` (of each item if there are multiple) will be assigned `[event-type]` camel-cased from the filename if it isn't already specified.  E.g. `onPreHandler`-type events can be placed in `extensions/on-pre-handler.js`.
+  - **`extensions.js`** - export an array of `events`.
+  - **`extensions/index.js`** - export an array of `events`.
+  - **`extensions/[event-type].js`** - export `events`.  The `type` (of each item if there are multiple) will be assigned `[event-type]` camel-cased from the filename if it isn't already specified.  E.g. `onPreHandler`-type events can be placed in `extensions/on-pre-handler.js`.
