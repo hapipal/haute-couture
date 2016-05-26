@@ -1,6 +1,6 @@
 # haute-couture
 
-goodbye, hapi plugin boilerplate.
+File-based hapi plugin composer
 
 [![Build Status](https://travis-ci.org/devinivy/haute-couture.svg?branch=master)](https://travis-ci.org/devinivy/haute-couture) [![Coverage Status](https://coveralls.io/repos/devinivy/haute-couture/badge.svg?branch=master&service=github)](https://coveralls.io/github/devinivy/haute-couture?branch=master)
 
@@ -15,7 +15,7 @@ To name a few,
  - You can teach haute-couture how to use your own custom server decorations.
  - You can still write all the custom plugin code you desire.
 
-Again, **haute-couture** understands 19 hapi plugin methods– those for server methods, custom handler types, server/request decorations, request lifecycle extensions, route configuration, cookie definitions, [loveboat](https://github.com/devinivy/loveboat) routes and transforms, [vision](https://github.com/hapijs/vision) view managers, and plenty more.  It can also be used as an alternative to **glue** for composing a server.
+Again, **haute-couture** understands 19 hapi plugin methods– those for server methods, custom handler types, server/request decorations, request lifecycle extensions, route configuration, cookie definitions, [loveboat](https://github.com/devinivy/loveboat) routes and transforms, [vision](https://github.com/hapijs/vision) view managers, and plenty more.  It can also be used as an alternative to [glue](https://github.com/hapijs/glue) for composing a server.
 
 ## Usage
 This library is actually not used as a hapi plugin.  Think of it instead as a useful subroutine of any hapi plugin.
@@ -24,13 +24,13 @@ Here's an example of a very simple plugin that registers a single "pinger" route
 
 #### `index.js`
 ```js
-const HauteCouture = require('haute-couture')();
+const HauteCouture = require('haute-couture');
 
 // Either...
 // 1. a plugin wired with haute-couture plus custom logic
 module.exports = (server, options, next) => {
 
-  HauteCouture(server, options, (err) => {
+  HauteCouture()(server, options, (err) => {
 
     // Handle err, do custom plugin duties
 
@@ -39,7 +39,7 @@ module.exports = (server, options, next) => {
 };
 
 // 2. a plugin entirely wired using haute-couture
-module.exports = HauteCouture;
+module.exports = HauteCouture();
 
 module.exports.attributes = {
   name: 'my-hapi-plugin'
@@ -203,3 +203,14 @@ Here's the complete rundown of how files and directories are mapped to API calls
   - **`routes.js`** - export an array of `options`.
   - **`routes/index.js`** - export an array of `options`.
   - **`routes/route-id.js`** - export `options`.  If `options` is a single route config object, the route's `config.id` will be assigned `'route-id'` from the filename if it isn't already specified.  The filename could just as easily represent a group of routes (rather than an id) and the file could export an array of route configs.
+
+## API
+### `HauteCouture([dirname], [manifestExtras])`
+
+  - `dirname` - an absolute directory path in which to look for the files and directories described [above](#files-and-directories).  It defaults to the directory path of the caller.
+  - `manifestExtras` - an array specifying additional items to append to the **[haute](https://github.com/devinivy/haute)** manifest that is used to map directory structure to hapi plugin API calls.
+
+Returns a function with the signature `function(server, [options], next)`, identical in meaning to the signature of a [hapi plugin](https://github.com/hapijs/hapi/blob/master/API.md#plugins).  Invoking the function makes hapi plugin API calls on `server` as described [above](#files-and-directories).  Typically `server` will be a server object passed to a plugin and `options` will be plugin options.  However, `server` could be any hapi server object (such as the root server) and `options` are not required.
+
+### The hapi [haute](https://github.com/devinivy/haute) manifest
+The base **haute** manifest for **hapi** is located at [`lib/manifest.js`](lib/manifest.js).  It is considered part of the public API, and therefore can safely be required in other projects as `require('haute-couture/lib/manifest')`.
