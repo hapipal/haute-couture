@@ -4,15 +4,18 @@ goodbye, hapi plugin boilerplate.
 
 [![Build Status](https://travis-ci.org/devinivy/haute-couture.svg?branch=master)](https://travis-ci.org/devinivy/haute-couture) [![Coverage Status](https://coveralls.io/repos/devinivy/haute-couture/badge.svg?branch=master&service=github)](https://coveralls.io/github/devinivy/haute-couture?branch=master)
 
-This library will wire your hapi plugin together based simply upon where you place files.  It has the ability to call every method in the hapi plugin API.  This means many good things.  To name a few,
+This library will wire your hapi plugin together based simply upon where you place files.  It has the ability to call every configuration-related method in the hapi plugin API.  This means many good things.
+
+To name a few,
 
  - Route configurations placed in your `routes/` directory will be registered using `server.route()`.
  - You can place your authentication scheme in `auth/schemes.js` rather than calling `server.auth.scheme()`.
  - You can provision a cache simply by placing its configuration in `caches/my-cache-name.js`, and forget about `server.cache.provision()`.
  - Where applicable, any of these files can be configured as JSON.
+ - You can teach haute-couture how to use your own custom server decorations.
  - You can still write all the custom plugin code you desire.
 
-Again, **haute-couture** understands all 17 hapi plugin methods– those for server methods, custom handler types, server/request decorations, request lifecycle extensions, route configuration, cookie definitions, view managers, and plenty more.  It can also be used as an alternative to **glue** for composing a server.
+Again, **haute-couture** understands 19 hapi plugin methods– those for server methods, custom handler types, server/request decorations, request lifecycle extensions, route configuration, cookie definitions, [loveboat](https://github.com/devinivy/loveboat) routes and transforms, [vision](https://github.com/hapijs/vision) view managers, and plenty more.  It can also be used as an alternative to **glue** for composing a server.
 
 ## Usage
 This library is actually not used as a hapi plugin.  Think of it instead as a useful subroutine of any hapi plugin.
@@ -60,9 +63,9 @@ module.exports = {
 ```
 
 ### Files and directories
-**haute-couture** is fairly astute in mapping files and directories to hapi API calls.  And as seen in the comments of the example above, it also infers configuration from filenames where applicable.
+**haute-couture** is quite astute in mapping files and directories to hapi API calls.  And as seen in the comments of the example above, it also infers configuration from filenames where applicable.
 
-Files will always export an array of values (representing multiple API calls) or a single value (one API call).  When a hapi method takes more than one argument (not including a callback), a single value consists of an object whose keys are the names of the arguments and whose values are the intended argument values.  In all cases the argument values come from the [hapi API](https://github.com/hapijs/hapi/blob/master/API.md).
+Files will always export an array of values (representing multiple API calls) or a single value (one API call).  When a hapi method takes more than one argument (not including a callback), a single value consists of an object whose keys are the names of the arguments and whose values are the intended argument values.  The format of the argument values come from the [hapi API](https://github.com/hapijs/hapi/blob/master/API.md) unless otherwise specified.
 
 For example, a file defining a new handler type (representing a call to `server.handler(name, method)`) would export an object of the format `{ name, method }`.
 
@@ -72,6 +75,8 @@ Here's the complete rundown of how files and directories are mapped to API calls
 
 #### Connections
 > [`server.connection(options)`](https://github.com/hapijs/hapi/blob/master/API.md#serverconnectionoptions)
+>
+> Note, this can only be used with plugins whose attributes specify `{ connections: false }`.
 
   - **`connections.js`** - export an array of `options`.
   - **`connections/index.js`** - export an array of `options`.
@@ -177,6 +182,20 @@ Here's the complete rundown of how files and directories are mapped to API calls
   - **`cookies.js`** - export an array of objects `{ name, options }`.
   - **`cookies/index.js`** - export an array of objects.
   - **`cookies/cookie-name.js`** - export an object.  The `name` will be assigned `'cookie-name'` from the filename if it isn't already specified.
+
+#### Route transforms (for [loveboat](https://github.com/devinivy/loveboat))
+> [`server.routeTransforms(transforms)`](https://github.com/devinivy/loveboat#serverroutetransformstransforms)
+
+  - **`route-transforms.js`** - export an array of `transforms`.
+  - **`route-transforms/index.js`** - export an array of `transforms`.
+  - **`route-transforms/transform-name.js`** - export `transforms`.  The `transform.name` will be assigned `'transform-name'` from the filename if it isn't already specified.
+
+#### Transformable routes (for [loveboat](https://github.com/devinivy/loveboat))
+> [`server.loveboat(routes)`](https://github.com/devinivy/loveboat#serverloveboatroutes-transforms-onlyspecified)
+
+  - **`routes-loveboat.js`** - export an array of `routes`.
+  - **`routes-loveboat/index.js`** - export an array of `routes`.
+  - **`routes-loveboat/[anything].js`** - export `routes`.
 
 #### Routes
 > [`server.route(options)`](https://github.com/hapijs/hapi/blob/master/API.md#serverrouteoptions)
