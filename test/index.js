@@ -216,7 +216,6 @@ describe('HauteCouture', () => {
                 done();
             });
         });
-
     });
 
     it('registers extensions in extensions/.', (done) => {
@@ -474,4 +473,120 @@ describe('HauteCouture', () => {
         });
     });
 
+    it('allows options to be used as a callback', (done, onCleanup) => {
+
+        onCleanup((next) => {
+
+            reset();
+            return next();
+        });
+
+        const opCbSrv = new Hapi.Server();
+        opCbSrv.connection();
+
+        const opCbPlugin = (server, options, next) => {
+
+            HauteCouture()(server, (err) => {
+
+                if (err) {
+                    return next(err);
+                }
+                next();
+            });
+        };
+
+        opCbPlugin.attributes = { name: 'no-options-plugin' };
+
+        opCbSrv.register(opCbPlugin, (err) => {
+
+            if (err) {
+                return done(err);
+            }
+
+            expect(opCbSrv.registrations['no-options-plugin']).to.exist();
+            done();
+        });
+    });
+
+    it('supports promises.', (done, onCleanup) => {
+
+        const prSrv = new Hapi.Server();
+        prSrv.connection();
+
+        const prPlugin = (server, options, next) => {
+
+            HauteCouture()(server, options)
+            .then(() => {
+
+                next();
+            })
+            .catch((err) => {
+
+                next(err);
+            });
+        };
+
+        prPlugin.attributes = { name: 'promise-plugin' };
+
+        prSrv.register(prPlugin, (err) => {
+
+            if (err) {
+                return done(err);
+            }
+
+            expect(bigServer.registrations.vision).to.exist();
+            done();
+        });
+    });
+
+    it('allows options, next to be optional.', (done, onCleanup) => {
+
+        const opSrv = new Hapi.Server();
+        opSrv.connection();
+
+        const opPlugin = (server, options, next) => {
+
+            HauteCouture()(server)
+            .then(() => {
+
+                next();
+            })
+            .catch((err) => {
+
+                next(err);
+            });
+        };
+
+        opPlugin.attributes = { name: 'no-options-no-callback-plugin' };
+
+        opSrv.register(opPlugin, (err) => {
+
+            if (err) {
+                return done(err);
+            }
+
+            expect(opSrv.registrations['no-options-no-callback-plugin']).to.exist();
+            done();
+        });
+    });
+
+    it('promise returns error in catch.', (done, onCleanup) => {
+
+        onCleanup((next) => {
+
+            reset();
+            return next();
+        });
+
+        const errSrv = new Hapi.Server();
+        errSrv.connection();
+
+        HauteCouture(`${__dirname}/closet/bad-plugin`)(errSrv)
+        .then(Hoek.ignore)
+        .catch((err) => {
+
+            expect(err).to.exist();
+            done();
+        });
+    });
 });
