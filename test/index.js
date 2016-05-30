@@ -473,13 +473,7 @@ describe('HauteCouture', () => {
         });
     });
 
-    it('allows options to be used as a callback', (done, onCleanup) => {
-
-        onCleanup((next) => {
-
-            reset();
-            return next();
-        });
+    it('allows options to be used as a callback', (done) => {
 
         const opCbSrv = new Hapi.Server();
         opCbSrv.connection();
@@ -508,7 +502,7 @@ describe('HauteCouture', () => {
         });
     });
 
-    it('supports promises.', (done, onCleanup) => {
+    it('supports promises.', (done) => {
 
         const prSrv = new Hapi.Server();
         prSrv.connection();
@@ -539,7 +533,7 @@ describe('HauteCouture', () => {
         });
     });
 
-    it('allows options, next to be optional.', (done, onCleanup) => {
+    it('allows options, next to be optional.', (done) => {
 
         const opSrv = new Hapi.Server();
         opSrv.connection();
@@ -570,22 +564,15 @@ describe('HauteCouture', () => {
         });
     });
 
-    it('promise returns error in catch.', (done, onCleanup) => {
-
-        onCleanup((next) => {
-
-            reset();
-            return next();
-        });
+    it('promise returns error in catch.', (done) => {
 
         const errSrv = new Hapi.Server();
         errSrv.connection();
 
         HauteCouture(`${__dirname}/closet/bad-plugin`)(errSrv)
-        .then(Hoek.ignore)
         .catch((err) => {
 
-            expect(err).to.exist();
+            expect(err.message).to.equal('Ya blew it!');
             done();
         });
     });
