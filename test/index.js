@@ -475,47 +475,47 @@ describe('HauteCouture', () => {
 
     it('allows options to be optional', (done) => {
 
-        const opCbSrv = new Hapi.Server();
-        opCbSrv.connection();
+        const server = new Hapi.Server();
+        server.connection();
 
-        const opCbPlugin = (server, options, next) => {
+        const plugin = (srv, options, next) => {
 
-            HauteCouture(`${__dirname}/closet/specific`)(server, (err) => {
+            HauteCouture(`${__dirname}/closet/specific`)(srv, (err) => {
 
                 if (err) {
                     return next(err);
                 }
 
-                expect(opCbSrv.registrations['specific-sub-plugin']).to.exist();
+                expect(srv.registrations['specific-sub-plugin']).to.exist();
 
                 next();
             });
         };
 
-        opCbPlugin.attributes = { name: 'no-options-plugin' };
+        plugin.attributes = { name: 'no-options-plugin' };
 
-        opCbSrv.register(opCbPlugin, (err) => {
+        server.register(plugin, (err) => {
 
             if (err) {
                 return done(err);
             }
 
-            expect(opCbSrv.registrations['no-options-plugin']).to.exist();
+            expect(server.registrations['no-options-plugin']).to.exist();
             done();
         });
     });
 
     it('supports promises.', (done) => {
 
-        const prSrv = new Hapi.Server();
-        prSrv.connection();
+        const server = new Hapi.Server();
+        server.connection();
 
-        const prPlugin = (server, options, next) => {
+        const plugin = (srv, options, next) => {
 
-            HauteCouture(`${__dirname}/closet/specific`)(server, options)
+            HauteCouture(`${__dirname}/closet/specific`)(srv, options)
             .then(() => {
 
-                expect(prSrv.registrations['specific-sub-plugin']).to.exist();
+                expect(srv.registrations['specific-sub-plugin']).to.exist();
                 next();
             })
             .catch((err) => {
@@ -524,30 +524,30 @@ describe('HauteCouture', () => {
             });
         };
 
-        prPlugin.attributes = { name: 'promise-plugin' };
+        plugin.attributes = { name: 'promise-plugin' };
 
-        prSrv.register(prPlugin, (err) => {
+        server.register(plugin, (err) => {
 
             if (err) {
                 return done(err);
             }
 
-            expect(prSrv.registrations['promise-plugin']).to.exist();
+            expect(server.registrations['promise-plugin']).to.exist();
             done();
         });
     });
 
     it('allows options, next to be optional.', (done) => {
 
-        const opSrv = new Hapi.Server();
-        opSrv.connection();
+        const server = new Hapi.Server();
+        server.connection();
 
-        const opPlugin = (server, options, next) => {
+        const plugin = (srv, options, next) => {
 
-            HauteCouture(`${__dirname}/closet/specific`)(server)
+            HauteCouture(`${__dirname}/closet/specific`)(srv)
             .then(() => {
 
-                expect(opSrv.registrations['specific-sub-plugin']).to.exist();
+                expect(srv.registrations['specific-sub-plugin']).to.exist();
                 next();
             })
             .catch((err) => {
@@ -556,25 +556,25 @@ describe('HauteCouture', () => {
             });
         };
 
-        opPlugin.attributes = { name: 'no-options-no-callback-plugin' };
+        plugin.attributes = { name: 'no-options-no-callback-plugin' };
 
-        opSrv.register(opPlugin, (err) => {
+        server.register(plugin, (err) => {
 
             if (err) {
                 return done(err);
             }
 
-            expect(opSrv.registrations['no-options-no-callback-plugin']).to.exist();
+            expect(server.registrations['no-options-no-callback-plugin']).to.exist();
             done();
         });
     });
 
     it('promise returns error in catch.', (done) => {
 
-        const errSrv = new Hapi.Server();
-        errSrv.connection();
+        const server = new Hapi.Server();
+        server.connection();
 
-        HauteCouture(`${__dirname}/closet/bad-plugin`)(errSrv)
+        HauteCouture(`${__dirname}/closet/bad-plugin`)(server)
         .then(() => {
 
             return done(new Error('Shouldn\'t make it here!'));
