@@ -473,18 +473,21 @@ describe('HauteCouture', () => {
         });
     });
 
-    it('allows options to be used as a callback', (done) => {
+    it('allows options to be optional', (done) => {
 
         const opCbSrv = new Hapi.Server();
         opCbSrv.connection();
 
         const opCbPlugin = (server, options, next) => {
 
-            HauteCouture()(server, (err) => {
+            HauteCouture(`${__dirname}/closet/specific`)(server, (err) => {
 
                 if (err) {
                     return next(err);
                 }
+
+                expect(opCbSrv.registrations['specific-sub-plugin']).to.exist();
+
                 next();
             });
         };
@@ -509,9 +512,10 @@ describe('HauteCouture', () => {
 
         const prPlugin = (server, options, next) => {
 
-            HauteCouture()(server, options)
+            HauteCouture(`${__dirname}/closet/specific`)(server, options)
             .then(() => {
 
+                expect(prSrv.registrations['specific-sub-plugin']).to.exist();
                 next();
             })
             .catch((err) => {
@@ -528,7 +532,7 @@ describe('HauteCouture', () => {
                 return done(err);
             }
 
-            expect(bigServer.registrations.vision).to.exist();
+            expect(prSrv.registrations['promise-plugin']).to.exist();
             done();
         });
     });
@@ -540,9 +544,10 @@ describe('HauteCouture', () => {
 
         const opPlugin = (server, options, next) => {
 
-            HauteCouture()(server)
+            HauteCouture(`${__dirname}/closet/specific`)(server)
             .then(() => {
 
+                expect(opSrv.registrations['specific-sub-plugin']).to.exist();
                 next();
             })
             .catch((err) => {
@@ -570,6 +575,10 @@ describe('HauteCouture', () => {
         errSrv.connection();
 
         HauteCouture(`${__dirname}/closet/bad-plugin`)(errSrv)
+        .then(() => {
+
+            return done(new Error('Shouldn\'t make it here!'));
+        })
         .catch((err) => {
 
             expect(err.message).to.equal('Ya blew it!');
