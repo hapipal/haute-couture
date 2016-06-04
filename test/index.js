@@ -216,7 +216,6 @@ describe('HauteCouture', () => {
                 done();
             });
         });
-
     });
 
     it('registers extensions in extensions/.', (done) => {
@@ -474,4 +473,116 @@ describe('HauteCouture', () => {
         });
     });
 
+    it('allows options to be optional', (done) => {
+
+        const server = new Hapi.Server();
+        server.connection();
+
+        const plugin = (srv, options, next) => {
+
+            HauteCouture(`${__dirname}/closet/specific`)(srv, (err) => {
+
+                if (err) {
+                    return next(err);
+                }
+
+                expect(srv.registrations['specific-sub-plugin']).to.exist();
+
+                next();
+            });
+        };
+
+        plugin.attributes = { name: 'no-options-plugin' };
+
+        server.register(plugin, (err) => {
+
+            if (err) {
+                return done(err);
+            }
+
+            expect(server.registrations['no-options-plugin']).to.exist();
+            done();
+        });
+    });
+
+    it('supports promises.', (done) => {
+
+        const server = new Hapi.Server();
+        server.connection();
+
+        const plugin = (srv, options, next) => {
+
+            HauteCouture(`${__dirname}/closet/specific`)(srv, options)
+            .then(() => {
+
+                expect(srv.registrations['specific-sub-plugin']).to.exist();
+                next();
+            })
+            .catch((err) => {
+
+                next(err);
+            });
+        };
+
+        plugin.attributes = { name: 'promise-plugin' };
+
+        server.register(plugin, (err) => {
+
+            if (err) {
+                return done(err);
+            }
+
+            expect(server.registrations['promise-plugin']).to.exist();
+            done();
+        });
+    });
+
+    it('allows options, next to be optional.', (done) => {
+
+        const server = new Hapi.Server();
+        server.connection();
+
+        const plugin = (srv, options, next) => {
+
+            HauteCouture(`${__dirname}/closet/specific`)(srv)
+            .then(() => {
+
+                expect(srv.registrations['specific-sub-plugin']).to.exist();
+                next();
+            })
+            .catch((err) => {
+
+                next(err);
+            });
+        };
+
+        plugin.attributes = { name: 'no-options-no-callback-plugin' };
+
+        server.register(plugin, (err) => {
+
+            if (err) {
+                return done(err);
+            }
+
+            expect(server.registrations['no-options-no-callback-plugin']).to.exist();
+            done();
+        });
+    });
+
+    it('promise returns error in catch.', (done) => {
+
+        const server = new Hapi.Server();
+        server.connection();
+
+        HauteCouture(`${__dirname}/closet/bad-plugin`)(server)
+        .then(() => {
+
+            return done(new Error('Shouldn\'t make it here!'));
+        })
+        .catch((err) => {
+
+            expect(err.message).to.equal('Ya blew it!');
+            done();
+        });
+    });
 });
