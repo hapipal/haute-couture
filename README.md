@@ -87,6 +87,7 @@ Here's the complete rundown of how files and directories are mapped to API calls
 
   - **`plugins.js`** - export an array of objects `{ plugins, options }`.
   - **`plugins/index.js`** - export an array of objects.
+  - **`plugins/plugin-name.js`** - export an object.
 
 #### Dependencies
 > [`server.dependency(dependencies, [after])`](https://github.com/hapijs/hapi/blob/master/API.md#serverdependencydependencies-after)

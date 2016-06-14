@@ -1,5 +1,6 @@
 'use strict';
 
+const Dogwater = require('dogwater');
 const Loveboat = require('loveboat');
 const Vision = require('vision');
 
@@ -14,6 +15,15 @@ internals.plugin = (srv, options, next) => {
 internals.plugin.attributes = { name: 'test-dep' };
 
 module.exports = [
+    {
+        plugins: [{
+            register: Dogwater,
+            options: {
+                adapters: { myAdapter: {} },
+                connections: { simple: { adapter: 'myAdapter' } }
+            }
+        }]
+    },
     {
         plugins: [Vision, Loveboat]
     },

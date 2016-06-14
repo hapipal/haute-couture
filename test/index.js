@@ -84,6 +84,7 @@ describe('HauteCouture', () => {
         reset();
         notUsing([
             'connections',
+            'models/bad-arr-model.js',
             'decorations/server.bad.test-dec.js',
             'route-transforms/bad-arr-transform.js'
         ]);
@@ -130,6 +131,7 @@ describe('HauteCouture', () => {
 
     it('registers plugins in plugins.js.', (done) => {
 
+        expect(bigServer.registrations.dogwater).to.exist();
         expect(bigServer.registrations.vision).to.exist();
         expect(bigServer.registrations.loveboat).to.exist();
         expect(bigServer.registrations['test-dep']).to.exist();
@@ -339,6 +341,15 @@ describe('HauteCouture', () => {
         done();
     });
 
+    it('defines dogwater models in models/.', (done) => {
+
+        const collections = bigServer.collections(true);
+        expect(collections).to.have.length(2);
+        expect(collections['my-named-model']).to.exist();
+        expect(collections['test-model']).to.exist();
+        done();
+    });
+
     it('defines routes in routes/.', (done) => {
 
         expect(bigServer.lookup('my-id-route')).to.exist();
@@ -428,6 +439,31 @@ describe('HauteCouture', () => {
 
             server.register(Closet, Hoek.ignore);
         }).to.throw(/\"name\" is required/);
+
+        done();
+    });
+
+    it('does not apply filename to dogwater models in array.', (done, onCleanup) => {
+
+        onCleanup((next) => {
+
+            reset();
+            return next();
+        });
+
+        const server = new Hapi.Server();
+        server.connection();
+
+        using([
+            'plugins.js',
+            'models',
+            'models/bad-arr-model.js'
+        ]);
+
+        expect(() => {
+
+            server.register(Closet, Hoek.ignore);
+        }).to.throw(/\"identity\" is required/);
 
         done();
     });
