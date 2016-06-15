@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "lab -a code -t 100 -L",
+    "test": "lab -a code -t 100 && lab -dL",
     "coveralls": "lab -r lcov | coveralls"
   },
   "repository": {
