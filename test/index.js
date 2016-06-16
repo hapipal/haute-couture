@@ -174,6 +174,30 @@ describe('HauteCouture', () => {
 
     });
 
+    it('registers seneca plugins via chairo in seneca-plugins/.', (done) => {
+
+        expect(bigServer.seneca.export('my-named-plugin')).to.exist();
+        expect(bigServer.seneca.export('echo')).to.exist();
+        done();
+    });
+
+    it('registers chairo actions in action-methods/.', (done) => {
+
+        bigServer.methods.myNamedAction({ vals: [1, 3] }, (err, resultOne) => {
+
+            expect(err).to.not.exist();
+            expect(resultOne).to.equal({ average: 2 });
+
+            bigServer.methods.testAction({ vals: [2, 10] }, (err, resultTwo) => {
+
+                expect(err).to.not.exist();
+                expect(resultTwo).to.equal({ result: 20 });
+                done();
+            });
+        });
+
+    });
+
     it('registers view manager in view-manager.js.', (done) => {
 
         expect(bigServer.app.realm.plugins.vision.manager).to.exist();

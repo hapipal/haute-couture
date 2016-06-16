@@ -1,5 +1,6 @@
 'use strict';
 
+const Chairo = require('chairo');
 const Dogwater = require('dogwater');
 const Loveboat = require('loveboat');
 const Vision = require('vision');
@@ -22,6 +23,12 @@ module.exports = [
                 adapters: { myAdapter: {} },
                 connections: { simple: { adapter: 'myAdapter' } }
             }
+        }]
+    },
+    {
+        plugins: [{
+            register: Chairo,
+            options: { web: false }
         }]
     },
     {
