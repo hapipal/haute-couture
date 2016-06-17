@@ -129,13 +129,23 @@ describe('HauteCouture', () => {
         });
     });
 
-    it('registers plugins in plugins.js.', (done) => {
+    it('registers plugins in plugins/.', (done) => {
 
         expect(bigServer.registrations.dogwater).to.exist();
+
+        // plugins specified, but not an array and no register
+        expect(bigServer.registrations.chairo).to.exist();
+
+        // No plugins specified
         expect(bigServer.registrations.vision).to.exist();
+
+        // plugins specified as an array
         expect(bigServer.registrations.loveboat).to.exist();
+
+        // Passes options
         expect(bigServer.registrations['test-dep']).to.exist();
         expect(bigServer.app.sawPluginOptions).to.equal('/options');
+
         done();
     });
 
@@ -454,7 +464,8 @@ describe('HauteCouture', () => {
         server.connection();
 
         using([
-            'plugins.js',
+            'plugins',
+            'plugins/my-loveboat.js',
             'route-transforms',
             'route-transforms/bad-arr-transform.js'
         ]);
@@ -479,7 +490,8 @@ describe('HauteCouture', () => {
         server.connection();
 
         using([
-            'plugins.js',
+            'plugins',
+            'plugins/my-dogwater.js',
             'models',
             'models/bad-arr-model.js'
         ]);
