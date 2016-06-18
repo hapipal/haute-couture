@@ -15,7 +15,7 @@ To name a few,
  - You can teach haute-couture how to use your own custom server decorations.
  - You can still write all the custom plugin code you desire.
 
-Again, **haute-couture** understands 19 hapi plugin methods– those for server methods, custom handler types, server/request decorations, request lifecycle extensions, route configuration, cookie definitions, [loveboat](https://github.com/devinivy/loveboat) routes and transforms, [vision](https://github.com/hapijs/vision) view managers, and plenty more.  It can also be used as an alternative to [glue](https://github.com/hapijs/glue) for composing a server.
+Again, **haute-couture** understands 22 hapi plugin methods– those for server methods, custom handler types, server/request decorations, request lifecycle extensions, route configuration, cookie definitions, [loveboat](https://github.com/devinivy/loveboat) routes and transforms, [vision](https://github.com/hapijs/vision) view managers, [loveboat](https://github.com/devinivy/dogwater) model definitions, [vision](https://github.com/hapijs/chairo) action-methods, and plenty more.  It can also be used as an alternative to [glue](https://github.com/hapijs/glue) for composing a server.
 
 ## Usage
 This library is actually not used as a hapi plugin.  Think of it instead as a useful subroutine of any hapi plugin.
@@ -73,6 +73,14 @@ Lastly, files can always export a function with signature `function(server, opti
 
 Here's the complete rundown of how files and directories are mapped to API calls.  The order here reflects the order in which the calls would be made.
 
+> **But first, an important note.**
+>
+> Below you'll find that this library can be used in conjunction with several hapi plugins.  There is no way to properly express an "optional peer dependency" using npm, so here I am to tell you which versions of those plugins work with haute-couture.
+  - chairo - ≥1 and <3
+  - dogwater - 2.x.x
+  - loveboat - 1.x.x
+  - vision - ≥2 and <5
+
 #### Connections
 > [`server.connection(options)`](https://github.com/hapijs/hapi/blob/master/API.md#serverconnectionoptions)
 >
@@ -87,6 +95,7 @@ Here's the complete rundown of how files and directories are mapped to API calls
 
   - **`plugins.js`** - export an array of objects `{ plugins, options }`.
   - **`plugins/index.js`** - export an array of objects.
+  - **`plugins/plugin-name.js`** - export an object.  If a plugin isn't specified in `plugins` it will be `require()`d using the filename.
 
 #### Dependencies
 > [`server.dependency(dependencies, [after])`](https://github.com/hapijs/hapi/blob/master/API.md#serverdependencydependencies-after)
@@ -108,6 +117,20 @@ Here's the complete rundown of how files and directories are mapped to API calls
   - **`methods.js`** - export an array of objects `{ name, method, options }`.
   - **`methods/index.js`** - export an array of objects.
   - **`methods/method-name.js`** - export an object.  The `name` will be assigned `'methodName'` camel-cased from the filename if it isn't already specified.
+
+#### Seneca plugins (for [chairo](https://github.com/hapijs/chairo))
+> [`server.seneca.use(plugin, [options])`](http://senecajs.org/api/#use-module-options-)
+
+  - **`seneca-plugins.js`** - export an array of objects `{ plugin, options }`.
+  - **`seneca-plugins/index.js`** - export an array of objects.
+  - **`seneca-plugins/some-plugin-name.js`** - export an object.  The `plugin` will be assigned `'some-plugin-name'` from the filename if a plugin isn't already provided.
+
+#### Action-methods (for [chairo](https://github.com/hapijs/chairo))
+> [`server.action(name, pattern, [options])`](https://github.com/hapijs/chairo#serveractionname-pattern-options)
+
+  - **`action-methods.js`** - export an array of objects `{ name, pattern, options }`.
+  - **`action-methods/index.js`** - export an array of objects.
+  - **`action-methods/method-name.js`** - export an object.  The `name` will be assigned `'methodName'` camel-cased from the filename if it isn't already specified.
 
 #### View manager (for [vision](https://github.com/hapijs/vision))
 > [`server.views(options)`](https://github.com/hapijs/vision/blob/master/API.md#serverviewsoptions)
@@ -197,6 +220,13 @@ Here's the complete rundown of how files and directories are mapped to API calls
   - **`routes-loveboat/index.js`** - export an array of `routes`.
   - **`routes-loveboat/[anything].js`** - export `routes`.
 
+#### Model definitions (for [dogwater](https://github.com/devinivy/dogwater))
+> [`server.dogwater(models)`](https://github.com/devinivy/dogwater#serverdogwaterconfig)
+
+  - **`models.js`** - export an array of `models`.
+  - **`models/index.js`** - export an array of `models`.
+  - **`models/model-identity.js`** - export `models`.  If `models` is a single model definition, the model's `identity` will be assigned `'model-identity'` from the filename if it isn't already specified.  The filename could just as easily represent a group of models (rather than an identity) and the file could export an array of model configs.
+
 #### Routes
 > [`server.route(options)`](https://github.com/hapijs/hapi/blob/master/API.md#serverrouteoptions)
 
@@ -210,7 +240,7 @@ Here's the complete rundown of how files and directories are mapped to API calls
   - `dirname` - an absolute directory path in which to look for the files and directories described [above](#files-and-directories).  It defaults to the directory path of the caller.
   - `manifestExtras` - an array specifying additional items to append to the **[haute](https://github.com/devinivy/haute)** manifest that is used to map directory structure to hapi plugin API calls.
 
-Returns a function with the signature `function(server, [options], next)`, identical in meaning to the signature of a [hapi plugin](https://github.com/hapijs/hapi/blob/master/API.md#plugins).  Invoking the function makes hapi plugin API calls on `server` as described [above](#files-and-directories).  Typically `server` will be a server object passed to a plugin and `options` will be plugin options.  However, `server` could be any hapi server object (such as the root server) and `options` are not required.
+Returns a function with the signature `function(server, [options], [next])`, identical in meaning to the signature of a [hapi plugin](https://github.com/hapijs/hapi/blob/master/API.md#plugins).  Invoking the function makes hapi plugin API calls on `server` as described [above](#files-and-directories).  Typically `server` will be a server object passed to a plugin and `options` will be plugin options.  However, `server` could be any hapi server object (such as the root server) and `options` are not required.  If no `next` callback is provided, a `Promise` is returned.
 
 ### The hapi [haute](https://github.com/devinivy/haute) manifest
 The base **haute** manifest for **hapi** is located at [`lib/manifest.js`](lib/manifest.js).  It is considered part of the public API, and therefore can safely be required in other projects as `require('haute-couture/lib/manifest')`.

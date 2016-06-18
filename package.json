@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "lab -a code -t 100 -L",
+    "test": "lab -a code -t 100 && lab -dlL",
     "coveralls": "lab -r lcov | coveralls"
   },
   "repository": {
@@ -21,7 +21,9 @@
     "directory",
     "structure",
     "utility",
-    "loveboat"
+    "loveboat",
+    "dogwater",
+    "chairo"
   ],
   "author": "Devin Ivy <devin@bigroomstudios.com>",
   "license": "MIT",
@@ -35,18 +37,21 @@
     "parent-module": "0.1.x"
   },
   "peerDependencies": {
-    "hapi": ">=10 <14",
-    "loveboat": "1.x.x"
+    "hapi": ">=10 <14"
   },
   "devDependencies": {
     "catbox-memory": "2.x.x",
+    "chairo": "2.x.x",
     "code": "3.x.x",
     "coveralls": "2.x.x",
+    "dogwater": "2.x.x",
     "glob": "7.x.x",
     "hapi": "13.x.x",
     "lab": "10.x.x",
     "loveboat": "1.x.x",
     "renamer": "0.5.x",
-    "vision": "4.x.x"
+    "seneca-echo": "0.3.x",
+    "vision": "4.x.x",
+    "waterline": "0.12.x"
   }
 }

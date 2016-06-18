@@ -84,6 +84,7 @@ describe('HauteCouture', () => {
         reset();
         notUsing([
             'connections',
+            'models/bad-arr-model.js',
             'decorations/server.bad.test-dec.js',
             'route-transforms/bad-arr-transform.js'
         ]);
@@ -128,12 +129,23 @@ describe('HauteCouture', () => {
         });
     });
 
-    it('registers plugins in plugins.js.', (done) => {
+    it('registers plugins in plugins/.', (done) => {
 
+        expect(bigServer.registrations.dogwater).to.exist();
+
+        // plugins specified, but not an array and no register
+        expect(bigServer.registrations.chairo).to.exist();
+
+        // No plugins specified
         expect(bigServer.registrations.vision).to.exist();
+
+        // plugins specified as an array
         expect(bigServer.registrations.loveboat).to.exist();
+
+        // Passes options
         expect(bigServer.registrations['test-dep']).to.exist();
         expect(bigServer.app.sawPluginOptions).to.equal('/options');
+
         done();
     });
 
@@ -166,6 +178,30 @@ describe('HauteCouture', () => {
 
                 expect(err).to.not.exist();
                 expect(resultTwo).to.equal('test-method');
+                done();
+            });
+        });
+
+    });
+
+    it('registers seneca plugins via chairo in seneca-plugins/.', (done) => {
+
+        expect(bigServer.seneca.export('my-named-plugin')).to.exist();
+        expect(bigServer.seneca.export('echo')).to.exist();
+        done();
+    });
+
+    it('registers chairo actions in action-methods/.', (done) => {
+
+        bigServer.methods.myNamedAction({ vals: [1, 3] }, (err, resultOne) => {
+
+            expect(err).to.not.exist();
+            expect(resultOne).to.equal({ average: 2 });
+
+            bigServer.methods.testAction({ vals: [2, 10] }, (err, resultTwo) => {
+
+                expect(err).to.not.exist();
+                expect(resultTwo).to.equal({ result: 20 });
                 done();
             });
         });
@@ -339,6 +375,15 @@ describe('HauteCouture', () => {
         done();
     });
 
+    it('defines dogwater models in models/.', (done) => {
+
+        const collections = bigServer.collections(true);
+        expect(collections).to.have.length(2);
+        expect(collections['my-named-model']).to.exist();
+        expect(collections['test-model']).to.exist();
+        done();
+    });
+
     it('defines routes in routes/.', (done) => {
 
         expect(bigServer.lookup('my-id-route')).to.exist();
@@ -419,7 +464,8 @@ describe('HauteCouture', () => {
         server.connection();
 
         using([
-            'plugins.js',
+            'plugins',
+            'plugins/my-loveboat.js',
             'route-transforms',
             'route-transforms/bad-arr-transform.js'
         ]);
@@ -428,6 +474,32 @@ describe('HauteCouture', () => {
 
             server.register(Closet, Hoek.ignore);
         }).to.throw(/\"name\" is required/);
+
+        done();
+    });
+
+    it('does not apply filename to dogwater models in array.', (done, onCleanup) => {
+
+        onCleanup((next) => {
+
+            reset();
+            return next();
+        });
+
+        const server = new Hapi.Server();
+        server.connection();
+
+        using([
+            'plugins',
+            'plugins/my-dogwater.js',
+            'models',
+            'models/bad-arr-model.js'
+        ]);
+
+        expect(() => {
+
+            server.register(Closet, Hoek.ignore);
+        }).to.throw(/\"identity\" is required/);
 
         done();
     });
