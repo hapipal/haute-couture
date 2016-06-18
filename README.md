@@ -73,6 +73,14 @@ Lastly, files can always export a function with signature `function(server, opti
 
 Here's the complete rundown of how files and directories are mapped to API calls.  The order here reflects the order in which the calls would be made.
 
+> **But first, an important note.**
+>
+> Below you'll find that this library can be used in conjunction with several hapi plugins.  There is no way to properly express an "optional peer dependency" using npm, so here I am to tell you which versions of those plugins work with haute-couture.
+  - chairo - ≥1 and <3
+  - dogwater - 2.x.x
+  - loveboat - 1.x.x
+  - vision - ≥2 and <5
+
 #### Connections
 > [`server.connection(options)`](https://github.com/hapijs/hapi/blob/master/API.md#serverconnectionoptions)
 >
