@@ -1,6 +1,6 @@
 {
   "name": "haute-couture",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "File-based hapi plugin composer",
   "main": "lib/index.js",
   "directories": {
