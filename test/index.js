@@ -4,6 +4,7 @@
 
 const Lab = require('lab');
 const Code = require('code');
+const Domain = require('domain');
 const Hapi = require('hapi');
 const Hoek = require('hoek');
 const Renamer = require('renamer');
@@ -470,12 +471,15 @@ describe('HauteCouture', () => {
             'route-transforms/bad-arr-transform.js'
         ]);
 
-        expect(() => {
+        const domain = Domain.create();
 
-            server.register(Closet, Hoek.ignore);
-        }).to.throw(/\"name\" is required/);
+        domain.on('error', (err) => {
 
-        done();
+            expect(err.message).to.match(/\"name\" is required/);
+            done();
+        });
+
+        domain.run(() => server.register(Closet, Hoek.ignore));
     });
 
     it('does not apply filename to dogwater models in array.', (done, onCleanup) => {
@@ -496,12 +500,15 @@ describe('HauteCouture', () => {
             'models/bad-arr-model.js'
         ]);
 
-        expect(() => {
+        const domain = Domain.create();
 
-            server.register(Closet, Hoek.ignore);
-        }).to.throw(/\"identity\" is required/);
+        domain.on('error', (err) => {
 
-        done();
+            expect(err.message).to.match(/\"identity\" is required/);
+            done();
+        });
+
+        domain.run(() => server.register(Closet, Hoek.ignore));
     });
 
     it('accepts additional manifest items.', (done, onCleanup) => {
