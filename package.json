@@ -37,7 +37,7 @@
     "parent-module": "0.1.x"
   },
   "peerDependencies": {
-    "hapi": ">=10 <15"
+    "hapi": ">=10 <16"
   },
   "devDependencies": {
     "catbox-memory": "2.x.x",
@@ -46,8 +46,8 @@
     "coveralls": "2.x.x",
     "dogwater": ">=2.1.0 <3",
     "glob": "7.x.x",
-    "hapi": "14.x.x",
-    "lab": "10.x.x",
+    "hapi": "15.x.x",
+    "lab": "11.x.x",
     "loveboat": ">=1.3.0 <2",
     "renamer": "0.5.x",
     "seneca-echo": "0.3.x",
