@@ -37,8 +37,8 @@ describe('HauteCouture', () => {
 
         Object.keys(module.constructor._pathCache).forEach((key) => {
 
-	        delete module.constructor._pathCache[key];
-	    });
+            delete module.constructor._pathCache[key];
+        });
     };
 
     const makeAbsolute = (file) => `${__dirname}/closet/${file}`;
