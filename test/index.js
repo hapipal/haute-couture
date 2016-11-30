@@ -30,6 +30,15 @@ describe('HauteCouture', () => {
 
             delete require.cache[key];
         });
+
+        // It's dirty, but without this requiring a missing module that was
+        // previously available will error with ENOENT rather than MODULE_NOT_FOUND,
+        // which isn't what haute would expect.
+
+        Object.keys(module.constructor._pathCache).forEach((key) => {
+
+	        delete module.constructor._pathCache[key];
+	    });
     };
 
     const makeAbsolute = (file) => `${__dirname}/closet/${file}`;
@@ -168,7 +177,7 @@ describe('HauteCouture', () => {
         done();
     });
 
-    it('registers server methods in methods/.', (done) => {
+    it('registers server methods in methods/, respecting bound context.', (done) => {
 
         bigServer.methods.myNamedMethod((err, resultOne) => {
 
@@ -179,10 +188,15 @@ describe('HauteCouture', () => {
 
                 expect(err).to.not.exist();
                 expect(resultTwo).to.equal('test-method');
-                done();
+
+                bigServer.methods.bindMethod((err, resultThree) => {
+
+                    expect(err).to.not.exist();
+                    expect(resultThree).to.equal({ someContext: true });
+                    done();
+                });
             });
         });
-
     });
 
     it('registers seneca plugins via chairo in seneca-plugins/.', (done) => {
@@ -448,7 +462,7 @@ describe('HauteCouture', () => {
         expect(() => {
 
             server.register(Closet, Hoek.ignore);
-        }).to.throw('Missing decoration property name');
+        }).to.throw(/Missing decoration property name/);
 
         done();
     });
@@ -660,7 +674,7 @@ describe('HauteCouture', () => {
         })
         .catch((err) => {
 
-            expect(err.message).to.equal('Ya blew it!');
+            expect(err.message).to.endWith('Ya blew it!');
             done();
         });
     });

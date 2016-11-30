@@ -41,8 +41,8 @@
   },
   "devDependencies": {
     "catbox-memory": "2.x.x",
-    "chairo": "2.x.x",
-    "code": "3.x.x",
+    "chairo": "3.x.x",
+    "code": "4.x.x",
     "coveralls": "2.x.x",
     "dogwater": ">=2.1.0 <3",
     "glob": "7.x.x",
