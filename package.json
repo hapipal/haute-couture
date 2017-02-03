@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "lab -a code -t 100 && lab -dlL",
+    "test": "lab -a code -t 100 -I '__core-js_shared__' && lab -dlL",
     "coveralls": "lab -r lcov | coveralls"
   },
   "repository": {
@@ -50,7 +50,9 @@
     "lab": "11.x.x",
     "loveboat": ">=1.5.0 <2",
     "renamer": "0.5.x",
+    "schwifty": "1.x.x",
     "seneca-echo": "0.3.x",
+    "sqlite3": "3.1.x",
     "vision": "4.x.x",
     "waterline": "0.12.x"
   }

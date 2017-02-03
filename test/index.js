@@ -399,6 +399,14 @@ describe('HauteCouture', () => {
         done();
     });
 
+    it('defines schwifty models in schwifty-models/.', (done) => {
+
+        const models = bigServer.models(true);
+        expect(models).to.have.length(1);
+        expect(models.MyNamedModel).to.exist();
+        done();
+    });
+
     it('defines routes in routes/.', (done) => {
 
         expect(bigServer.lookup('my-id-route')).to.exist();

@@ -15,7 +15,7 @@ To name a few,
  - You can teach haute-couture how to use your own custom server decorations.
  - You can still write all the custom plugin code you desire.
 
-Again, **haute-couture** understands 22 hapi plugin methods– those for server methods, custom handler types, server/request decorations, request lifecycle extensions, route configuration, cookie definitions, [loveboat](https://github.com/devinivy/loveboat) routes and transforms, [vision](https://github.com/hapijs/vision) view managers, [dogwater](https://github.com/devinivy/dogwater) model definitions, [chairo](https://github.com/hapijs/chairo) action-methods, and plenty more.  It can also be used as an alternative to [glue](https://github.com/hapijs/glue) for composing a server.
+Again, **haute-couture** understands 23 hapi plugin methods– those for server methods, custom handler types, server/request decorations, request lifecycle extensions, route configuration, cookie definitions, [loveboat](https://github.com/devinivy/loveboat) routes and transforms, [vision](https://github.com/hapijs/vision) view managers, [dogwater](https://github.com/devinivy/dogwater) and [schwifty](https://github.com/BigRoomStudios/schwifty) model definitions, [chairo](https://github.com/hapijs/chairo) action-methods, and plenty more.  It can also be used as an alternative to [glue](https://github.com/hapijs/glue) for composing a server.
 
 ## Usage
 This library is actually not used as a hapi plugin.  Think of it instead as a useful subroutine of any hapi plugin.
@@ -226,6 +226,12 @@ Here's the complete rundown of how files and directories are mapped to API calls
   - **`models.js`** - export an array of `models`.
   - **`models/index.js`** - export an array of `models`.
   - **`models/model-identity.js`** - export `models`.  If `models` is a single model definition, the model's `identity` will be assigned `'model-identity'` from the filename if it isn't already specified.  The filename could just as easily represent a group of models (rather than an identity) and the file could export an array of model configs.
+
+### Model definitions (for [schwifty](https://github.com/BigRoomStudios/schwifty))
+  > [`server.schwifty(config)`](https://github.com/BigRoomStudios/schwifty/blob/master/API.md#serverschwiftyconfig)
+
+  - **`schwifty-models/index.js`** - export an object containing `model` objects.
+  - **`schwifty-models/model-name.js`** - export `model` object.
 
 #### Routes
 > [`server.route(options)`](https://github.com/hapijs/hapi/blob/master/API.md#serverrouteoptions)
