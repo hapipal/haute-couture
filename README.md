@@ -230,8 +230,8 @@ Here's the complete rundown of how files and directories are mapped to API calls
 ### Model definitions (for [schwifty](https://github.com/BigRoomStudios/schwifty))
   > [`server.schwifty(config)`](https://github.com/BigRoomStudios/schwifty/blob/master/API.md#serverschwiftyconfig)
 
-  - **`models/index.js`** - export an object containing `model` objects.
-  - **`models/model-identity.js`** - export `model` obejct.
+  - **`schwifty-models/index.js`** - export an object containing `model` objects.
+  - **`schwifty-models/model-name.js`** - export `model` object.
 
 #### Routes
 > [`server.route(options)`](https://github.com/hapijs/hapi/blob/master/API.md#serverrouteoptions)
