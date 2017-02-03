@@ -230,7 +230,6 @@ Here's the complete rundown of how files and directories are mapped to API calls
 ### Model definitions (for [schwifty](https://github.com/BigRoomStudios/schwifty))
   > [`server.schwifty(config)`](https://github.com/BigRoomStudios/schwifty/blob/master/API.md#serverschwiftyconfig)
 
-  - **`models.js`** - export an array of `models`.
   - **`models/index.js`** - export an object containing `model` objects.
   - **`models/model-identity.js`** - export `model` obejct.
 
