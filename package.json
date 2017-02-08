@@ -47,12 +47,14 @@
     "dogwater": ">=2.3.0 <3",
     "glob": "7.x.x",
     "hapi": "16.x.x",
+    "knex": "0.12.x",
     "lab": "11.x.x",
     "loveboat": ">=1.5.0 <2",
+    "objection": "0.6.x",
     "renamer": "0.5.x",
     "schwifty": "1.x.x",
     "seneca-echo": "0.3.x",
-    "sqlite3": "3.1.x",
+    "sqlite3": "3.x.x",
     "vision": "4.x.x",
     "waterline": "0.12.x"
   }
