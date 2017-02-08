@@ -48,7 +48,7 @@
     "glob": "7.x.x",
     "hapi": "16.x.x",
     "knex": "0.12.x",
-    "lab": "11.x.x",
+    "lab": "12.x.x",
     "loveboat": ">=1.5.0 <2",
     "objection": "0.6.x",
     "renamer": "0.5.x",
