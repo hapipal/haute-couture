@@ -227,7 +227,7 @@ Here's the complete rundown of how files and directories are mapped to API calls
   - **`models/index.js`** - export an array of `models`.
   - **`models/model-identity.js`** - export `models`.  If `models` is a single model definition, the model's `identity` will be assigned `'model-identity'` from the filename if it isn't already specified.  The filename could just as easily represent a group of models (rather than an identity) and the file could export an array of model configs.
 
-### Model definitions (for [schwifty](https://github.com/BigRoomStudios/schwifty))
+#### Model definitions (for [schwifty](https://github.com/BigRoomStudios/schwifty))
   > [`server.schwifty(config)`](https://github.com/BigRoomStudios/schwifty/blob/master/API.md#serverschwiftyconfig)
 
   - **`schwifty-models/index.js`** - export an object containing `model` objects.
