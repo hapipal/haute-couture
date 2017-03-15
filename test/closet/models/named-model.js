@@ -1,6 +1,5 @@
 'use strict';
 
-module.exports = {
-    identity: 'my-named-model',
-    connection: 'simple'
-};
+const Model = require('schwifty').Model;
+
+module.exports = class MyNamedModel extends Model {};

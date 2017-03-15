@@ -95,7 +95,6 @@ describe('HauteCouture', () => {
         reset();
         notUsing([
             'connections',
-            'models/bad-arr-model.js',
             'decorations/server.bad.test-dec.js',
             'route-transforms/bad-arr-transform.js'
         ]);
@@ -162,8 +161,6 @@ describe('HauteCouture', () => {
     });
 
     it('registers plugins in plugins/.', (done) => {
-
-        expect(bigServer.registrations.dogwater).to.exist();
 
         // plugins specified, but not an array and no register
         expect(bigServer.registrations.chairo).to.exist();
@@ -412,15 +409,6 @@ describe('HauteCouture', () => {
         done();
     });
 
-    it('defines dogwater models in models/.', (done) => {
-
-        const collections = bigServer.collections(true);
-        expect(collections).to.have.length(2);
-        expect(collections['my-named-model']).to.exist();
-        expect(collections['test-model']).to.exist();
-        done();
-    });
-
     it('defines schwifty models in schwifty-models/.', (done) => {
 
         const models = bigServer.models(true);
@@ -520,35 +508,6 @@ describe('HauteCouture', () => {
         domain.on('error', (err) => {
 
             expect(err.message).to.match(/\"name\" is required/);
-            done();
-        });
-
-        domain.run(() => server.register(Closet, Hoek.ignore));
-    });
-
-    it('does not apply filename to dogwater models in array.', (done, onCleanup) => {
-
-        onCleanup((next) => {
-
-            reset();
-            return next();
-        });
-
-        const server = new Hapi.Server();
-        server.connection();
-
-        using([
-            'plugins',
-            'plugins/my-dogwater.js',
-            'models',
-            'models/bad-arr-model.js'
-        ]);
-
-        const domain = Domain.create();
-
-        domain.on('error', (err) => {
-
-            expect(err.message).to.match(/\"identity\" is required/);
             done();
         });
 
@@ -749,8 +708,7 @@ describe('HauteCouture', () => {
                     'auth.strategy() at auth/strategies',
                     'auth.default() at auth/default',
                     'state() at cookies',
-                    'dogwater() at models',
-                    'schwifty() at schwifty-models',
+                    'schwifty() at models',
                     'routeTransforms() at route-transforms',
                     'loveboat() at routes-loveboat',
                     'route() at routes'
@@ -955,6 +913,83 @@ describe('HauteCouture', () => {
                 expect(funkyIndex).to.be.below(indexOf('auth/default', manifest));
 
                 done();
+            });
+        });
+
+        describe('dogwater amendment', () => {
+
+            const plugin = HauteCouture(`${__dirname}/closet/amendments/dogwater`, {
+                add: [
+                    HauteCouture.manifest.dogwater
+                ]
+            });
+
+            plugin.attributes = { name: 'my-dogwater-plugin' };
+
+            it('defines dogwater models in models/.', (done, onCleanup) => {
+
+                onCleanup((next) => {
+
+                    reset();
+                    return next();
+                });
+
+                const server = new Hapi.Server();
+                server.connection();
+
+                notUsing([
+                    'amendments/dogwater/models/bad-arr-model.js'
+                ]);
+
+                server.register(plugin, (err) => {
+
+                    if (err) {
+                        return done(err);
+                    }
+
+                    server.initialize((err) => {
+
+                        if (err) {
+                            return done(err);
+                        }
+
+                        const collections = server.collections(true);
+                        expect(collections).to.have.length(2);
+                        expect(collections['my-named-model']).to.exist();
+                        expect(collections['test-model']).to.exist();
+                        done();
+                    });
+                });
+            });
+
+            it('does not apply filename to dogwater models in array.', (done, onCleanup) => {
+
+                onCleanup((next) => {
+
+                    reset();
+                    return next();
+                });
+
+                const server = new Hapi.Server();
+                server.connection();
+
+                using([
+                    'amendments',
+                    'amendments/dogwater',
+                    'amendments/dogwater/plugins.js',
+                    'amendments/dogwater/models',
+                    'amendments/dogwater/models/bad-arr-model.js'
+                ]);
+
+                const domain = Domain.create();
+
+                domain.on('error', (err) => {
+
+                    expect(err.message).to.match(/\"identity\" is required/);
+                    done();
+                });
+
+                domain.run(() => server.register(plugin, Hoek.ignore));
             });
         });
     });
