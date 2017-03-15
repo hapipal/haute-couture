@@ -48,6 +48,7 @@
     "dogwater": ">=2.3.0 <3",
     "glob": "7.x.x",
     "hapi": "16.x.x",
+    "joi": "10.x.x",
     "knex": "0.12.x",
     "lab": "13.x.x",
     "loveboat": ">=1.5.0 <2",

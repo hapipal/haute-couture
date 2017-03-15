@@ -6,6 +6,7 @@ const Lab = require('lab');
 const Code = require('code');
 const Domain = require('domain');
 const Hapi = require('hapi');
+const Joi = require('joi');
 const Hoek = require('hoek');
 const Renamer = require('renamer');
 const Glob = require('glob');
@@ -135,6 +136,27 @@ describe('HauteCouture', () => {
 
             // Just an example to show it used the caller's directory
             expect(server.registrations['specific-sub-plugin']).to.exist();
+            done();
+        });
+    });
+
+    it('allows one to amend the haute manifest.', (done) => {
+
+        const server = new Hapi.Server();
+        server.connection();
+
+        const amendments = { remove: ['plugins'] };
+        const plugin = HauteCouture(`${__dirname}/closet/specific`, amendments);
+        plugin.attributes = { name: 'my-specific-plugin' };
+
+        server.register(plugin, (err) => {
+
+            if (err) {
+                return done(err);
+            }
+
+            // From the prev test we can see this would have existed were the manifest not altered
+            expect(server.registrations['specific-sub-plugin']).to.not.exist();
             done();
         });
     });
@@ -684,6 +706,256 @@ describe('HauteCouture', () => {
 
             expect(err.message).to.endWith('Ya blew it!');
             done();
+        });
+    });
+
+    describe('manifest', () => {
+
+        const schema = Joi.array().items({
+            place: Joi.string().regex(/[\w\.]+/),
+            method: Joi.string().regex(/[\w\.]+/),
+            signature: Joi.array().items(Joi.string().regex(/^\[?\w+\]?$/)),
+            async: Joi.boolean(),
+            list: Joi.boolean(),
+            useFilename: Joi.func()
+        });
+
+        const summarize = (item) => `${item.method}() at ${item.place}`;
+
+        describe('create()', () => {
+
+            it('returns the default haute manifest.', (done) => {
+
+                const manifest = HauteCouture.manifest.create();
+                Joi.assert(manifest, schema);
+
+                const summary = manifest.map(summarize);
+                expect(summary).to.equal([
+                    'path() at path',
+                    'bind() at bind',
+                    'connection() at connections',
+                    'register() at plugins',
+                    'dependency() at dependencies',
+                    'cache.provision() at caches',
+                    'method() at methods',
+                    'seneca.use() at seneca-plugins',
+                    'action() at action-methods',
+                    'views() at view-manager',
+                    'decorate() at decorations',
+                    'handler() at handler-types',
+                    'ext() at extensions',
+                    'expose() at expose',
+                    'auth.scheme() at auth/schemes',
+                    'auth.strategy() at auth/strategies',
+                    'auth.default() at auth/default',
+                    'state() at cookies',
+                    'dogwater() at models',
+                    'schwifty() at schwifty-models',
+                    'routeTransforms() at route-transforms',
+                    'loveboat() at routes-loveboat',
+                    'route() at routes'
+                ]);
+
+                done();
+            });
+
+            it('removes single item from the manifest by place.', (done) => {
+
+                const defaultManifest = HauteCouture.manifest.create();
+                const manifest = HauteCouture.manifest.create({
+                    remove: 'routes'
+                });
+
+                expect(manifest.length).to.equal(defaultManifest.length - 1);
+
+                manifest.forEach((item, i) => {
+
+                    expect(item).to.equal(defaultManifest[i]);
+                });
+
+                done();
+            });
+
+            it('removes items from the manifest by place.', (done) => {
+
+                const defaultManifest = HauteCouture.manifest.create();
+                const manifest = HauteCouture.manifest.create({
+                    remove: ['routes-loveboat', 'routes']
+                });
+
+                expect(manifest.length).to.equal(defaultManifest.length - 2);
+
+                manifest.forEach((item, i) => {
+
+                    expect(item).to.equal(defaultManifest[i]);
+                });
+
+                done();
+            });
+
+            it('replaces items in the manifest by place.', (done) => {
+
+                const defaultManifest = HauteCouture.manifest.create();
+                const manifest = HauteCouture.manifest.create({
+                    add: [{
+                        place: 'routes',
+                        method: 'myRoute'
+                    }]
+                });
+
+                const allOthers = (item) => item.place !== 'routes';
+                expect(manifest.filter(allOthers)).to.equal(defaultManifest.filter(allOthers));
+
+                const routeItem = manifest.find((item) => item.place === 'routes');
+                expect(routeItem).to.equal({
+                    place: 'routes',
+                    method: 'myRoute'
+                });
+
+                done();
+            });
+
+            it('replaces items in the manifest by place.', (done) => {
+
+                const defaultManifest = HauteCouture.manifest.create();
+                const manifest = HauteCouture.manifest.create({
+                    add: [
+                        {
+                            place: 'routes',
+                            method: 'myRoute'
+                        },
+                        {
+                            place: 'routes-loveboat',
+                            method: 'myLoveboat'
+                        }
+                    ]
+                });
+
+                const allOthers = (item) => item.place !== 'routes' && item.place !== 'routes-loveboat';
+                expect(manifest.filter(allOthers)).to.equal(defaultManifest.filter(allOthers));
+
+                const routeItem = manifest.find((item) => item.place === 'routes');
+                expect(routeItem).to.equal({
+                    place: 'routes',
+                    method: 'myRoute'
+                });
+
+                const loveboatItem = manifest.find((item) => item.place === 'routes-loveboat');
+                expect(loveboatItem).to.equal({
+                    place: 'routes-loveboat',
+                    method: 'myLoveboat'
+                });
+
+                done();
+            });
+
+            it('adds new items to the manifest.', (done) => {
+
+                const defaultManifest = HauteCouture.manifest.create();
+                const manifest = HauteCouture.manifest.create({
+                    add: [
+                        {
+                            place: 'funky-routes',
+                            method: 'funkyRoutes'
+                        },
+                        {
+                            place: 'funky-bind',
+                            method: 'funkyBind'
+                        }
+                    ]
+                });
+
+                defaultManifest.forEach((item, i) => {
+
+                    expect(item).to.equal(manifest[i]);
+                });
+
+                const defaultLength = defaultManifest.length;
+                expect(manifest.length).to.equal(defaultLength + 2);
+
+                expect(manifest[defaultLength]).to.equal({
+                    place: 'funky-routes',
+                    method: 'funkyRoutes'
+                });
+
+                expect(manifest[defaultLength + 1]).to.equal({
+                    place: 'funky-bind',
+                    method: 'funkyBind'
+                });
+
+                done();
+            });
+
+            it('adds new single item to the manifest.', (done) => {
+
+                const defaultManifest = HauteCouture.manifest.create();
+                const manifest = HauteCouture.manifest.create({
+                    add: {
+                        place: 'funky-routes',
+                        method: 'funkyRoutes'
+                    }
+                });
+
+                defaultManifest.forEach((item, i) => {
+
+                    expect(item).to.equal(manifest[i]);
+                });
+
+                const defaultLength = defaultManifest.length;
+                expect(manifest.length).to.equal(defaultLength + 1);
+
+                expect(manifest[defaultLength]).to.equal({
+                    place: 'funky-routes',
+                    method: 'funkyRoutes'
+                });
+
+                done();
+            });
+
+            it('respects before/after options for additional items.', (done) => {
+
+                const defaultManifest = HauteCouture.manifest.create();
+                const manifest = HauteCouture.manifest.create({
+                    add: {
+                        place: 'funky-routes',
+                        method: 'funkyRoutes',
+                        before: ['auth/default'],
+                        after: ['auth/strategies']
+                    }
+                });
+
+                const indexOf = (place, mf) => {
+
+                    let index = null;
+
+                    for (let i = 0; i < mf.length; ++i) {
+                        const item = mf[i];
+
+                        if (item.place === place) {
+                            index = i;
+                            break;
+                        }
+                    }
+
+                    return index;
+                };
+
+                // Default manifest has strategies and defaults side-by-side
+
+                const defStrategiesIndex = indexOf('auth/strategies', defaultManifest);
+
+                expect(defaultManifest[defStrategiesIndex].place).to.equal('auth/strategies');
+                expect(defaultManifest[defStrategiesIndex + 1].place).to.equal('auth/default');
+
+                // New manifest has it between strategies and defaults
+
+                const funkyIndex = indexOf('funky-routes', manifest);
+
+                expect(funkyIndex).to.be.above(indexOf('auth/strategies', manifest));
+                expect(funkyIndex).to.be.below(indexOf('auth/default', manifest));
+
+                done();
+            });
         });
     });
 });
