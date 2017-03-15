@@ -409,7 +409,7 @@ describe('HauteCouture', () => {
         done();
     });
 
-    it('defines schwifty models in schwifty-models/.', (done) => {
+    it('defines schwifty models in models/.', (done) => {
 
         const models = bigServer.models(true);
         expect(models).to.have.length(1);
