@@ -160,6 +160,72 @@ describe('HauteCouture', () => {
         });
     });
 
+    it('allows one to amend the haute manifest, omitting dirname.', (done) => {
+
+        const server = new Hapi.Server();
+        server.connection();
+
+        const defaultManifest = HauteCouture.manifest.create();
+        const placeOf = (item) => item.place;
+
+        // Remove all instructions
+        const amendments = { remove: defaultManifest.map(placeOf) };
+        const plugin = HauteCouture(amendments);
+        plugin.attributes = { name: 'my-specific-plugin' };
+
+        server.register(plugin, (err) => {
+
+            if (err) {
+                return done(err);
+            }
+
+            // See prev tests– without amendments vision would have been registered
+            expect(server.registrations.vision).to.not.exist();
+            done();
+        });
+    });
+
+    it('accepts additional haute manifest items in an array.', (done, onCleanup) => {
+
+        onCleanup((next) => {
+
+            reset();
+            return next();
+        });
+
+        const server = new Hapi.Server();
+        server.connection();
+
+        const called = {};
+        server.decorate('server', 'special', function (myArg) {
+
+            called.myArg = myArg;
+            called.length = arguments.length;
+        });
+
+        const plugin = HauteCouture(`${__dirname}/closet`, [{
+            place: 'special',
+            method: 'special',
+            signature: ['myArg'],
+            list: false
+        }]);
+
+        plugin.attributes = { name: 'my-special-plugin' };
+
+        using(['special.js']);
+
+        server.register(plugin, (err) => {
+
+            if (err) {
+                return done(err);
+            }
+
+            expect(called.myArg).to.equal('mySpecialValue');
+            expect(called.length).to.equal(1);
+            done();
+        });
+    });
+
     it('registers plugins in plugins/.', (done) => {
 
         // plugins specified, but not an array and no register
@@ -514,47 +580,6 @@ describe('HauteCouture', () => {
         domain.run(() => server.register(Closet, Hoek.ignore));
     });
 
-    it('accepts additional manifest items.', (done, onCleanup) => {
-
-        onCleanup((next) => {
-
-            reset();
-            return next();
-        });
-
-        const server = new Hapi.Server();
-        server.connection();
-
-        const called = {};
-        server.decorate('server', 'special', function (myArg) {
-
-            called.myArg = myArg;
-            called.length = arguments.length;
-        });
-
-        const plugin = HauteCouture(`${__dirname}/closet`, [{
-            place: 'special',
-            method: 'special',
-            signature: ['myArg'],
-            list: false
-        }]);
-
-        plugin.attributes = { name: 'my-special-plugin' };
-
-        using(['special.js']);
-
-        server.register(plugin, (err) => {
-
-            if (err) {
-                return done(err);
-            }
-
-            expect(called.myArg).to.equal('mySpecialValue');
-            expect(called.length).to.equal(1);
-            done();
-        });
-    });
-
     it('allows options to be optional', (done) => {
 
         const server = new Hapi.Server();
@@ -670,25 +695,23 @@ describe('HauteCouture', () => {
 
     describe('manifest', () => {
 
-        const schema = Joi.array().items({
-            place: Joi.string().regex(/[\w\.]+/),
-            method: Joi.string().regex(/[\w\.]+/),
-            signature: Joi.array().items(Joi.string().regex(/^\[?\w+\]?$/)),
-            async: Joi.boolean(),
-            list: Joi.boolean(),
-            useFilename: Joi.func()
-        });
-
-        const summarize = (item) => `${item.method}() at ${item.place}`;
-
         describe('create()', () => {
 
             it('returns the default haute manifest.', (done) => {
 
                 const manifest = HauteCouture.manifest.create();
-                Joi.assert(manifest, schema);
+                Joi.assert(manifest, Joi.array().items({
+                    place: Joi.string().regex(/[\w\.]+/),
+                    method: Joi.string().regex(/[\w\.]+/),
+                    signature: Joi.array().items(Joi.string().regex(/^\[?\w+\]?$/)),
+                    async: Joi.boolean(),
+                    list: Joi.boolean(),
+                    useFilename: Joi.func()
+                }));
 
+                const summarize = (item) => `${item.method}() at ${item.place}`;
                 const summary = manifest.map(summarize);
+
                 expect(summary).to.equal([
                     'path() at path',
                     'bind() at bind',
