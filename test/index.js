@@ -124,7 +124,7 @@ describe('HauteCouture', () => {
         const server = new Hapi.Server();
         server.connection();
 
-        const plugin = HauteCouture(`${__dirname}/closet/specific`);
+        const plugin = HauteCouture.using(`${__dirname}/closet/specific`);
         plugin.attributes = { name: 'my-specific-plugin' };
 
         server.register(plugin, (err) => {
@@ -145,7 +145,7 @@ describe('HauteCouture', () => {
         server.connection();
 
         const amendments = { remove: ['plugins'] };
-        const plugin = HauteCouture(`${__dirname}/closet/specific`, amendments);
+        const plugin = HauteCouture.using(`${__dirname}/closet/specific`, amendments);
         plugin.attributes = { name: 'my-specific-plugin' };
 
         server.register(plugin, (err) => {
@@ -170,7 +170,7 @@ describe('HauteCouture', () => {
 
         // Remove all instructions
         const amendments = { remove: defaultManifest.map(placeOf) };
-        const plugin = HauteCouture(amendments);
+        const plugin = HauteCouture.using(amendments);
         plugin.attributes = { name: 'my-specific-plugin' };
 
         server.register(plugin, (err) => {
@@ -203,7 +203,7 @@ describe('HauteCouture', () => {
             called.length = arguments.length;
         });
 
-        const plugin = HauteCouture(`${__dirname}/closet`, [{
+        const plugin = HauteCouture.using(`${__dirname}/closet`, [{
             place: 'special',
             method: 'special',
             signature: ['myArg'],
@@ -503,7 +503,7 @@ describe('HauteCouture', () => {
 
         const server = new Hapi.Server();
 
-        const plugin = HauteCouture(`${__dirname}/closet`);
+        const plugin = HauteCouture.using(`${__dirname}/closet`);
         plugin.attributes = {
             name: 'my-conn-plugin',
             connections: false
@@ -587,7 +587,7 @@ describe('HauteCouture', () => {
 
         const plugin = (srv, options, next) => {
 
-            HauteCouture(`${__dirname}/closet/specific`)(srv, (err) => {
+            HauteCouture.using(`${__dirname}/closet/specific`)(srv, (err) => {
 
                 if (err) {
                     return next(err);
@@ -619,7 +619,7 @@ describe('HauteCouture', () => {
 
         const plugin = (srv, options, next) => {
 
-            HauteCouture(`${__dirname}/closet/specific`)(srv, options)
+            HauteCouture.using(`${__dirname}/closet/specific`)(srv, options)
             .then(() => {
 
                 expect(srv.registrations['specific-sub-plugin']).to.exist();
@@ -651,7 +651,7 @@ describe('HauteCouture', () => {
 
         const plugin = (srv, options, next) => {
 
-            HauteCouture(`${__dirname}/closet/specific`)(srv)
+            HauteCouture.using(`${__dirname}/closet/specific`)(srv)
             .then(() => {
 
                 expect(srv.registrations['specific-sub-plugin']).to.exist();
@@ -681,7 +681,7 @@ describe('HauteCouture', () => {
         const server = new Hapi.Server();
         server.connection();
 
-        HauteCouture(`${__dirname}/closet/bad-plugin`)(server)
+        HauteCouture.using(`${__dirname}/closet/bad-plugin`)(server)
         .then(() => {
 
             return done(new Error('Shouldn\'t make it here!'));
@@ -941,7 +941,7 @@ describe('HauteCouture', () => {
 
         describe('dogwater amendment', () => {
 
-            const plugin = HauteCouture(`${__dirname}/closet/amendments/dogwater`, {
+            const plugin = HauteCouture.using(`${__dirname}/closet/amendments/dogwater`, {
                 add: [
                     HauteCouture.manifest.dogwater
                 ]
