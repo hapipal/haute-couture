@@ -62,8 +62,41 @@ module.exports = {
 };
 ```
 
+## API
+### `HauteCouture.using([dirname], [amendments])`
+
+Returns a function with the signature `function(server, [options], [next])`, identical in meaning to the signature of a [hapi plugin](https://github.com/hapijs/hapi/blob/master/API.md#plugins).  Invoking the function makes hapi plugin API calls on `server` as described [below](#files-and-directories).  Typically `server` will be a server object passed to a plugin and `options` will be plugin options.  However, `server` could be any hapi server object (such as the root server) and `options` are not required.  If no `next` callback is provided, a `Promise` is returned.  It takes the following options,
+
+  - `dirname` - an absolute directory path in which to look for the files and directories described [below](#files-and-directories).  It defaults to the directory path of the caller.
+  - `amendments` - specifies additions and/or removals of items in the **[haute](https://github.com/devinivy/haute)** manifest that is used to map directory structure to hapi plugin API calls.  May be either of,
+    - An object,
+      - `add` - a single or array of items to add to the hapi haute manifest.  If any items have `place` equal to an item in the default manifest, the default manifest item will be replaced.  Supports the following additional keys per [haute manifest item](#structure-of-a-haute-manifest-item),
+        - `before` - a single or array of `place` values for which the given item should be positioned prior to other items in the manifest.
+        - `after` - a single or array of `place` values for which the given item should be positioned subsequent to other items in the manifest.
+      - `remove` - a single or array of `place` values of items that should be removed from the manifest.  This would be utilized to opt a file/directory out of usage by haute-couture.
+    - An array of items used identically to the `add` option above.
+
+### `HauteCouture.manifest.create([amendments])`
+
+Returns the hapi **[haute](https://github.com/devinivy/haute)** manifest, incorporating optional `amendments` to the manifest as described in [`HauteCouture.using([dirname], [amendments])`](#hautecoutureusingdirname-amendments).
+
+### `HauteCouture.manifest.dogwater`
+
+An amendment to use [dogwater](https://github.com/devinivy/dogwater) rather than [schwifty](https://github.com/BigRoomStudios/schwifty) at `models.js` or `models/`.  See entry in the the [files and directories section](#model-definitions-for-dogwater) for details.
+
+For example,
+```js
+module.exports = HauteCouture.using({
+  add: HauteCouture.manifest.dogwater
+});
+
+module.exports.attributes = {
+  name: 'my-app-plugin'
+};
+```
+
 ### Files and directories
-**haute-couture** is quite astute in mapping files and directories to hapi API calls.  And as seen in the comments of the example above, it also infers configuration from filenames where applicable.
+**haute-couture** is quite astute in mapping files and directories to hapi API calls.  And as seen in the comments of the [usage example](README.md#routespingerjs), it also infers configuration from filenames where applicable.
 
 Files will always export an array of values (representing multiple API calls) or a single value (one API call).  When a hapi method takes more than one argument (not including a callback), a single value consists of an object whose keys are the names of the arguments and whose values are the intended argument values.  The format of the argument values come from the [hapi API](https://github.com/hapijs/hapi/blob/master/API.md) unless otherwise specified.
 
@@ -244,21 +277,8 @@ Here's the complete rundown of how files and directories are mapped to API calls
   - **`routes/index.js`** - export an array of `options`.
   - **`routes/route-id.js`** - export `options`.  If `options` is a single route config object, the route's `config.id` will be assigned `'route-id'` from the filename if it isn't already specified.  The filename could just as easily represent a group of routes (rather than an id) and the file could export an array of route configs.
 
-## API
-### `HauteCouture.using([dirname], [amendments])`
-
-  - `dirname` - an absolute directory path in which to look for the files and directories described [above](#files-and-directories).  It defaults to the directory path of the caller.
-  - `amendments` - specifies additions and/or removals of items in the **[haute](https://github.com/devinivy/haute)** manifest that is used to map directory structure to hapi plugin API calls.  May be either of,
-    - An object,
-      - `add` - a single or array of items to add to the hapi haute manifest.  If any items have `place` equal to an item in the default manifest, the default manifest item will be replaced.  Supports the following additional keys per [haute manifest item](#structure-of-a-haute-manifest-item),
-        - `before` - a single or array of `place` values for which the given item should be positioned prior to other items in the manifest.
-        - `after` - a single or array of `place` values for which the given item should be positioned subsequent to other items in the manifest.
-      - `remove` - a single or array of `place` values of items that should be removed from the manifest.  This would be utilized to opt a file/directory out of usage by haute-couture.
-    - An array of items used identically to the `add` option above.
-
-Returns a function with the signature `function(server, [options], [next])`, identical in meaning to the signature of a [hapi plugin](https://github.com/hapijs/hapi/blob/master/API.md#plugins).  Invoking the function makes hapi plugin API calls on `server` as described [above](#files-and-directories).  Typically `server` will be a server object passed to a plugin and `options` will be plugin options.  However, `server` could be any hapi server object (such as the root server) and `options` are not required.  If no `next` callback is provided, a `Promise` is returned.
-
-##### Structure of a [haute](https://github.com/devinivy/haute) manifest item
+### Extras
+#### Structure of a [haute](https://github.com/devinivy/haute) manifest item
 
 A haute manifest item describes the mapping of a file/directory's place and contents to a call to the hapi plugin (`server`) API.  In short, the place is mapped to a hapi plugin method, and the file contents are mapped to arguments for that method.  It is an object of the form,
   - `place` - a relative path to the file or directory, typically excluding any file extensions.  E.g. `'auth/strategies'` or `'plugins'`.
@@ -269,22 +289,3 @@ A haute manifest item describes the mapping of a file/directory's place and cont
     - each item in an array exported at `place`, when `place` represents a single file (e.g. `plugins.js`) or a directory with an index file (e.g. `plugins/index.js`) or,
     - each value exported by the files within `place` when `place` is a directory without an index file (e.g. `plugins/vision.js`, `plugins/inert.js`).
   - `useFilename` - (optional) when `list` is `true` and `place` is a directory without an index file, then this option allows one to use the name of the each file within `place` to modify its contents.  Should be a function with signature `function(filename, value)` that receives the file's `filename` (without file extension) and its contents at `value`, returning a new value to be used as arguments for hapi plugin API call.
-
-### `HauteCouture.manifest.create([amendments])`
-
-Returns the hapi **[haute](https://github.com/devinivy/haute)** manifest, incorporating optional `amendments` to the manifest as described in [`HauteCouture.using([dirname], [amendments])`](#hautecoutureusingdirname-amendments).
-
-### `HauteCouture.manifest.dogwater`
-
-An amendment to use [dogwater](https://github.com/devinivy/dogwater) rather than [schwifty](https://github.com/BigRoomStudios/schwifty) at `models.js` or `models/`.  See entry in the the [files and directories section](#model-definitions-for-dogwater) for details.
-
-For example,
-```js
-module.exports = HauteCouture.using({
-  add: HauteCouture.manifest.dogwater
-});
-
-module.exports.attributes = {
-  name: 'my-app-plugin'
-};
-```
