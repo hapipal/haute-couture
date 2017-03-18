@@ -248,7 +248,7 @@ Here's the complete rundown of how files and directories are mapped to API calls
 ### `HauteCouture.using([dirname], [amendments])`
 
   - `dirname` - an absolute directory path in which to look for the files and directories described [above](#files-and-directories).  It defaults to the directory path of the caller.
-  - `amendments` - specifies additions and/or removals of items in the haute](https://github.com/devinivy/haute)** manifest that is used to map directory structure to hapi plugin API calls.  May be either of,
+  - `amendments` - specifies additions and/or removals of items in the **[haute](https://github.com/devinivy/haute)** manifest that is used to map directory structure to hapi plugin API calls.  May be either of,
     - An object,
       - `add` - a single or array of items to add to the hapi haute manifest.  If any items have `place` equal to an item in the default manifest, the default manifest item will be replaced.  Supports the following additional keys per [haute manifest item](#structure-of-a-haute-manifest-item),
         - `before` - a single or array of `place` values for which the given item should be positioned prior to other items in the manifest.
@@ -261,8 +261,8 @@ Returns a function with the signature `function(server, [options], [next])`, ide
 ##### Structure of a [haute](https://github.com/devinivy/haute) manifest item
 
 A haute manifest item describes the mapping of a file/directory's place and contents to a call to the hapi plugin (`server`) API.  In short, the place is mapped to a hapi plugin method, and the file contents are mapped to arguments for that method.  It is an object of the form,
-  - `place` - a relative path to the file or directory, typically excluding any file extensions.  E.g. `'auth/strategy'` or `'plugins'`.
-  - `method` - the name of the method in the hapi plugin API.  May be a deep method.  E.g. `auth.strategy` or `register`.
+  - `place` - a relative path to the file or directory, typically excluding any file extensions.  E.g. `'auth/strategies'` or `'plugins'`.
+  - `method` - the name of the method in the hapi plugin API.  May be a deep method.  E.g. `'auth.strategy'` or `'register'`.
   - `signature` - (optional) an array of argument names taken by the hapi plugin's method.  When omitted the entire file contents are passed as the sole argument.  An argument may be marked as optional by surrounding it in brackets `[]`.  E.g. `['name', '[options]']` would map file contents of the form `{ name, options }` to a call `server.someMethod(name, options)`, and `{ name }` to a call `server.someMethod(name)`.
   - `async` - (optional) when `true`, indicates that the hapi plugin's method takes an error-first callback as a final argument.
   - `list` - (optional) when `true`, indicates to call the hapi plugin method on either,
