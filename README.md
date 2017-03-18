@@ -15,7 +15,7 @@ To name a few,
  - You can teach haute-couture how to use your own custom server decorations.
  - You can still write all the custom plugin code you desire.
 
-Again, **haute-couture** understands 23 hapi plugin methods– those for server methods, custom handler types, server/request decorations, request lifecycle extensions, route configuration, cookie definitions, [loveboat](https://github.com/devinivy/loveboat) routes and transforms, [vision](https://github.com/hapijs/vision) view managers, [dogwater](https://github.com/devinivy/dogwater) and [schwifty](https://github.com/BigRoomStudios/schwifty) model definitions, [chairo](https://github.com/hapijs/chairo) action-methods, and plenty more.  It can also be used as an alternative to [glue](https://github.com/hapijs/glue) for composing a server.
+Again, **haute-couture** understands 23 hapi plugin methods– those for server methods, custom handler types, server/request decorations, request lifecycle extensions, route configuration, cookie definitions, [loveboat](https://github.com/devinivy/loveboat) routes and transforms, [vision](https://github.com/hapijs/vision) view managers, [dogwater](https://github.com/devinivy/dogwater) or [schwifty](https://github.com/BigRoomStudios/schwifty) model definitions, [chairo](https://github.com/hapijs/chairo) action-methods, and plenty more.  It can also be used as an alternative to [glue](https://github.com/hapijs/glue) for composing a server.
 
 ## Usage
 This library is actually not used as a hapi plugin.  Think of it instead as a useful subroutine of any hapi plugin.
@@ -30,7 +30,7 @@ const HauteCouture = require('haute-couture');
 // 1. a plugin wired with haute-couture plus custom logic
 module.exports = (server, options, next) => {
 
-  HauteCouture()(server, options, (err) => {
+  HauteCouture.using()(server, options, (err) => {
 
     // Handle err, do custom plugin duties
 
@@ -39,7 +39,7 @@ module.exports = (server, options, next) => {
 };
 
 // 2. a plugin entirely wired using haute-couture
-module.exports = HauteCouture();
+module.exports = HauteCouture.using();
 
 module.exports.attributes = {
   name: 'my-hapi-plugin'
@@ -77,9 +77,23 @@ Here's the complete rundown of how files and directories are mapped to API calls
 >
 > Below you'll find that this library can be used in conjunction with several hapi plugins.  There is no way to properly express an "optional peer dependency" using npm, so here I am to tell you which versions of those plugins work with haute-couture.
   - chairo - ≥1 and <3
+  - schwifty - 1.x.x
   - dogwater - 2.x.x
   - loveboat - 1.x.x
   - vision - ≥2 and <5
+
+#### Path prefix
+> [`server.path(relativeTo)`](https://github.com/hapijs/hapi/blob/master/API.md#serverpathrelativeto)
+
+  - **`path.js`** - export `relativeTo`.
+  - **`path/index.js`** - export `relativeTo`.
+
+#### Globally bound context
+> [`server.bind(context)`](https://github.com/hapijs/hapi/blob/master/API.md#serverbindcontext)
+
+  - **`bind.js`** - export `context`.
+  - **`bind/index.js`** - export `context`.
+
 
 #### Connections
 > [`server.connection(options)`](https://github.com/hapijs/hapi/blob/master/API.md#serverconnectionoptions)
@@ -167,18 +181,6 @@ Here's the complete rundown of how files and directories are mapped to API calls
   - **`expose/index.js`** - export an array of objects.
   - **`expose/property-name.js`** - export an object.  The `key` will be assigned `'propertyName'` camel-cased from the filename if it isn't already specified.
 
-#### Path prefix
-> [`server.path(relativeTo)`](https://github.com/hapijs/hapi/blob/master/API.md#serverpathrelativeto)
-
-  - **`path.js`** - export `relativeTo`.
-  - **`path/index.js`** - export `relativeTo`.
-
-#### Globally bound context
-> [`server.bind(context)`](https://github.com/hapijs/hapi/blob/master/API.md#serverbindcontext)
-
-  - **`bind.js`** - export `context`.
-  - **`bind/index.js`** - export `context`.
-
 #### Authentication schemes
 > [`server.auth.scheme(name, scheme)`](https://github.com/hapijs/hapi/blob/master/API.md#serverauthschemename-scheme)
 
@@ -206,6 +208,21 @@ Here's the complete rundown of how files and directories are mapped to API calls
   - **`cookies/index.js`** - export an array of objects.
   - **`cookies/cookie-name.js`** - export an object.  The `name` will be assigned `'cookie-name'` from the filename if it isn't already specified.
 
+#### Model definitions (for [schwifty](https://github.com/BigRoomStudios/schwifty))
+  > [`server.schwifty(config)`](https://github.com/BigRoomStudios/schwifty/blob/master/API.md#serverschwiftyconfig)
+
+  - **`schwifty-models/index.js`** - export an object containing `model` objects.
+  - **`schwifty-models/model-name.js`** - export `model` object.
+
+#### Model definitions (for [dogwater](https://github.com/devinivy/dogwater))
+> [`server.dogwater(models)`](https://github.com/devinivy/dogwater#serverdogwaterconfig)
+>
+> Note, requires being enabled with a manifest amendment.  See [`HauteCouture.manifest.dogwater`](#hautecouturemanifestdogwater).
+
+  - **`models.js`** - export an array of `models`.
+  - **`models/index.js`** - export an array of `models`.
+  - **`models/model-identity.js`** - export `models`.  If `models` is a single model definition, the model's `identity` will be assigned `'model-identity'` from the filename if it isn't already specified.  The filename could just as easily represent a group of models (rather than an identity) and the file could export an array of model configs.
+
 #### Route transforms (for [loveboat](https://github.com/devinivy/loveboat))
 > [`server.routeTransforms(transforms)`](https://github.com/devinivy/loveboat#serverroutetransformstransforms)
 
@@ -220,19 +237,6 @@ Here's the complete rundown of how files and directories are mapped to API calls
   - **`routes-loveboat/index.js`** - export an array of `routes`.
   - **`routes-loveboat/[anything].js`** - export `routes`.
 
-#### Model definitions (for [dogwater](https://github.com/devinivy/dogwater))
-> [`server.dogwater(models)`](https://github.com/devinivy/dogwater#serverdogwaterconfig)
-
-  - **`models.js`** - export an array of `models`.
-  - **`models/index.js`** - export an array of `models`.
-  - **`models/model-identity.js`** - export `models`.  If `models` is a single model definition, the model's `identity` will be assigned `'model-identity'` from the filename if it isn't already specified.  The filename could just as easily represent a group of models (rather than an identity) and the file could export an array of model configs.
-
-#### Model definitions (for [schwifty](https://github.com/BigRoomStudios/schwifty))
-  > [`server.schwifty(config)`](https://github.com/BigRoomStudios/schwifty/blob/master/API.md#serverschwiftyconfig)
-
-  - **`schwifty-models/index.js`** - export an object containing `model` objects.
-  - **`schwifty-models/model-name.js`** - export `model` object.
-
 #### Routes
 > [`server.route(options)`](https://github.com/hapijs/hapi/blob/master/API.md#serverrouteoptions)
 
@@ -241,12 +245,46 @@ Here's the complete rundown of how files and directories are mapped to API calls
   - **`routes/route-id.js`** - export `options`.  If `options` is a single route config object, the route's `config.id` will be assigned `'route-id'` from the filename if it isn't already specified.  The filename could just as easily represent a group of routes (rather than an id) and the file could export an array of route configs.
 
 ## API
-### `HauteCouture([dirname], [manifestExtras])`
+### `HauteCouture.using([dirname], [amendments])`
 
   - `dirname` - an absolute directory path in which to look for the files and directories described [above](#files-and-directories).  It defaults to the directory path of the caller.
-  - `manifestExtras` - an array specifying additional items to append to the **[haute](https://github.com/devinivy/haute)** manifest that is used to map directory structure to hapi plugin API calls.
+  - `amendments` - specifies additions and/or removals of items in the haute](https://github.com/devinivy/haute)** manifest that is used to map directory structure to hapi plugin API calls.  May be either of,
+    - An object,
+      - `add` - a single or array of items to add to the hapi haute manifest.  If any items have `place` equal to an item in the default manifest, the default manifest item will be replaced.  Supports the following additional keys per [haute manifest item](#structure-of-a-haute-manifest-item),
+        - `before` - a single or array of `place` values for which the given item should be positioned prior to other items in the manifest.
+        - `after` - a single or array of `place` values for which the given item should be positioned subsequent to other items in the manifest.
+      - `remove` - a single or array of `place` values of items that should be removed from the manifest.  This would be utilized to opt a file/directory out of usage by haute-couture.
+    - An array of items used identically to the `add` option above.
 
 Returns a function with the signature `function(server, [options], [next])`, identical in meaning to the signature of a [hapi plugin](https://github.com/hapijs/hapi/blob/master/API.md#plugins).  Invoking the function makes hapi plugin API calls on `server` as described [above](#files-and-directories).  Typically `server` will be a server object passed to a plugin and `options` will be plugin options.  However, `server` could be any hapi server object (such as the root server) and `options` are not required.  If no `next` callback is provided, a `Promise` is returned.
 
-### The hapi [haute](https://github.com/devinivy/haute) manifest
-The base **haute** manifest for **hapi** is located at [`lib/manifest.js`](lib/manifest.js).  It is considered part of the public API, and therefore can safely be required in other projects as `require('haute-couture/lib/manifest')`.
+##### Structure of a [haute](https://github.com/devinivy/haute) manifest item
+
+A haute manifest item describes the mapping of a file/directory's place and contents to a call to the hapi plugin (`server`) API.  In short, the place is mapped to a hapi plugin method, and the file contents are mapped to arguments for that method.  It is an object of the form,
+  - `place` - a relative path to the file or directory, typically excluding any file extensions.  E.g. `'auth/strategy'` or `'plugins'`.
+  - `method` - the name of the method in the hapi plugin API.  May be a deep method.  E.g. `auth.strategy` or `register`.
+  - `signature` - (optional) an array of argument names taken by the hapi plugin's method.  When omitted the entire file contents are passed as the sole argument.  An argument may be marked as optional by surrounding it in brackets `[]`.  E.g. `['name', '[options]']` would map file contents of the form `{ name, options }` to a call `server.someMethod(name, options)`, and `{ name }` to a call `server.someMethod(name)`.
+  - `async` - (optional) when `true`, indicates that the hapi plugin's method takes an error-first callback as a final argument.
+  - `list` - (optional) when `true`, indicates to call the hapi plugin method on either,
+    - each item in an array exported at `place`, when `place` represents a single file (e.g. `plugins.js`) or a directory with an index file (e.g. `plugins/index.js`) or,
+    - each value exported by the files within `place` when `place` is a directory without an index file (e.g. `plugins/vision.js`, `plugins/inert.js`).
+  - `useFilename` - (optional) when `list` is `true` and `place` is a directory without an index file, then this option allows one to use the name of the each file within `place` to modify its contents.  Should be a function with signature `function(filename, value)` that receives the file's `filename` (without file extension) and its contents at `value`, returning a new value to be used as arguments for hapi plugin API call.
+
+### `HauteCouture.manifest.create([amendments])`
+
+Returns the hapi **[haute](https://github.com/devinivy/haute)** manifest, incorporating optional `amendments` to the manifest as described in [`HauteCouture.using([dirname], [amendments])`](#hautecoutureusingdirname-amendments).
+
+### `HauteCouture.manifest.dogwater`
+
+An amendment to use [dogwater](https://github.com/devinivy/dogwater) rather than [schwifty](https://github.com/BigRoomStudios/schwifty) at `models.js` or `models/`.  See entry in the the [files and directories section](#model-definitions-for-dogwater) for details.
+
+For example,
+```js
+module.exports = HauteCouture.using({
+  add: HauteCouture.manifest.dogwater
+});
+
+module.exports.attributes = {
+  name: 'my-app-plugin'
+};
+```
