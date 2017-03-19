@@ -46,11 +46,11 @@ Here's the complete rundown of how files and directories are mapped to API calls
 > **But first, an important note.**
 >
 > Below you'll find that this library can be used in conjunction with several hapi plugins.  There is no way to properly express an "optional peer dependency" using npm, so here I am to tell you which versions of those plugins work with haute-couture.
-  - chairo - ≥1 and <3
-  - schwifty - 1.x.x
-  - dogwater - 2.x.x
-  - loveboat - 1.x.x
-  - vision - ≥2 and <5
+>  - chairo - ≥1 and <3
+>  - schwifty - 1.x.x
+>  - dogwater - 2.x.x
+>  - loveboat - 1.x.x
+>  - vision - ≥2 and <5
 
 #### Path prefix
 > [`server.path(relativeTo)`](https://github.com/hapijs/hapi/blob/master/API.md#serverpathrelativeto)
