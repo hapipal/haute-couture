@@ -455,26 +455,6 @@ describe('HauteCouture', () => {
         done();
     });
 
-    it('defines loveboat transforms in route-transforms/.', (done) => {
-
-        const transforms = bigServer.app.realm.plugins.loveboat.transforms.nodes;
-        const transformNames = transforms.map((transform) => transform.transform.name).sort();
-
-        expect(transformNames).to.equal(['my-named-transform', 'test-transform']);
-        done();
-    });
-
-    it('defines loveboat routes in routes-loveboat/.', (done) => {
-
-        const route = bigServer.lookup('loveboat');
-        expect(route).to.exist();
-        expect(route.settings.app).to.equal({
-            myNamedTransform: true,
-            testTransform: true
-        });
-        done();
-    });
-
     it('defines schwifty models in models/.', (done) => {
 
         const models = bigServer.models(true);
@@ -549,35 +529,6 @@ describe('HauteCouture', () => {
         }).to.throw(/Missing decoration property name/);
 
         done();
-    });
-
-    it('does not apply filename to loveboat transforms in array.', (done, onCleanup) => {
-
-        onCleanup((next) => {
-
-            reset();
-            return next();
-        });
-
-        const server = new Hapi.Server();
-        server.connection();
-
-        using([
-            'plugins',
-            'plugins/my-loveboat.js',
-            'route-transforms',
-            'route-transforms/bad-arr-transform.js'
-        ]);
-
-        const domain = Domain.create();
-
-        domain.on('error', (err) => {
-
-            expect(err.message).to.match(/\"name\" is required/);
-            done();
-        });
-
-        domain.run(() => server.register(Closet, Hoek.ignore));
     });
 
     it('allows options to be optional', (done) => {
@@ -732,8 +683,6 @@ describe('HauteCouture', () => {
                     'auth.default() at auth/default',
                     'state() at cookies',
                     'schwifty() at models',
-                    'routeTransforms() at route-transforms',
-                    'loveboat() at routes-loveboat',
                     'route() at routes'
                 ]);
 
@@ -761,7 +710,7 @@ describe('HauteCouture', () => {
 
                 const defaultManifest = HauteCouture.manifest.create();
                 const manifest = HauteCouture.manifest.create({
-                    remove: ['routes-loveboat', 'routes']
+                    remove: ['models', 'routes']
                 });
 
                 expect(manifest.length).to.equal(defaultManifest.length - 2);
@@ -806,13 +755,13 @@ describe('HauteCouture', () => {
                             method: 'myRoute'
                         },
                         {
-                            place: 'routes-loveboat',
-                            method: 'myLoveboat'
+                            place: 'models',
+                            method: 'mySchwifty'
                         }
                     ]
                 });
 
-                const allOthers = (item) => item.place !== 'routes' && item.place !== 'routes-loveboat';
+                const allOthers = (item) => item.place !== 'routes' && item.place !== 'models';
                 expect(manifest.filter(allOthers)).to.equal(defaultManifest.filter(allOthers));
 
                 const routeItem = manifest.find((item) => item.place === 'routes');
@@ -821,10 +770,10 @@ describe('HauteCouture', () => {
                     method: 'myRoute'
                 });
 
-                const loveboatItem = manifest.find((item) => item.place === 'routes-loveboat');
-                expect(loveboatItem).to.equal({
-                    place: 'routes-loveboat',
-                    method: 'myLoveboat'
+                const schwiftyItem = manifest.find((item) => item.place === 'models');
+                expect(schwiftyItem).to.equal({
+                    place: 'models',
+                    method: 'mySchwifty'
                 });
 
                 done();
@@ -1009,6 +958,120 @@ describe('HauteCouture', () => {
                 domain.on('error', (err) => {
 
                     expect(err.message).to.match(/\"identity\" is required/);
+                    done();
+                });
+
+                domain.run(() => server.register(plugin, Hoek.ignore));
+            });
+        });
+
+        describe('loveboat amendment', () => {
+
+            const hc = HauteCouture.using(`${__dirname}/closet/amendments/loveboat`, {
+                add: [
+                    HauteCouture.manifest.loveboat // Also tests nesting, since this is an array itself
+                ]
+            });
+
+            const plugin = (server, options, next) => {
+
+                hc(server, options, (err) => {
+
+                    if (err) {
+                        return next(err);
+                    }
+
+                    server.app.realm = server.realm;
+                    next();
+                });
+            };
+
+            plugin.attributes = { name: 'my-loveboat-plugin' };
+
+            it('defines loveboat transforms in route-transforms/.', (done, onCleanup) => {
+
+                onCleanup((next) => {
+
+                    reset();
+                    return next();
+                });
+
+                const server = new Hapi.Server();
+                server.connection();
+
+                notUsing([
+                    'amendments/loveboat/route-transforms/bad-arr-transform.js'
+                ]);
+
+                server.register(plugin, (err) => {
+
+                    if (err) {
+                        return done(err);
+                    }
+
+                    const transforms = server.app.realm.plugins.loveboat.transforms.nodes;
+                    const transformNames = transforms.map((transform) => transform.transform.name).sort();
+
+                    expect(transformNames).to.equal(['my-named-transform', 'test-transform']);
+                    done();
+                });
+            });
+
+            it('defines loveboat routes in routes-loveboat/.', (done, onCleanup) => {
+
+                onCleanup((next) => {
+
+                    reset();
+                    return next();
+                });
+
+                const server = new Hapi.Server();
+                server.connection();
+
+                notUsing([
+                    'amendments/loveboat/route-transforms/bad-arr-transform.js'
+                ]);
+
+                server.register(plugin, (err) => {
+
+                    if (err) {
+                        return done(err);
+                    }
+
+                    const route = server.lookup('loveboat');
+                    expect(route).to.exist();
+                    expect(route.settings.app).to.equal({
+                        myNamedTransform: true,
+                        testTransform: true
+                    });
+                    done();
+                });
+            });
+
+            it('does not apply filename to loveboat transforms in array.', (done, onCleanup) => {
+
+                onCleanup((next) => {
+
+                    reset();
+                    return next();
+                });
+
+                const server = new Hapi.Server();
+                server.connection();
+
+                using([
+                    'amendments',
+                    'amendments/loveboat',
+                    'amendments/loveboat/plugins.js',
+                    'amendments/loveboat/route-transforms',
+                    'amendments/loveboat/route-transforms/bad-arr-transform.js'
+                ]);
+
+                const domain = Domain.create();
+
+                domain.on('error', (err) => {
+
+                    expect(err.message).to.match(/\"name\" is required/);
                     done();
                 });
 
