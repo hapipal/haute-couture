@@ -7,7 +7,7 @@ Returns a function with the signature `function(server, [options], [next])`, ide
   - `dirname` - an absolute directory path in which to look for the files and directories described [below](#files-and-directories).  It defaults to the directory path of the caller.
   - `amendments` - specifies additions and/or removals of items in the **[haute](https://github.com/devinivy/haute)** manifest that is used to map directory structure to hapi plugin API calls.  May be either of,
     - An object,
-      - `add` - a single or array of items to add to the hapi haute manifest.  If any items have `place` equal to an item in the default manifest, the default manifest item will be replaced.  Supports the following additional keys per [haute manifest item](#structure-of-a-haute-manifest-item),
+      - `add` - a single or array of items to add to the hapi haute manifest.  Also may be a nested array of items (e.g. `[{}, [{}, {}]]`).  If any items have `place` equal to an item in the default manifest, the default manifest item will be replaced.  Supports the following additional keys per [haute manifest item](#structure-of-a-haute-manifest-item),
         - `before` - a single or array of `place` values for which the given item should be positioned prior to other items in the manifest.
         - `after` - a single or array of `place` values for which the given item should be positioned subsequent to other items in the manifest.
       - `remove` - a single or array of `place` values of items that should be removed from the manifest.  This would be utilized to opt a file/directory out of usage by haute-couture.
@@ -25,6 +25,21 @@ For example,
 ```js
 module.exports = HauteCouture.using({
   add: HauteCouture.manifest.dogwater
+});
+
+module.exports.attributes = {
+  name: 'my-app-plugin'
+};
+```
+
+### `HauteCouture.manifest.loveboat`
+
+An amendment to use [loveboat](https://github.com/devinivy/loveboat) to define routes at `routes.js` or `routes/` rather than the default calls to `server.route()`.  Also includes an amendment for declaring loveboat transforms at `route-transforms.js` or `route-transforms/`.  See entries in the the [files and directories section](#route-transforms-for-loveboat) for details.
+
+For example,
+```js
+module.exports = HauteCouture.using({
+  add: HauteCouture.manifest.loveboat
 });
 
 module.exports.attributes = {
@@ -193,8 +208,17 @@ Here's the complete rundown of how files and directories are mapped to API calls
   - **`models/index.js`** - export an array of `models`.
   - **`models/model-identity.js`** - export `models`.  If `models` is a single model definition, the model's `identity` will be assigned `'model-identity'` from the filename if it isn't already specified.  The filename could just as easily represent a group of models (rather than an identity) and the file could export an array of model configs.
 
+#### Routes
+> [`server.route(options)`](https://github.com/hapijs/hapi/blob/master/API.md#serverrouteoptions)
+
+  - **`routes.js`** - export an array of `options`.
+  - **`routes/index.js`** - export an array of `options`.
+  - **`routes/route-id.js`** - export `options`.  If `options` is a single route config object, the route's `config.id` will be assigned `'route-id'` from the filename if it isn't already specified.  The filename could just as easily represent a group of routes (rather than an id) and the file could export an array of route configs.
+
 #### Route transforms (for [loveboat](https://github.com/devinivy/loveboat))
 > [`server.routeTransforms(transforms)`](https://github.com/devinivy/loveboat#serverroutetransformstransforms)
+>
+> Note, requires being enabled with a manifest amendment.  See [`HauteCouture.manifest.loveboat`](#hautecouturemanifestloveboat).
 
   - **`route-transforms.js`** - export an array of `transforms`.
   - **`route-transforms/index.js`** - export an array of `transforms`.
@@ -202,17 +226,12 @@ Here's the complete rundown of how files and directories are mapped to API calls
 
 #### Transformable routes (for [loveboat](https://github.com/devinivy/loveboat))
 > [`server.loveboat(routes)`](https://github.com/devinivy/loveboat#serverloveboatroutes-transforms-onlyspecified)
+>
+> Note, requires being enabled with a manifest amendment.  See [`HauteCouture.manifest.loveboat`](#hautecouturemanifestloveboat).
 
-  - **`routes-loveboat.js`** - export an array of `routes`.
-  - **`routes-loveboat/index.js`** - export an array of `routes`.
-  - **`routes-loveboat/[anything].js`** - export `routes`.
-
-#### Routes
-> [`server.route(options)`](https://github.com/hapijs/hapi/blob/master/API.md#serverrouteoptions)
-
-  - **`routes.js`** - export an array of `options`.
-  - **`routes/index.js`** - export an array of `options`.
-  - **`routes/route-id.js`** - export `options`.  If `options` is a single route config object, the route's `config.id` will be assigned `'route-id'` from the filename if it isn't already specified.  The filename could just as easily represent a group of routes (rather than an id) and the file could export an array of route configs.
+  - **`routes.js`** - export an array of `routes`.
+  - **`routes/index.js`** - export an array of `routes`.
+  - **`routes/[anything].js`** - export `routes`.
 
 ### Extras
 #### Structure of a [haute](https://github.com/devinivy/haute) manifest item
