@@ -4,7 +4,7 @@ const HauteCouture = require('../..');
 
 module.exports = (server, options, next) => {
 
-    HauteCouture()(server, options, (err) => {
+    HauteCouture.using()(server, options, (err) => {
 
         if (err) {
             return next(err);
