@@ -455,12 +455,14 @@ describe('HauteCouture', () => {
         done();
     });
 
-    it('defines events in events/.', (done) => {
+    it('defines event definitions in event/definitions/.', (done) => {
 
+        done();
     });
 
-    it('defines event listeners in event-listeners/.', (done) => {
+    it('defines event listeners in event/listeners/.', (done) => {
 
+        done();
     });
 
     it('defines schwifty models in models/.', (done) => {
