@@ -455,6 +455,14 @@ describe('HauteCouture', () => {
         done();
     });
 
+    it('defines events in events/.', (done) => {
+
+    });
+
+    it('defines event listeners in event-listeners/.', (done) => {
+
+    });
+
     it('defines schwifty models in models/.', (done) => {
 
         const models = bigServer.models(true);

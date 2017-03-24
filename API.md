@@ -193,6 +193,18 @@ Here's the complete rundown of how files and directories are mapped to API calls
   - **`cookies/index.js`** - export an array of objects.
   - **`cookies/cookie-name.js`** - export an object.  The `name` will be assigned `'cookie-name'` from the filename if it isn't already specified.
 
+#### Events
+> [`server.event(events)`](https://github.com/hapijs/hapi/blob/master/API.md#servereventevents)
+
+  - **`events/index.js`** - export an array of objects.
+  - **`events/event-name.js`** - export `event` object.
+
+#### Event Listeners
+> [`server.on(criteria, listener)`](https://github.com/hapijs/hapi/blob/master/API.md#serveroncriteria-listener)
+
+  - **`event-listeners/index.js`** - export an array of objects.
+  - **`event-listeners/listener-name.js`** - export `listener` object.
+
 #### Model definitions (for [schwifty](https://github.com/BigRoomStudios/schwifty))
   > [`server.schwifty(config)`](https://github.com/BigRoomStudios/schwifty/blob/master/API.md#serverschwiftyconfig)
 
