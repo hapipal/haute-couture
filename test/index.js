@@ -96,7 +96,7 @@ describe('HauteCouture', () => {
         notUsing([
             'connections',
             'decorations/server.bad.test-dec.js',
-            'route-transforms/bad-arr-transform.js'
+            'methods/bad-arr-method.js'
         ]);
 
         bigServer.connection();
@@ -278,7 +278,19 @@ describe('HauteCouture', () => {
 
                     expect(err).to.not.exist();
                     expect(resultThree).to.equal({ someContext: true });
-                    done();
+
+                    bigServer.methods.arrMethodOne((err, resultFour) => {
+
+                        expect(err).to.not.exist();
+                        expect(resultFour).to.equal('arr-method-one');
+
+                        bigServer.methods.arrMethodTwo((err, resultFive) => {
+
+                            expect(err).to.not.exist();
+                            expect(resultFive).to.equal('arr-method-two');
+                            done();
+                        });
+                    });
                 });
             });
         });
