@@ -1,5 +1,7 @@
 'use strict';
 
-module.exports = {
-    method: (cb) => cb(null, 'bad-arr-method')
-};
+module.exports = [
+    {
+        method: (cb) => cb(null, 'bad-arr-method')
+    }
+];

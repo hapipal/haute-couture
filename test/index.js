@@ -295,6 +295,34 @@ describe('HauteCouture', () => {
         });
     });
 
+    it('does not apply filename to methods in array.', (done, onCleanup) => {
+
+        onCleanup((next) => {
+
+            reset();
+            return next();
+        });
+
+        const server = new Hapi.Server();
+        server.connection();
+
+        using([
+            'methods',
+            'methods/bad-arr-method.js'
+        ]);
+
+        const domain = Domain.create();
+
+        domain.on('error', (err) => {
+
+            expect(err.message).to.match(/instance\.method\(\)/);
+            expect(err.message).to.match(/\"name\" is required/);
+            done();
+        });
+
+        domain.run(() => server.register(Closet, Hoek.ignore));
+    });
+
     it('registers seneca plugins via chairo in seneca-plugins/.', (done) => {
 
         expect(bigServer.seneca.export('my-named-plugin')).to.exist();
