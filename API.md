@@ -194,10 +194,13 @@ Here's the complete rundown of how files and directories are mapped to API calls
   - **`cookies/cookie-name.js`** - export an object.  The `name` will be assigned `'cookie-name'` from the filename if it isn't already specified.
 
 #### Model definitions (for [schwifty](https://github.com/BigRoomStudios/schwifty))
-  > [`server.schwifty(config)`](https://github.com/BigRoomStudios/schwifty/blob/master/API.md#serverschwiftyconfig)
+> [`server.schwifty(models)`](https://github.com/BigRoomStudios/schwifty/blob/master/API.md#serverschwiftyconfig)
+>
+> Note, while `models` will typically be a single Objection model class, you may also specify any configuration accepted by `server.schwifty()`, per the docs linked above.
 
-  - **`schwifty-models/index.js`** - export an object containing `model` objects.
-  - **`schwifty-models/model-name.js`** - export `model` object.
+  - **`models.js`** - export an array of `models`.
+  - **`models/index.js`** - export an array of `models`.
+  - **`models/model-name.js`** - export `models`.
 
 #### Model definitions (for [dogwater](https://github.com/devinivy/dogwater))
 > [`server.dogwater(models)`](https://github.com/devinivy/dogwater#serverdogwaterconfig)
