@@ -3,7 +3,6 @@
 // Load modules
 
 const Lab = require('lab');
-const Code = require('code');
 const Domain = require('domain');
 const Hapi = require('hapi');
 const Joi = require('joi');
@@ -19,7 +18,7 @@ const lab = exports.lab = Lab.script();
 const before = lab.before;
 const describe = lab.describe;
 const it = lab.it;
-const expect = Code.expect;
+const expect = Lab.expect;
 
 const internals = {};
 
@@ -582,16 +581,17 @@ describe('HauteCouture', () => {
 
         const plugin = (srv, options, next) => {
 
-            HauteCouture.using(`${__dirname}/closet/specific`)(srv, options)
-            .then(() => {
+            HauteCouture
+                .using(`${__dirname}/closet/specific`)(srv, options)
+                .then(() => {
 
-                expect(srv.registrations['specific-sub-plugin']).to.exist();
-                next();
-            })
-            .catch((err) => {
+                    expect(srv.registrations['specific-sub-plugin']).to.exist();
+                    next();
+                })
+                .catch((err) => {
 
-                next(err);
-            });
+                    next(err);
+                });
         };
 
         plugin.attributes = { name: 'promise-plugin' };
@@ -614,16 +614,17 @@ describe('HauteCouture', () => {
 
         const plugin = (srv, options, next) => {
 
-            HauteCouture.using(`${__dirname}/closet/specific`)(srv)
-            .then(() => {
+            HauteCouture
+                .using(`${__dirname}/closet/specific`)(srv)
+                .then(() => {
 
-                expect(srv.registrations['specific-sub-plugin']).to.exist();
-                next();
-            })
-            .catch((err) => {
+                    expect(srv.registrations['specific-sub-plugin']).to.exist();
+                    next();
+                })
+                .catch((err) => {
 
-                next(err);
-            });
+                    next(err);
+                });
         };
 
         plugin.attributes = { name: 'no-options-no-callback-plugin' };
@@ -644,16 +645,17 @@ describe('HauteCouture', () => {
         const server = new Hapi.Server();
         server.connection();
 
-        HauteCouture.using(`${__dirname}/closet/bad-plugin`)(server)
-        .then(() => {
+        HauteCouture
+            .using(`${__dirname}/closet/bad-plugin`)(server)
+            .then(() => {
 
-            return done(new Error('Shouldn\'t make it here!'));
-        })
-        .catch((err) => {
+                return done(new Error('Shouldn\'t make it here!'));
+            })
+            .catch((err) => {
 
-            expect(err.message).to.endWith('Ya blew it!');
-            done();
-        });
+                expect(err.message).to.endWith('Ya blew it!');
+                done();
+            });
     });
 
     describe('manifest', () => {
