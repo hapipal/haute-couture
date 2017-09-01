@@ -3,7 +3,6 @@
 // Load modules
 
 const Lab = require('lab');
-const Code = require('code');
 const Domain = require('domain');
 const Hapi = require('hapi');
 const Joi = require('joi');
@@ -19,7 +18,7 @@ const lab = exports.lab = Lab.script();
 const before = lab.before;
 const describe = lab.describe;
 const it = lab.it;
-const expect = Code.expect;
+const expect = Lab.expect;
 
 const internals = {};
 
@@ -90,13 +89,13 @@ describe('HauteCouture', () => {
 
     const bigServer = new Hapi.Server();
 
-    before((done) => {
+    before({ timeout: 4000 }, (done) => {
 
         reset();
         notUsing([
             'connections',
             'decorations/server.bad.test-dec.js',
-            'route-transforms/bad-arr-transform.js'
+            'methods/bad-arr-method.js'
         ]);
 
         bigServer.connection();
@@ -278,10 +277,50 @@ describe('HauteCouture', () => {
 
                     expect(err).to.not.exist();
                     expect(resultThree).to.equal({ someContext: true });
-                    done();
+
+                    bigServer.methods.arrMethodOne((err, resultFour) => {
+
+                        expect(err).to.not.exist();
+                        expect(resultFour).to.equal('arr-method-one');
+
+                        bigServer.methods.arrMethodTwo((err, resultFive) => {
+
+                            expect(err).to.not.exist();
+                            expect(resultFive).to.equal('arr-method-two');
+                            done();
+                        });
+                    });
                 });
             });
         });
+    });
+
+    it('does not apply filename to methods in array.', (done, onCleanup) => {
+
+        onCleanup((next) => {
+
+            reset();
+            return next();
+        });
+
+        const server = new Hapi.Server();
+        server.connection();
+
+        using([
+            'methods',
+            'methods/bad-arr-method.js'
+        ]);
+
+        const domain = Domain.create();
+
+        domain.on('error', (err) => {
+
+            expect(err.message).to.match(/instance\.method\(\)/);
+            expect(err.message).to.match(/\"name\" is required/);
+            done();
+        });
+
+        domain.run(() => server.register(Closet, Hoek.ignore));
     });
 
     it('registers seneca plugins via chairo in seneca-plugins/.', (done) => {
@@ -570,16 +609,17 @@ describe('HauteCouture', () => {
 
         const plugin = (srv, options, next) => {
 
-            HauteCouture.using(`${__dirname}/closet/specific`)(srv, options)
-            .then(() => {
+            HauteCouture
+                .using(`${__dirname}/closet/specific`)(srv, options)
+                .then(() => {
 
-                expect(srv.registrations['specific-sub-plugin']).to.exist();
-                next();
-            })
-            .catch((err) => {
+                    expect(srv.registrations['specific-sub-plugin']).to.exist();
+                    next();
+                })
+                .catch((err) => {
 
-                next(err);
-            });
+                    next(err);
+                });
         };
 
         plugin.attributes = { name: 'promise-plugin' };
@@ -602,16 +642,17 @@ describe('HauteCouture', () => {
 
         const plugin = (srv, options, next) => {
 
-            HauteCouture.using(`${__dirname}/closet/specific`)(srv)
-            .then(() => {
+            HauteCouture
+                .using(`${__dirname}/closet/specific`)(srv)
+                .then(() => {
 
-                expect(srv.registrations['specific-sub-plugin']).to.exist();
-                next();
-            })
-            .catch((err) => {
+                    expect(srv.registrations['specific-sub-plugin']).to.exist();
+                    next();
+                })
+                .catch((err) => {
 
-                next(err);
-            });
+                    next(err);
+                });
         };
 
         plugin.attributes = { name: 'no-options-no-callback-plugin' };
@@ -632,16 +673,17 @@ describe('HauteCouture', () => {
         const server = new Hapi.Server();
         server.connection();
 
-        HauteCouture.using(`${__dirname}/closet/bad-plugin`)(server)
-        .then(() => {
+        HauteCouture
+            .using(`${__dirname}/closet/bad-plugin`)(server)
+            .then(() => {
 
-            return done(new Error('Shouldn\'t make it here!'));
-        })
-        .catch((err) => {
+                return done(new Error('Shouldn\'t make it here!'));
+            })
+            .catch((err) => {
 
-            expect(err.message).to.endWith('Ya blew it!');
-            done();
-        });
+                expect(err.message).to.endWith('Ya blew it!');
+                done();
+            });
     });
 
     describe('manifest', () => {
