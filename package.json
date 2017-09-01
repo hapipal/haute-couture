@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "lab -a code -t 100 -I '__core-js_shared__' && lab -dlL",
+    "test": "lab -a code -t 100 -I '__core-js_shared__,core' && lab -dlL",
     "coveralls": "lab -r lcov | coveralls"
   },
   "repository": {
