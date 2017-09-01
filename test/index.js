@@ -89,7 +89,7 @@ describe('HauteCouture', () => {
 
     const bigServer = new Hapi.Server();
 
-    before((done) => {
+    before({ timeout: 4000 }, (done) => {
 
         reset();
         notUsing([
