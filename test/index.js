@@ -475,7 +475,6 @@ describe('HauteCouture', () => {
                 done();
             });
         });
-
     });
 
     it('defines default auth strategy in auth/default.js.', (done) => {
@@ -700,6 +699,54 @@ describe('HauteCouture', () => {
                     async: Joi.boolean(),
                     list: Joi.boolean(),
                     useFilename: Joi.func()
+                }));
+
+                const summarize = (item) => `${item.method}() at ${item.place}`;
+                const summary = manifest.map(summarize);
+
+                expect(summary).to.equal([
+                    'path() at path',
+                    'bind() at bind',
+                    'connection() at connections',
+                    'register() at plugins',
+                    'dependency() at dependencies',
+                    'cache.provision() at caches',
+                    'method() at methods',
+                    'seneca.use() at seneca-plugins',
+                    'action() at action-methods',
+                    'views() at view-manager',
+                    'decorate() at decorations',
+                    'handler() at handler-types',
+                    'ext() at extensions',
+                    'expose() at expose',
+                    'auth.scheme() at auth/schemes',
+                    'auth.strategy() at auth/strategies',
+                    'auth.default() at auth/default',
+                    'state() at cookies',
+                    'schwifty() at models',
+                    'route() at routes'
+                ]);
+
+                done();
+            });
+
+            it('returns the default haute manifest with extras.', (done) => {
+
+                const manifest = HauteCouture.manifest.create(null, true);
+
+                expect(manifest.some((item) => item.example)).to.equal(true);
+                expect(manifest.some((item) => item.after)).to.equal(true);
+
+                Joi.assert(manifest, Joi.array().items({
+                    place: Joi.string().regex(/[\w\.]+/),
+                    method: Joi.string().regex(/[\w\.]+/),
+                    signature: Joi.array().items(Joi.string().regex(/^\[?\w+\]?$/)),
+                    async: Joi.boolean(),
+                    list: Joi.boolean(),
+                    useFilename: Joi.func(),
+                    before: Joi.array().items(Joi.string()).single(),
+                    after: Joi.array().items(Joi.string()).single(),
+                    example: Joi.any()
                 }));
 
                 const summarize = (item) => `${item.method}() at ${item.place}`;
@@ -1119,6 +1166,69 @@ describe('HauteCouture', () => {
 
                 domain.run(() => server.register(plugin, Hoek.ignore));
             });
+        });
+    });
+
+    describe('.hc.js', () => {
+
+        it('specifies amendments for the current directory used by haute-couture.', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            const plugin = HauteCouture.using(`${__dirname}/closet/hc-file`);
+            plugin.attributes = { name: 'my-hc-plugin' };
+
+            server.register(plugin, (err) => {
+
+                if (err) {
+                    return done(err);
+                }
+
+                expect(server.methods.controllerOne()).to.equal('controller-one');
+                expect(server.methods.controllerTwo()).to.equal('controller-two');
+                expect(server.methods.methodOne).to.not.exist();
+                expect(server.methods.methodTwo).to.not.exist();
+                done();
+            });
+        });
+
+        it('is ignored when amendments are passed explicitly.', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            const plugin = HauteCouture.using(`${__dirname}/closet/hc-file`, {});
+            plugin.attributes = { name: 'my-hc-plugin' };
+
+            server.register(plugin, (err) => {
+
+                if (err) {
+                    return done(err);
+                }
+
+                expect(server.methods.controllerOne).to.not.exist();
+                expect(server.methods.controllerTwo).to.not.exist();
+                expect(server.methods.methodOne()).to.equal('method-one');
+                expect(server.methods.methodTwo()).to.equal('method-two');
+                done();
+            });
+        });
+
+        it('causes an error if there it has bad require.', (done) => {
+
+            const makePlugin = () => HauteCouture.using(`${__dirname}/closet/bad-require-hc-file`);
+
+            expect(makePlugin).to.throw(/Cannot find module/);
+            done();
+        });
+
+        it('causes an error if there it has a general runtime exception.', (done) => {
+
+            const makePlugin = () => HauteCouture.using(`${__dirname}/closet/bad-syntax-hc-file`);
+
+            expect(makePlugin).to.throw(SyntaxError, /unexpected token/i);
+            done();
         });
     });
 });

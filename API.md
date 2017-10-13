@@ -10,12 +10,18 @@ Returns a function with the signature `function(server, [options], [next])`, ide
       - `add` - a single or array of items to add to the hapi haute manifest.  Also may be a nested array of items (e.g. `[{}, [{}, {}]]`).  If any items have `place` equal to an item in the default manifest, the default manifest item will be replaced.  Supports the following additional keys per [haute manifest item](#structure-of-a-haute-manifest-item),
         - `before` - a single or array of `place` values for which the given item should be positioned prior to other items in the manifest.
         - `after` - a single or array of `place` values for which the given item should be positioned subsequent to other items in the manifest.
+        - `example` - an example value for this item, primarily used by the [pal CLI](https://github.com/devinivy/paldo).
       - `remove` - a single or array of `place` values of items that should be removed from the manifest.  This would be utilized to opt a file/directory out of usage by haute-couture.
     - An array of items used identically to the `add` option above.
 
-### `HauteCouture.manifest.create([amendments])`
+#### Specifying amendments with `.hc.js`
 
-Returns the hapi **[haute](https://github.com/devinivy/haute)** manifest, incorporating optional `amendments` to the manifest as described in [`HauteCouture.using([dirname], [amendments])`](#hautecoutureusingdirname-amendments).
+When a call to `HauteCouture.using([dirname], [amendments])` specifies no `amendments`, haute-couture will check the relevant directory `dirname` for a file named `.hc.js`.  Any amendments exported by this file are used identically to amendments passed as an argument.  This is a nice way to keep haute-couture-related configuration separate from your plugin code, and also offer a standard way for tools such as the [pal CLI](https://github.com/devinivy/paldo) to cater to your particular usage of haute-couture.
+
+
+### `HauteCouture.manifest.create([amendments, [includeExtras]])`
+
+Returns the hapi **[haute](https://github.com/devinivy/haute)** manifest, incorporating optional `amendments` to the manifest as described in [`HauteCouture.using([dirname], [amendments])`](#hautecoutureusingdirname-amendments).  When `includeExtras` is `true` the manifest will include additional amendment information such as `before`, `after`, and `example` as described above.
 
 ### `HauteCouture.manifest.dogwater`
 
