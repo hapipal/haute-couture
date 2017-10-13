@@ -1215,7 +1215,7 @@ describe('HauteCouture', () => {
             });
         });
 
-        it('causes an error if there it has bad require.', (done) => {
+        it('causes an error if it has a bad require.', (done) => {
 
             const makePlugin = () => HauteCouture.using(`${__dirname}/closet/bad-require-hc-file`);
 
@@ -1223,7 +1223,7 @@ describe('HauteCouture', () => {
             done();
         });
 
-        it('causes an error if there it has a general runtime exception.', (done) => {
+        it('causes an error if it has a general runtime exception.', (done) => {
 
             const makePlugin = () => HauteCouture.using(`${__dirname}/closet/bad-syntax-hc-file`);
 
