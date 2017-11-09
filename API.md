@@ -74,20 +74,20 @@ Here's the complete rundown of how files and directories are mapped to API calls
 >  - vision - ≥2 and <5
 
 #### Path prefix
-> [`server.path(relativeTo)`](https://github.com/hapijs/hapi/blob/master/API.md#serverpathrelativeto)
+> [`server.path(relativeTo)`](https://github.com/hapijs/hapi/blob/master/API.md#server.path())
 
   - **`path.js`** - export `relativeTo`.
   - **`path/index.js`** - export `relativeTo`.
 
 #### Globally bound context
-> [`server.bind(context)`](https://github.com/hapijs/hapi/blob/master/API.md#serverbindcontext)
+> [`server.bind(context)`](https://github.com/hapijs/hapi/blob/master/API.md#server.bind())
 
   - **`bind.js`** - export `context`.
   - **`bind/index.js`** - export `context`.
 
 
 #### Connections
-> [`server.connection(options)`](https://github.com/hapijs/hapi/blob/master/API.md#serverconnectionoptions)
+> [`server.connection(options)`](https://hapijs.com/api#serverconnectionoptions)
 >
 > Note, this can only be used with plugins whose attributes specify `{ connections: false }`.
 
@@ -96,35 +96,35 @@ Here's the complete rundown of how files and directories are mapped to API calls
   - **`connections/some-label.js`** - export `options`. `options.labels` will be assigned `'some-label'` from the filename if no labels are already specified.
 
 #### Plugin registrations
-> [`server.register(plugins, [options], [cb])`](https://github.com/hapijs/hapi/blob/master/API.md#serverregisterplugins-options-callback)
+> [`server.register(plugins, [options], [cb])`](https://github.com/hapijs/hapi/blob/master/API.md#server.register())
 
   - **`plugins.js`** - export an array of objects `{ plugins, options }`.
   - **`plugins/index.js`** - export an array of objects.
   - **`plugins/plugin-name.js`** - export an object.  If a plugin isn't specified in `plugins` it will be `require()`d using the filename.
 
 #### Dependencies
-> [`server.dependency(dependencies, [after])`](https://github.com/hapijs/hapi/blob/master/API.md#serverdependencydependencies-after)
+> [`server.dependency(dependencies, [after])`](https://github.com/hapijs/hapi/blob/master/API.md#server.dependency())
 
   - **`dependencies.js`** - export an array of objects `{ dependencies, after }`.
   - **`dependencies/index.js`** - export an array of objects.
   - **`dependencies/plugin-name.js`** - export an object. `dependencies` will be derived from the filename if it is not already specified.
 
 #### Provisioning caches
-> [`server.cache.provision(options, [cb])`](https://github.com/hapijs/hapi/blob/master/API.md#servercacheprovisionoptions-callback)
+> [`server.cache.provision(options, [cb])`](https://github.com/hapijs/hapi/blob/master/API.md#server.cache.provision())
 
   - **`caches.js`** - export an array of `options`.
   - **`caches/index.js`** - export an array of `options`.
   - **`caches/some-cache-name.js`** - export `options`.  The cache's `options.name` will be assigned `'cache-name'` from the filename if a name isn't already specified.
 
 #### Server methods
-> [`server.method(name, method, [options])`](https://github.com/hapijs/hapi/blob/master/API.md#servermethodname-method-options)
+> [`server.method(name, method, [options])`](https://github.com/hapijs/hapi/blob/master/API.md#server.method())
 
   - **`methods.js`** - export an array of objects `{ name, method, options }`.
   - **`methods/index.js`** - export an array of objects.
   - **`methods/method-name.js`** - export an object.  The `name` will be assigned `'methodName'` camel-cased from the filename if it isn't already specified.
 
 #### Seneca plugins (for [chairo](https://github.com/hapijs/chairo))
-> [`server.seneca.use(plugin, [options])`](http://senecajs.org/api/#use-module-options-)
+> [`server.seneca.use(plugin, [options])`](http://senecajs.org/api/#method-use)
 
   - **`seneca-plugins.js`** - export an array of objects `{ plugin, options }`.
   - **`seneca-plugins/index.js`** - export an array of objects.
@@ -144,7 +144,7 @@ Here's the complete rundown of how files and directories are mapped to API calls
   - **`view-manager/index.js`** - export `options`.
 
 #### Decorations
-> [`server.decorate(type, property, method, [options])`](https://github.com/hapijs/hapi/blob/master/API.md#serverdecoratetype-property-method-options)
+> [`server.decorate(type, property, method, [options])`](https://github.com/hapijs/hapi/blob/master/API.md#server.decorate())
 
   - **`decorations.js`** - export an array of objects `{ type, property, method, options }`.
   - **`decorations/index.js`** - export an array of objects.
@@ -152,48 +152,48 @@ Here's the complete rundown of how files and directories are mapped to API calls
   - **`decorations/[type].decoration-name.js`** - export an object.  The `type` will additionally be inferred from the filename if it isn't already specified.
 
 #### Handler types
-> [`server.handler(name, method)`](https://github.com/hapijs/hapi/blob/master/API.md#serverhandlername-method)
+> [`server.handler(name, method)`](https://hapijs.com/api#serverhandlername-method)
 
   - **`handler-types.js`** - export an array of objects `{ name, method }`.
   - **`handler-types/index.js`** - export an array of objects.
   - **`handler-types/handler-name.js`** - export an object.  The `name` will be assigned `'handlerName'` camel-cased from the filename if it isn't already specified.
 
 #### Server/request extensions
-> [`server.ext(events)`](https://github.com/hapijs/hapi/blob/master/API.md#serverextevents)
+> [`server.ext(events)`](https://github.com/hapijs/hapi/blob/master/API.md#server.ext())
 
   - **`extensions.js`** - export an array of `events`.
   - **`extensions/index.js`** - export an array of `events`.
   - **`extensions/[event-type].js`** - export `events`.  The `type` (of each item if there are multiple) will be assigned `[event-type]` camel-cased from the filename if it isn't already specified.  E.g. `onPreHandler`-type events can be placed in `extensions/on-pre-handler.js`.
 
 #### Exposed properties
-> [`server.expose(key, value)`](https://github.com/hapijs/hapi/blob/master/API.md#serverexposekey-value)
+> [`server.expose(key, value)`](https://github.com/hapijs/hapi/blob/master/API.md#server.expose.obj())
 
   - **`expose.js`** - export an array of objects `{ key, value }`.
   - **`expose/index.js`** - export an array of objects.
   - **`expose/property-name.js`** - export an object.  The `key` will be assigned `'propertyName'` camel-cased from the filename if it isn't already specified.
 
 #### Authentication schemes
-> [`server.auth.scheme(name, scheme)`](https://github.com/hapijs/hapi/blob/master/API.md#serverauthschemename-scheme)
+> [`server.auth.scheme(name, scheme)`](https://github.com/hapijs/hapi/blob/master/API.md#server.auth.scheme())
 
   - **`auth/schemes.js`** - export an array of objects `{ name, scheme }`.
   - **`auth/schemes/index.js`** - export an array of objects.
   - **`auth/schemes/scheme-name.js`** - export an object.  The `name` will be assigned `'scheme-name'` from the filename if it isn't already specified.
 
 #### Authentication strategies
-> [`server.auth.strategy(name, scheme, [mode], [options])`](https://github.com/hapijs/hapi/blob/master/API.md#serverauthschemename-scheme)
+> [`server.auth.strategy(name, scheme, [mode], [options])`](https://github.com/hapijs/hapi/blob/master/API.md#server.auth.strategy())
 
   - **`auth/strategies.js`** - export an array of objects `{ name, scheme, mode, options }`.
   - **`auth/strategies/index.js`** - export an array of objects.
   - **`auth/strategies/strategy-name.js`** - export an object.  The `name` will be assigned `'strategy-name'` from the filename if it isn't already specified.
 
 #### Default auth strategy
-> [`server.auth.default(options)`](https://github.com/hapijs/hapi/blob/master/API.md#serverauthdefaultoptions)
+> [`server.auth.default(options)`](https://github.com/hapijs/hapi/blob/master/API.md#server.auth.default())
 
   - **`auth/default.js`** - export `options`.
   - **`auth/default/index.js`** - export `options`.
 
 #### Cookies
-> [`server.state(name, [options])`](https://github.com/hapijs/hapi/blob/master/API.md#serverstatename-options)
+> [`server.state(name, [options])`](https://github.com/hapijs/hapi/blob/master/API.md#server.state())
 
   - **`cookies.js`** - export an array of objects `{ name, options }`.
   - **`cookies/index.js`** - export an array of objects.
@@ -218,7 +218,7 @@ Here's the complete rundown of how files and directories are mapped to API calls
   - **`models/model-identity.js`** - export `models`.  If `models` is a single model definition, the model's `identity` will be assigned `'model-identity'` from the filename if it isn't already specified.  The filename could just as easily represent a group of models (rather than an identity) and the file could export an array of model configs.
 
 #### Routes
-> [`server.route(options)`](https://github.com/hapijs/hapi/blob/master/API.md#serverrouteoptions)
+> [`server.route(options)`](https://github.com/hapijs/hapi/blob/master/API.md#server.route())
 
   - **`routes.js`** - export an array of `options`.
   - **`routes/index.js`** - export an array of `options`.
