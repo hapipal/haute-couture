@@ -4,6 +4,9 @@ File-based hapi plugin composer
 
 [![Build Status](https://travis-ci.org/devinivy/haute-couture.svg?branch=master)](https://travis-ci.org/devinivy/haute-couture) [![Coverage Status](https://coveralls.io/repos/devinivy/haute-couture/badge.svg?branch=master&service=github)](https://coveralls.io/github/devinivy/haute-couture?branch=master)
 
+Lead Maintainer - [Devin Ivy](https://github.com/devinivy)
+
+# Introduction
 This library will wire your hapi plugin together based simply upon where you place files.  It has the ability to call every configuration-related method in the hapi plugin API.  This means many good things.
 
 To name a few,
