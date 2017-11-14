@@ -6,7 +6,7 @@ File-based hapi plugin composer
 
 Lead Maintainer - [Devin Ivy](https://github.com/devinivy)
 
-# Introduction
+## Introduction
 This library will wire your hapi plugin together based simply upon where you place files.  It has the ability to call every configuration-related method in the hapi plugin API.  This means many good things.
 
 To name a few,
