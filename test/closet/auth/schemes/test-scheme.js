@@ -6,7 +6,7 @@ module.exports = {
         return {
             authenticate: (request, h) => {
 
-                 return h.authenticated({ credentials: { testScheme: options } });
+                return h.authenticated({ credentials: { testScheme: options } });
             }
         };
     }

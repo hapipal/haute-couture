@@ -4,10 +4,8 @@
 
 const Lab = require('lab');
 const Code = require('code');
-const Domain = require('domain');
 const Hapi = require('hapi');
 const Joi = require('joi');
-const Hoek = require('hoek');
 const Renamer = require('renamer');
 const Glob = require('glob');
 const Closet = require('./closet');
@@ -92,7 +90,6 @@ describe('HauteCouture', () => {
         reset();
 
         notUsing([
-            'connections',
             'decorations/server.bad.test-dec.js',
             'methods/bad-arr-method.js'
         ]);
@@ -119,7 +116,7 @@ describe('HauteCouture', () => {
             name: 'my-specific-plugin'
         };
 
-        await server.register(plugin)
+        await server.register(plugin);
 
         // Just an example to show it used the caller's directory
         expect(server.registrations['specific-sub-plugin']).to.exist();
@@ -135,7 +132,7 @@ describe('HauteCouture', () => {
             name: 'my-specific-plugin'
         };
 
-        await server.register(plugin)
+        await server.register(plugin);
 
         // From the prev test we can see this would have existed were the manifest not altered
         expect(server.registrations['specific-sub-plugin']).to.not.exist();
@@ -235,7 +232,7 @@ describe('HauteCouture', () => {
         const resultFour = bigServer.methods.arrMethodOne();
         expect(resultFour).to.equal('arr-method-one');
 
-        const resultFive = bigServer.methods.arrMethodTwo()
+        const resultFive = bigServer.methods.arrMethodTwo();
         expect(resultFive).to.equal('arr-method-two');
     });
 
@@ -343,12 +340,12 @@ describe('HauteCouture', () => {
         });
     });
 
-    it('defines default auth strategy in auth/default.js.', async () => {
+    it('defines default auth strategy in auth/default.js.', () => {
 
         expect(bigServer.auth.settings.default.strategies).to.equal(['my-named-strategy']);
     });
 
-    it('defines cookies in cookies/.', async () => {
+    it('defines cookies in cookies/.', () => {
 
         expect(bigServer.states.cookies['my-named-cookie']).to.exist();
         expect(bigServer.states.cookies['test-cookie']).to.exist();
@@ -360,6 +357,13 @@ describe('HauteCouture', () => {
         const models = bigServer.models(true);
         expect(models).to.have.length(1);
         expect(models.MyNamedModel).to.exist();
+    });
+
+    it('defines schmervice services in services/.', () => {
+
+        const services = bigServer.services();
+        expect(services).to.have.length(1);
+        expect(services.myService).to.exist();
     });
 
     it('defines routes in routes/.', () => {
@@ -409,12 +413,12 @@ describe('HauteCouture', () => {
 
         await expect(HauteCouture.using(`${__dirname}/closet/bad-plugin`)(server)).to.reject(/Ya blew it!/);
     });
-/*
+
     describe('manifest', () => {
 
         describe('create()', () => {
 
-            it('returns the default haute manifest.', (done) => {
+            it('returns the default haute manifest.', () => {
 
                 const manifest = HauteCouture.manifest.create();
                 Joi.assert(manifest, Joi.array().items({
@@ -431,31 +435,26 @@ describe('HauteCouture', () => {
 
                 expect(summary).to.equal([
                     'path() at path',
-                    'bind() at bind',
-                    'connection() at connections',
                     'register() at plugins',
-                    'dependency() at dependencies',
                     'cache.provision() at caches',
-                    'method() at methods',
-                    'seneca.use() at seneca-plugins',
-                    'action() at action-methods',
                     'views() at view-manager',
                     'decorate() at decorations',
-                    'handler() at handler-types',
-                    'ext() at extensions',
                     'expose() at expose',
+                    'state() at cookies',
+                    'schwifty() at models',
+                    'registerService() at services',
+                    'bind() at bind',
+                    'dependency() at dependencies',
+                    'method() at methods',
+                    'ext() at extensions',
                     'auth.scheme() at auth/schemes',
                     'auth.strategy() at auth/strategies',
                     'auth.default() at auth/default',
-                    'state() at cookies',
-                    'schwifty() at models',
                     'route() at routes'
                 ]);
-
-                done();
             });
 
-            it('returns the default haute manifest with extras.', (done) => {
+            it('returns the default haute manifest with extras.', () => {
 
                 const manifest = HauteCouture.manifest.create(null, true);
 
@@ -479,31 +478,26 @@ describe('HauteCouture', () => {
 
                 expect(summary).to.equal([
                     'path() at path',
-                    'bind() at bind',
-                    'connection() at connections',
                     'register() at plugins',
-                    'dependency() at dependencies',
                     'cache.provision() at caches',
-                    'method() at methods',
-                    'seneca.use() at seneca-plugins',
-                    'action() at action-methods',
                     'views() at view-manager',
                     'decorate() at decorations',
-                    'handler() at handler-types',
-                    'ext() at extensions',
                     'expose() at expose',
+                    'state() at cookies',
+                    'schwifty() at models',
+                    'registerService() at services',
+                    'bind() at bind',
+                    'dependency() at dependencies',
+                    'method() at methods',
+                    'ext() at extensions',
                     'auth.scheme() at auth/schemes',
                     'auth.strategy() at auth/strategies',
                     'auth.default() at auth/default',
-                    'state() at cookies',
-                    'schwifty() at models',
                     'route() at routes'
                 ]);
-
-                done();
             });
 
-            it('removes single item from the manifest by place.', (done) => {
+            it('removes single item from the manifest by place.', () => {
 
                 const defaultManifest = HauteCouture.manifest.create();
                 const manifest = HauteCouture.manifest.create({
@@ -516,15 +510,13 @@ describe('HauteCouture', () => {
 
                     expect(item).to.equal(defaultManifest[i]);
                 });
-
-                done();
             });
 
-            it('removes items from the manifest by place.', (done) => {
+            it('removes items from the manifest by place.', () => {
 
                 const defaultManifest = HauteCouture.manifest.create();
                 const manifest = HauteCouture.manifest.create({
-                    remove: ['models', 'routes']
+                    remove: ['auth/default', 'routes'] // Bottom two
                 });
 
                 expect(manifest.length).to.equal(defaultManifest.length - 2);
@@ -533,11 +525,9 @@ describe('HauteCouture', () => {
 
                     expect(item).to.equal(defaultManifest[i]);
                 });
-
-                done();
             });
 
-            it('replaces items in the manifest by place.', (done) => {
+            it('replaces items in the manifest by place.', () => {
 
                 const defaultManifest = HauteCouture.manifest.create();
                 const manifest = HauteCouture.manifest.create({
@@ -555,11 +545,9 @@ describe('HauteCouture', () => {
                     place: 'routes',
                     method: 'myRoute'
                 });
-
-                done();
             });
 
-            it('replaces items in the manifest by place.', (done) => {
+            it('replaces items in the manifest by place.', () => {
 
                 const defaultManifest = HauteCouture.manifest.create();
                 const manifest = HauteCouture.manifest.create({
@@ -589,11 +577,9 @@ describe('HauteCouture', () => {
                     place: 'models',
                     method: 'mySchwifty'
                 });
-
-                done();
             });
 
-            it('adds new items to the manifest.', (done) => {
+            it('adds new items to the manifest.', () => {
 
                 const defaultManifest = HauteCouture.manifest.create();
                 const manifest = HauteCouture.manifest.create({
@@ -626,11 +612,9 @@ describe('HauteCouture', () => {
                     place: 'funky-bind',
                     method: 'funkyBind'
                 });
-
-                done();
             });
 
-            it('adds new single item to the manifest.', (done) => {
+            it('adds new single item to the manifest.', () => {
 
                 const defaultManifest = HauteCouture.manifest.create();
                 const manifest = HauteCouture.manifest.create({
@@ -652,11 +636,9 @@ describe('HauteCouture', () => {
                     place: 'funky-routes',
                     method: 'funkyRoutes'
                 });
-
-                done();
             });
 
-            it('respects before/after options for additional items.', (done) => {
+            it('respects before/after options for additional items.', () => {
 
                 const defaultManifest = HauteCouture.manifest.create();
                 const manifest = HauteCouture.manifest.create({
@@ -697,263 +679,58 @@ describe('HauteCouture', () => {
 
                 expect(funkyIndex).to.be.above(indexOf('auth/strategies', manifest));
                 expect(funkyIndex).to.be.below(indexOf('auth/default', manifest));
-
-                done();
-            });
-        });
-
-        describe('dogwater amendment', () => {
-
-            const plugin = HauteCouture.using(`${__dirname}/closet/amendments/dogwater`, {
-                add: [
-                    HauteCouture.manifest.dogwater
-                ]
-            });
-
-            plugin.attributes = { name: 'my-dogwater-plugin' };
-
-            it('defines dogwater models in models/.', (done, onCleanup) => {
-
-                onCleanup((next) => {
-
-                    reset();
-                    return next();
-                });
-
-                const server = Hapi.server();
-                server.connection();
-
-                notUsing([
-                    'amendments/dogwater/models/bad-arr-model.js'
-                ]);
-
-                server.register(plugin, (err) => {
-
-                    if (err) {
-                        return done(err);
-                    }
-
-                    server.initialize((err) => {
-
-                        if (err) {
-                            return done(err);
-                        }
-
-                        const collections = server.collections(true);
-                        expect(collections).to.have.length(2);
-                        expect(collections['my-named-model']).to.exist();
-                        expect(collections['test-model']).to.exist();
-                        done();
-                    });
-                });
-            });
-
-            it('does not apply filename to dogwater models in array.', (done, onCleanup) => {
-
-                onCleanup((next) => {
-
-                    reset();
-                    return next();
-                });
-
-                const server = Hapi.server();
-                server.connection();
-
-                using([
-                    'amendments',
-                    'amendments/dogwater',
-                    'amendments/dogwater/plugins.js',
-                    'amendments/dogwater/models',
-                    'amendments/dogwater/models/bad-arr-model.js'
-                ]);
-
-                const domain = Domain.create();
-
-                domain.on('error', (err) => {
-
-                    expect(err.message).to.match(/\"identity\" is required/);
-                    done();
-                });
-
-                domain.run(() => server.register(plugin, Hoek.ignore));
-            });
-        });
-
-        describe('loveboat amendment', () => {
-
-            const hc = HauteCouture.using(`${__dirname}/closet/amendments/loveboat`, {
-                add: [
-                    HauteCouture.manifest.loveboat // Also tests nesting, since this is an array itself
-                ]
-            });
-
-            const plugin = (server, options, next) => {
-
-                hc(server, options, (err) => {
-
-                    if (err) {
-                        return next(err);
-                    }
-
-                    server.app.realm = server.realm;
-                    next();
-                });
-            };
-
-            plugin.attributes = { name: 'my-loveboat-plugin' };
-
-            it('defines loveboat transforms in route-transforms/.', (done, onCleanup) => {
-
-                onCleanup((next) => {
-
-                    reset();
-                    return next();
-                });
-
-                const server = Hapi.server();
-                server.connection();
-
-                notUsing([
-                    'amendments/loveboat/route-transforms/bad-arr-transform.js'
-                ]);
-
-                server.register(plugin, (err) => {
-
-                    if (err) {
-                        return done(err);
-                    }
-
-                    const transforms = server.app.realm.plugins.loveboat.transforms.nodes;
-                    const transformNames = transforms.map((transform) => transform.transform.name).sort();
-
-                    expect(transformNames).to.equal(['my-named-transform', 'test-transform']);
-                    done();
-                });
-            });
-
-            it('defines loveboat routes in routes-loveboat/.', (done, onCleanup) => {
-
-                onCleanup((next) => {
-
-                    reset();
-                    return next();
-                });
-
-                const server = Hapi.server();
-                server.connection();
-
-                notUsing([
-                    'amendments/loveboat/route-transforms/bad-arr-transform.js'
-                ]);
-
-                server.register(plugin, (err) => {
-
-                    if (err) {
-                        return done(err);
-                    }
-
-                    const route = server.lookup('loveboat');
-                    expect(route).to.exist();
-                    expect(route.settings.app).to.equal({
-                        myNamedTransform: true,
-                        testTransform: true
-                    });
-                    done();
-                });
-            });
-
-            it('does not apply filename to loveboat transforms in array.', (done, onCleanup) => {
-
-                onCleanup((next) => {
-
-                    reset();
-                    return next();
-                });
-
-                const server = Hapi.server();
-                server.connection();
-
-                using([
-                    'amendments',
-                    'amendments/loveboat',
-                    'amendments/loveboat/plugins.js',
-                    'amendments/loveboat/route-transforms',
-                    'amendments/loveboat/route-transforms/bad-arr-transform.js'
-                ]);
-
-                const domain = Domain.create();
-
-                domain.on('error', (err) => {
-
-                    expect(err.message).to.match(/\"name\" is required/);
-                    done();
-                });
-
-                domain.run(() => server.register(plugin, Hoek.ignore));
             });
         });
     });
 
     describe('.hc.js', () => {
 
-        it('specifies amendments for the current directory used by haute-couture.', (done) => {
+        it('specifies amendments for the current directory used by haute-couture.', async () => {
 
             const server = Hapi.server();
-            server.connection();
 
-            const plugin = HauteCouture.using(`${__dirname}/closet/hc-file`);
-            plugin.attributes = { name: 'my-hc-plugin' };
+            const plugin = {
+                name: 'my-hc-plugin',
+                register: HauteCouture.using(`${__dirname}/closet/hc-file`)
+            };
 
-            server.register(plugin, (err) => {
+            await server.register(plugin);
 
-                if (err) {
-                    return done(err);
-                }
-
-                expect(server.methods.controllerOne()).to.equal('controller-one');
-                expect(server.methods.controllerTwo()).to.equal('controller-two');
-                expect(server.methods.methodOne).to.not.exist();
-                expect(server.methods.methodTwo).to.not.exist();
-                done();
-            });
+            expect(server.methods.controllerOne()).to.equal('controller-one');
+            expect(server.methods.controllerTwo()).to.equal('controller-two');
+            expect(server.methods.methodOne).to.not.exist();
+            expect(server.methods.methodTwo).to.not.exist();
         });
 
-        it('is ignored when amendments are passed explicitly.', (done) => {
+        it('is ignored when amendments are passed explicitly.', async () => {
 
             const server = Hapi.server();
-            server.connection();
 
-            const plugin = HauteCouture.using(`${__dirname}/closet/hc-file`, {});
-            plugin.attributes = { name: 'my-hc-plugin' };
+            const plugin = {
+                name: 'my-hc-plugin',
+                register: HauteCouture.using(`${__dirname}/closet/hc-file`, {})
+            };
 
-            server.register(plugin, (err) => {
+            await server.register(plugin);
 
-                if (err) {
-                    return done(err);
-                }
-
-                expect(server.methods.controllerOne).to.not.exist();
-                expect(server.methods.controllerTwo).to.not.exist();
-                expect(server.methods.methodOne()).to.equal('method-one');
-                expect(server.methods.methodTwo()).to.equal('method-two');
-                done();
-            });
+            expect(server.methods.controllerOne).to.not.exist();
+            expect(server.methods.controllerTwo).to.not.exist();
+            expect(server.methods.methodOne()).to.equal('method-one');
+            expect(server.methods.methodTwo()).to.equal('method-two');
         });
 
-        it('causes an error if it has a bad require.', (done) => {
+        it('causes an error if it has a bad require.', () => {
 
             const makePlugin = () => HauteCouture.using(`${__dirname}/closet/bad-require-hc-file`);
 
             expect(makePlugin).to.throw(/Cannot find module/);
-            done();
         });
 
-        it('causes an error if it has a general runtime exception.', (done) => {
+        it('causes an error if it has a general runtime exception.', () => {
 
             const makePlugin = () => HauteCouture.using(`${__dirname}/closet/bad-syntax-hc-file`);
 
             expect(makePlugin).to.throw(SyntaxError, /unexpected token/i);
-            done();
         });
-    });*/
+    });
 });

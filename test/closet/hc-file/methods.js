@@ -4,11 +4,11 @@ module.exports = [
     {
         name: 'methodOne',
         method: () => 'method-one',
-        options: { callback: false }
+        options: {}
     },
     {
         name: 'methodTwo',
         method: () => 'method-two',
-        options: { callback: false }
+        options: {}
     }
 ];

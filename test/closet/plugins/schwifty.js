@@ -1,7 +1,5 @@
 'use strict';
 
-const Schwifty = require('schwifty');
-
 module.exports = {
     plugins: {
         options: {

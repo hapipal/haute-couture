@@ -10,7 +10,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "lab -a code -t 100 -I '__core-js_shared__,core' && lab -dlL",
+    "test": "lab -a code -t 100 -I '__core-js_shared__' && lab -dlL",
     "coveralls": "lab -r lcov | coveralls"
   },
   "repository": {
@@ -54,6 +54,7 @@
     "lab": "15.x.x",
     "objection": "0.9.x",
     "renamer": "0.6.x",
+    "schmervice": "1.x.x",
     "schwifty": "3.x.x",
     "sqlite3": "3.x.x",
     "vision": "5.x.x"

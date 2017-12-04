@@ -7,7 +7,7 @@ module.exports = {
         return {
             authenticate: (request, h) => {
 
-                 return h.authenticated({ credentials: { myNamedScheme: options } });
+                return h.authenticated({ credentials: { myNamedScheme: options } });
             }
         };
     }
