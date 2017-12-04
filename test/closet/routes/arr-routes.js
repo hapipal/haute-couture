@@ -4,14 +4,14 @@ module.exports = [
     {
         method: 'get',
         path: '/arr-route-one',
-        config: {
+        options: {
             handler: () => 'arr-route-one'
         }
     },
     {
         method: 'get',
         path: '/arr-route-two',
-        config: {
+        options: {
             handler: () => 'arr-route-two'
         }
     }

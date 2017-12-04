@@ -369,6 +369,7 @@ describe('HauteCouture', () => {
     it('defines routes in routes/.', () => {
 
         expect(bigServer.lookup('my-id-route')).to.exist();
+        expect(bigServer.lookup('id-config-route')).to.exist();
         expect(bigServer.lookup('test-route')).to.exist();
         expect(bigServer.lookup('arr-routes')).to.not.exist();
         expect(bigServer.match('get', '/arr-route-one')).to.exist();

@@ -7,6 +7,8 @@ File-based hapi plugin composer
 Lead Maintainer - [Devin Ivy](https://github.com/devinivy)
 
 ## Introduction
+> Note, this library is intended to work with **hapi v17+**
+
 This library will wire your hapi plugin together based simply upon where you place files.  It has the ability to call every configuration-related method in the hapi plugin API.  This means many good things.
 
 To name a few,
@@ -18,7 +20,7 @@ To name a few,
  - You can teach haute-couture how to use your own custom server decorations.
  - You can still write all the custom plugin code you desire.
 
-Again, **haute-couture** understands 23 hapi plugin methods– those for server methods, custom handler types, server/request decorations, request lifecycle extensions, route configuration, cookie definitions, [loveboat](https://github.com/devinivy/loveboat) routes and transforms, [vision](https://github.com/hapijs/vision) view managers, [dogwater](https://github.com/devinivy/dogwater) or [schwifty](https://github.com/BigRoomStudios/schwifty) model definitions, [chairo](https://github.com/hapijs/chairo) action-methods, and plenty more.  It can also be used as an alternative to [glue](https://github.com/hapijs/glue) for composing a server.
+Again, **haute-couture** understands 17 hapi plugin methods– those for server methods, server/request decorations, request lifecycle extensions, route configuration, cookie definitions, [vision](https://github.com/hapijs/vision) view managers, [schwifty](https://github.com/BigRoomStudios/schwifty) models, [schmervice](https://github.com/devinivy/schmervice) services, and plenty more.  It can also be used as an alternative to [glue](https://github.com/hapijs/glue) for composing a server.
 
 ## Usage
 > See also the [API Reference](API.md)
@@ -33,21 +35,20 @@ const HauteCouture = require('haute-couture');
 
 // Either...
 // 1. a plugin wired with haute-couture plus custom logic
-module.exports = (server, options, next) => {
+module.exports = {
+  name: 'my-hapi-plugin',
+  register: async (server, options) => {
 
-  HauteCouture.using()(server, options, (err) => {
+    // Do custom plugin duties
 
-    // Handle err, do custom plugin duties
-
-    return next();
-  });
+    await HauteCouture.using()(server, options);
+  }
 };
 
 // 2. a plugin entirely wired using haute-couture
-module.exports = HauteCouture.using();
-
-module.exports.attributes = {
-  name: 'my-hapi-plugin'
+module.exports = {
+  name: 'my-hapi-plugin',
+  register: HauteCouture.using()
 };
 ```
 
@@ -57,11 +58,12 @@ module.exports.attributes = {
 module.exports = {
   method: 'get',
   path: '/',
-  config: {
+  options: {
     // The route id 'pinger' will be assigned
     // automatically from the filename
-    handler: (request, reply) => {
-      reply({ ping: 'pong' });
+    handler: (request) => {
+
+      return { ping: 'pong' };
     }
   }
 };
