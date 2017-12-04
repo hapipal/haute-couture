@@ -2,5 +2,6 @@
 
 module.exports = {
     name: 'myNamedMethod',
-    method: (cb) => cb(null, 'my-named-method')
+    method: () => 'my-named-method',
+    options: {}
 };

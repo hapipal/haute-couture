@@ -2,6 +2,7 @@
 
 module.exports = [
     {
-        method: (cb) => cb(null, 'bad-arr-method')
+        method: () => 'bad-arr-method',
+        options: {}
     }
 ];

@@ -1,9 +1,9 @@
 'use strict';
 
 module.exports = {
-    method: (request, reply) => {
+    method: (request, h) => {
 
         request.app.lifecycle.push('onPostHandler');
-        reply.continue();
+        return h.continue;
     }
 };

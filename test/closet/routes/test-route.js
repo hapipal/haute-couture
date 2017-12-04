@@ -3,5 +3,5 @@
 module.exports = {
     method: 'get',
     path: '/test-route',
-    handler: (request, reply) => reply('test-route')
+    handler: () => 'test-route'
 };

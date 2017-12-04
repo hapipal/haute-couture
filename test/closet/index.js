@@ -2,19 +2,12 @@
 
 const HauteCouture = require('../..');
 
-module.exports = (server, options, next) => {
+module.exports = {
+    name: 'my-plugin',
+    async register(server, options) {
 
-    HauteCouture.using()(server, options, (err) => {
-
-        if (err) {
-            return next(err);
-        }
+        await HauteCouture.using()(server, options);
 
         server.app.realm = server.realm;
-        next();
-    });
-};
-
-module.exports.attributes = {
-    name: 'my-plugin'
+    }
 };

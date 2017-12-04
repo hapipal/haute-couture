@@ -2,13 +2,13 @@
 
 const internals = {};
 
-internals.plugin = (srv, options, next) => {
+internals.plugin = {
+    name: 'test-dep',
+    register(srv) {
 
-    srv.app.sawPluginOptions = srv.realm.modifiers.route.prefix;
-    next();
+        srv.app.sawPluginOptions = srv.realm.modifiers.route.prefix;
+    }
 };
-
-internals.plugin.attributes = { name: 'test-dep' };
 
 module.exports = {
     plugins: [internals.plugin],

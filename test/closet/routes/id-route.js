@@ -5,6 +5,6 @@ module.exports = {
     path: '/id-route',
     config: {
         id: 'my-id-route',
-        handler: (request, reply) => reply('my-id-route')
+        handler: () => 'my-id-route'
     }
 };

@@ -3,10 +3,12 @@
 module.exports = [
     {
         name: 'arrMethodOne',
-        method: (cb) => cb(null, 'arr-method-one')
+        method: () => 'arr-method-one',
+        options: {}
     },
     {
         name: 'arrMethodTwo',
-        method: (cb) => cb(null, 'arr-method-two')
+        method: () => 'arr-method-two',
+        options: {}
     }
 ];
