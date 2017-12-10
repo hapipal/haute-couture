@@ -103,7 +103,7 @@ Here's the complete rundown of how files and directories are mapped to API calls
 
   - **`services.js`** - export an array of `ServiceClass`es.
   - **`services/index.js`** - export an array of `ServiceClass`es.
-  - **`models/service-name.js`** - export `ServiceClass`.
+  - **`services/service-name.js`** - export `ServiceClass`.
 
 #### Globally bound context
 > [`server.bind(context)`](https://github.com/hapijs/hapi/blob/master/API.md#server.bind())
