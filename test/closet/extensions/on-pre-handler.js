@@ -3,17 +3,17 @@
 module.exports = [
     {
         type: 'onPostAuth',
-        method: (request, reply) => {
+        method: (request, h) => {
 
             request.app.lifecycle.push('onPostAuth');
-            reply.continue();
+            return h.continue;
         }
     },
     {   // Should get { type: onPreHandler } from filename
-        method: (request, reply) => {
+        method: (request, h) => {
 
             request.app.lifecycle.push('onPreHandler');
-            reply.continue();
+            return h.continue;
         }
     }
 ];

@@ -2,4 +2,5 @@
 
 const Model = require('schwifty').Model;
 
-module.exports = class MyNamedModel extends Model {};
+exports = module.exports = class MyNamedModel extends Model {};
+exports.tableName = 'MyNamedModel';

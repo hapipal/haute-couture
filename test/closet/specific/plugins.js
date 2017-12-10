@@ -2,8 +2,9 @@
 
 const internals = {};
 
-internals.plugin = (srv, options, next) => next();
-
-internals.plugin.attributes = { name: 'specific-sub-plugin' };
+internals.plugin = {
+    name: 'specific-sub-plugin',
+    register: (srv, options) => null
+};
 
 module.exports = [{ plugins: internals.plugin }];

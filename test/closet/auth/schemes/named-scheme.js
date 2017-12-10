@@ -5,9 +5,9 @@ module.exports = {
     scheme: (server, options) => {
 
         return {
-            authenticate: (request, reply) => {
+            authenticate: (request, h) => {
 
-                return reply.continue({ credentials: { myNamedScheme: options } });
+                return h.authenticated({ credentials: { myNamedScheme: options } });
             }
         };
     }

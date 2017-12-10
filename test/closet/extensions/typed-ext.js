@@ -2,9 +2,9 @@
 
 module.exports = {
     type: 'onPreAuth',
-    method: (request, reply) => {
+    method: (request, h) => {
 
         request.app.lifecycle = ['onPreAuth'];
-        reply.continue();
+        return h.continue;
     }
 };

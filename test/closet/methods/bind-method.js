@@ -1,8 +1,9 @@
 'use strict';
 
 module.exports = {
-    method: function (cb) {
+    method: function () {
 
-        return cb(null, this);
-    }
+        return this;
+    },
+    options: {}
 };

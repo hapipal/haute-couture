@@ -3,10 +3,9 @@
 // Load modules
 
 const Lab = require('lab');
-const Domain = require('domain');
+const Code = require('code');
 const Hapi = require('hapi');
 const Joi = require('joi');
-const Hoek = require('hoek');
 const Renamer = require('renamer');
 const Glob = require('glob');
 const Closet = require('./closet');
@@ -14,11 +13,8 @@ const HauteCouture = require('..');
 
 // Test shortcuts
 
-const lab = exports.lab = Lab.script();
-const before = lab.before;
-const describe = lab.describe;
-const it = lab.it;
-const expect = Lab.expect;
+const { before, describe, it } = exports.lab = Lab.script();
+const { expect } = Code;
 
 const internals = {};
 
@@ -87,113 +83,87 @@ describe('HauteCouture', () => {
         }));
     };
 
-    const bigServer = new Hapi.Server();
+    const bigServer = Hapi.server();
 
-    before({ timeout: 4000 }, (done) => {
+    before({ timeout: 4000 }, async () => {
 
         reset();
+
         notUsing([
-            'connections',
             'decorations/server.bad.test-dec.js',
             'methods/bad-arr-method.js'
         ]);
 
-        bigServer.connection();
-        bigServer.register(Closet, (err) => {
+        await bigServer.register(Closet);
 
-            reset();
+        reset();
 
-            if (err) {
-                return done(err);
-            }
-
-            bigServer.initialize(done);
-        });
+        await bigServer.initialize();
     });
 
-    it('defaults to look in the caller\'s directory.', (done) => {
+    it('defaults to look in the caller\'s directory.', () => {
 
         // Just an example to show it used the caller's directory
         expect(bigServer.registrations.vision).to.exist();
-        done();
     });
 
-    it('can look in specific directory.', (done) => {
+    it('can look in specific directory.', async () => {
 
-        const server = new Hapi.Server();
-        server.connection();
+        const server = Hapi.server();
 
-        const plugin = HauteCouture.using(`${__dirname}/closet/specific`);
-        plugin.attributes = { name: 'my-specific-plugin' };
+        const plugin = {
+            register: HauteCouture.using(`${__dirname}/closet/specific`),
+            name: 'my-specific-plugin'
+        };
 
-        server.register(plugin, (err) => {
+        await server.register(plugin);
 
-            if (err) {
-                return done(err);
-            }
-
-            // Just an example to show it used the caller's directory
-            expect(server.registrations['specific-sub-plugin']).to.exist();
-            done();
-        });
+        // Just an example to show it used the caller's directory
+        expect(server.registrations['specific-sub-plugin']).to.exist();
     });
 
-    it('allows one to amend the haute manifest.', (done) => {
+    it('allows one to amend the haute manifest.', async () => {
 
-        const server = new Hapi.Server();
-        server.connection();
+        const server = Hapi.server();
 
         const amendments = { remove: ['plugins'] };
-        const plugin = HauteCouture.using(`${__dirname}/closet/specific`, amendments);
-        plugin.attributes = { name: 'my-specific-plugin' };
+        const plugin = {
+            register: HauteCouture.using(`${__dirname}/closet/specific`, amendments),
+            name: 'my-specific-plugin'
+        };
 
-        server.register(plugin, (err) => {
+        await server.register(plugin);
 
-            if (err) {
-                return done(err);
-            }
-
-            // From the prev test we can see this would have existed were the manifest not altered
-            expect(server.registrations['specific-sub-plugin']).to.not.exist();
-            done();
-        });
+        // From the prev test we can see this would have existed were the manifest not altered
+        expect(server.registrations['specific-sub-plugin']).to.not.exist();
     });
 
-    it('allows one to amend the haute manifest, omitting dirname.', (done) => {
+    it('allows one to amend the haute manifest, omitting dirname.', async () => {
 
-        const server = new Hapi.Server();
-        server.connection();
+        const server = Hapi.server();
 
         const defaultManifest = HauteCouture.manifest.create();
         const placeOf = (item) => item.place;
 
         // Remove all instructions
         const amendments = { remove: defaultManifest.map(placeOf) };
-        const plugin = HauteCouture.using(amendments);
-        plugin.attributes = { name: 'my-specific-plugin' };
+        const plugin = {
+            register: HauteCouture.using(amendments),
+            name: 'my-specific-plugin'
+        };
 
-        server.register(plugin, (err) => {
+        await server.register(plugin);
 
-            if (err) {
-                return done(err);
-            }
-
-            // See prev tests– without amendments vision would have been registered
-            expect(server.registrations.vision).to.not.exist();
-            done();
-        });
+        // See prev tests– without amendments vision would have been registered
+        expect(server.registrations.vision).to.not.exist();
     });
 
-    it('accepts additional haute manifest items in an array.', (done, onCleanup) => {
 
-        onCleanup((next) => {
+    it('accepts additional haute manifest items in an array.', async (flags) => {
 
-            reset();
-            return next();
-        });
+        flags.onCleanup = reset;
 
-        const server = new Hapi.Server();
-        server.connection();
+        const server = Hapi.server();
 
         const called = {};
         server.decorate('server', 'special', function (myArg) {
@@ -202,494 +172,254 @@ describe('HauteCouture', () => {
             called.length = arguments.length;
         });
 
-        const plugin = HauteCouture.using(`${__dirname}/closet`, [{
-            place: 'special',
-            method: 'special',
-            signature: ['myArg'],
-            list: false
-        }]);
-
-        plugin.attributes = { name: 'my-special-plugin' };
+        const plugin = {
+            name: 'my-special-plugin',
+            register: HauteCouture.using(`${__dirname}/closet`, [{
+                place: 'special',
+                method: 'special',
+                signature: ['myArg'],
+                list: false
+            }])
+        };
 
         using(['special.js']);
 
-        server.register(plugin, (err) => {
+        await server.register(plugin);
 
-            if (err) {
-                return done(err);
-            }
-
-            expect(called.myArg).to.equal('mySpecialValue');
-            expect(called.length).to.equal(1);
-            done();
-        });
+        expect(called.myArg).to.equal('mySpecialValue');
+        expect(called.length).to.equal(1);
     });
 
-    it('registers plugins in plugins/.', (done) => {
+    it('registers plugins in plugins/.', () => {
 
-        // plugins specified, but not an array and no register
-        expect(bigServer.registrations.chairo).to.exist();
+        // plugins specified, but not an array and no `plugin`
+        expect(bigServer.registrations.schwifty).to.exist();
 
         // No plugins specified
         expect(bigServer.registrations.vision).to.exist();
 
-        // plugins specified as an array
-        expect(bigServer.registrations.loveboat).to.exist();
-
-        // Passes options
+        // Passes options, plugins specified as array
         expect(bigServer.registrations['test-dep']).to.exist();
         expect(bigServer.app.sawPluginOptions).to.equal('/options');
-
-        done();
     });
 
-    it('enforces dependencies in dependencies/.', (done) => {
+    it('enforces dependencies in dependencies/.', () => {
 
         expect(bigServer.app.deps).have.length(2);
         expect(bigServer.app.deps).to.only.contain(['vision', 'test-dep']);
-        done();
     });
 
-    it('provisions caches in caches/.', (done) => {
+    it('provisions caches in caches/.', () => {
 
         expect(() => {
 
             bigServer.cache({ cache: 'my-named-cache', segment: 'seg' });
             bigServer.cache({ cache: 'test-cache', segment: 'seg' });
         }).to.not.throw();
-
-        done();
     });
 
-    it('registers server methods in methods/, respecting bound context.', (done) => {
+    it('registers server methods in methods/, respecting bound context.', () => {
 
-        bigServer.methods.myNamedMethod((err, resultOne) => {
+        const resultOne = bigServer.methods.myNamedMethod();
+        expect(resultOne).to.equal('my-named-method');
 
-            expect(err).to.not.exist();
-            expect(resultOne).to.equal('my-named-method');
+        const resultTwo = bigServer.methods.testMethod();
+        expect(resultTwo).to.equal('test-method');
 
-            bigServer.methods.testMethod((err, resultTwo) => {
+        const resultThree = bigServer.methods.bindMethod();
+        expect(resultThree).to.equal({ someContext: true });
 
-                expect(err).to.not.exist();
-                expect(resultTwo).to.equal('test-method');
+        const resultFour = bigServer.methods.arrMethodOne();
+        expect(resultFour).to.equal('arr-method-one');
 
-                bigServer.methods.bindMethod((err, resultThree) => {
-
-                    expect(err).to.not.exist();
-                    expect(resultThree).to.equal({ someContext: true });
-
-                    bigServer.methods.arrMethodOne((err, resultFour) => {
-
-                        expect(err).to.not.exist();
-                        expect(resultFour).to.equal('arr-method-one');
-
-                        bigServer.methods.arrMethodTwo((err, resultFive) => {
-
-                            expect(err).to.not.exist();
-                            expect(resultFive).to.equal('arr-method-two');
-                            done();
-                        });
-                    });
-                });
-            });
-        });
+        const resultFive = bigServer.methods.arrMethodTwo();
+        expect(resultFive).to.equal('arr-method-two');
     });
 
-    it('does not apply filename to methods in array.', (done, onCleanup) => {
+    it('does not apply filename to methods in array.', async (flags) => {
 
-        onCleanup((next) => {
+        flags.onCleanup = reset;
 
-            reset();
-            return next();
-        });
-
-        const server = new Hapi.Server();
-        server.connection();
+        const server = Hapi.server();
 
         using([
             'methods',
             'methods/bad-arr-method.js'
         ]);
 
-        const domain = Domain.create();
-
-        domain.on('error', (err) => {
-
-            expect(err.message).to.match(/instance\.method\(\)/);
-            expect(err.message).to.match(/\"name\" is required/);
-            done();
-        });
-
-        domain.run(() => server.register(Closet, Hoek.ignore));
+        const err = await expect(server.register(Closet)).to.reject();
+        expect(err.message).to.match(/server\.method\(\)/);
+        expect(err.message).to.match(/\"name\" is required/);
     });
 
-    it('registers seneca plugins via chairo in seneca-plugins/.', (done) => {
-
-        expect(bigServer.seneca.export('my-named-plugin')).to.exist();
-        expect(bigServer.seneca.export('echo')).to.exist();
-        done();
-    });
-
-    it('registers chairo actions in action-methods/.', (done) => {
-
-        bigServer.methods.myNamedAction({ vals: [1, 3] }, (err, resultOne) => {
-
-            expect(err).to.not.exist();
-            expect(resultOne).to.equal({ average: 2 });
-
-            bigServer.methods.testAction({ vals: [2, 10] }, (err, resultTwo) => {
-
-                expect(err).to.not.exist();
-                expect(resultTwo).to.equal({ result: 20 });
-                done();
-            });
-        });
-
-    });
-
-    it('registers view manager in view-manager.js.', (done) => {
+    it('registers view manager in view-manager.js.', () => {
 
         expect(bigServer.app.realm.plugins.vision.manager).to.exist();
-        done();
     });
 
-    it('registers decorations in decorations/.', (done) => {
+    it('registers decorations in decorations/.', () => {
 
         expect(bigServer.myNamedDec()).to.equal('server.myNamedDec()');
         expect(bigServer.testDec()).to.equal('server.testDec()');
         expect(bigServer.anotherTestDec()).to.equal('server.anotherTestDec()');
-        done();
     });
 
-    it('registers custom handler types in handler-types/.', (done) => {
 
-        bigServer.route({
-            method: 'get',
-            path: '/my-named-handler',
-            handler: { myNamedHandler: { some: 'named-options' } }
-        });
-
-        bigServer.route({
-            method: 'get',
-            path: '/test-handler',
-            handler: { testHandler: { some: 'test-options' } }
-        });
-
-        bigServer.inject({
-            method: 'get',
-            url: '/my-named-handler'
-        }, (resOne) => {
-
-            expect(resOne.result).to.equal({ myNamedHandler: { some: 'named-options' } });
-
-            bigServer.inject({
-                method: 'get',
-                url: '/test-handler'
-            }, (resTwo) => {
-
-                expect(resTwo.result).to.equal({ testHandler: { some: 'test-options' } });
-                done();
-            });
-        });
-    });
-
-    it('registers extensions in extensions/.', (done) => {
+    it('registers extensions in extensions/.', async () => {
 
         bigServer.route({
             method: 'get',
             path: '/extensions',
-            handler: (request, reply) => reply()
+            handler: (request) => null
         });
 
-        bigServer.inject({
+        const res = await bigServer.inject({
             method: 'get',
             url: '/extensions'
-        }, (res) => {
-
-            expect(res.request.app.lifecycle).to.equal([
-                'onPreAuth', 'onPostAuth',
-                'onPreHandler', 'onPostHandler'
-            ]);
-            done();
         });
 
+        expect(res.request.app.lifecycle).to.equal([
+            'onPreAuth', 'onPostAuth',
+            'onPreHandler', 'onPostHandler'
+        ]);
     });
 
-    it('exposes key-value pairs in expose/.', (done) => {
+    it('exposes key-value pairs in expose/.', () => {
 
         const plugin = bigServer.plugins['my-plugin'];
         expect(plugin.myNamedExpose).to.equal('my-named-expose');
         expect(plugin.testExpose).to.equal('test-expose');
-        done();
     });
 
-    it('sets bind context in bind.js.', (done) => {
+    it('sets bind context in bind.js.', () => {
 
         expect(bigServer.app.realm.settings.bind).to.equal({ someContext: true });
-        done();
     });
 
-    it('sets server path prefix in path.js.', (done) => {
+    it('sets server path prefix in path.js.', () => {
 
         expect(bigServer.app.realm.settings.files.relativeTo).to.equal(`${__dirname}/closet`);
-        done();
     });
 
-    it('defines auth schemes in auth/schemes/ and strategies in auth/strategies/.', (done) => {
+    it('defines auth schemes in auth/schemes/ and strategies in auth/strategies/.', async () => {
 
         bigServer.route({
             method: 'get',
             path: '/my-named-strategy',
-            handler: (request, reply) => reply(),
+            handler: (request) => null,
             config: { auth: 'my-named-strategy' }
         });
 
         bigServer.route({
             method: 'get',
             path: '/test-strategy',
-            handler: (request, reply) => reply(),
+            handler: (request) => null,
             config: { auth: 'test-strategy' }
         });
 
-        bigServer.inject({
+        const resOne = await bigServer.inject({
             method: 'get',
             url: '/my-named-strategy'
-        }, (resOne) => {
+        });
 
-            expect(resOne.request.auth.credentials).to.equal({
-                myNamedScheme: {
-                    myNamedStrategy: true
-                }
-            });
+        expect(resOne.request.auth.credentials).to.equal({
+            myNamedScheme: {
+                myNamedStrategy: true
+            }
+        });
 
-            bigServer.inject({
-                method: 'get',
-                url: '/test-strategy'
-            }, (resTwo) => {
+        const resTwo = await bigServer.inject({
+            method: 'get',
+            url: '/test-strategy'
+        });
 
-                expect(resTwo.request.auth.credentials).to.equal({
-                    testScheme: {
-                        testStrategy: true
-                    }
-                });
-                done();
-            });
+        expect(resTwo.request.auth.credentials).to.equal({
+            testScheme: {
+                testStrategy: true
+            }
         });
     });
 
-    it('defines default auth strategy in auth/default.js.', (done) => {
+    it('defines default auth strategy in auth/default.js.', () => {
 
-        const conn = bigServer.connections[0];
-        expect(conn.auth.settings.default.strategies).to.equal(['my-named-strategy']);
-        done();
+        expect(bigServer.auth.settings.default.strategies).to.equal(['my-named-strategy']);
     });
 
-    it('defines cookies in cookies/.', (done) => {
+    it('defines cookies in cookies/.', () => {
 
-        const conn = bigServer.connections[0];
-        expect(conn.states.cookies['my-named-cookie']).to.exist();
-        expect(conn.states.cookies['test-cookie']).to.exist();
-        expect(conn.states.cookies['test-cookie'].ttl).to.equal(666);
-        done();
+        expect(bigServer.states.cookies['my-named-cookie']).to.exist();
+        expect(bigServer.states.cookies['test-cookie']).to.exist();
+        expect(bigServer.states.cookies['test-cookie'].ttl).to.equal(666);
     });
 
-    it('defines schwifty models in models/.', (done) => {
+    it('defines schwifty models in models/.', () => {
 
         const models = bigServer.models(true);
         expect(models).to.have.length(1);
         expect(models.MyNamedModel).to.exist();
-        done();
     });
 
-    it('defines routes in routes/.', (done) => {
+    it('defines schmervice services in services/.', () => {
+
+        const services = bigServer.services();
+        expect(services).to.have.length(1);
+        expect(services.myService).to.exist();
+    });
+
+    it('defines routes in routes/.', () => {
 
         expect(bigServer.lookup('my-id-route')).to.exist();
+        expect(bigServer.lookup('id-config-route')).to.exist();
         expect(bigServer.lookup('test-route')).to.exist();
         expect(bigServer.lookup('arr-routes')).to.not.exist();
         expect(bigServer.match('get', '/arr-route-one')).to.exist();
         expect(bigServer.match('get', '/arr-route-two')).to.exist();
-        done();
     });
 
-    it('registers connections in connections/.', (done, onCleanup) => {
+    it('does not apply filename to decorations with more than two parts.', async (flags) => {
 
-        onCleanup((next) => {
+        flags.onCleanup = reset;
 
-            reset();
-            return next();
-        });
-
-        const server = new Hapi.Server();
-
-        const plugin = HauteCouture.using(`${__dirname}/closet`);
-        plugin.attributes = {
-            name: 'my-conn-plugin',
-            connections: false
-        };
-
-        using([
-            'connections',
-            'connections/labeled-connection.js',
-            'connections/test-connection.js'
-        ]);
-
-        server.register(plugin, (err) => {
-
-            if (err) {
-                return done(err);
-            }
-
-            expect(server.select('my-labeled-connection').connections.length).to.equal(1);
-            expect(server.select('test-connection').connections.length).to.equal(1);
-            done();
-        });
-    });
-
-    it('does not apply filename to decorations with more than two parts.', (done, onCleanup) => {
-
-        onCleanup((next) => {
-
-            reset();
-            return next();
-        });
-
-        const server = new Hapi.Server();
-        server.connection();
+        const server = Hapi.server();
 
         using([
             'decorations',
             'decorations/server.bad.test-dec.js'
         ]);
 
-        expect(() => {
-
-            server.register(Closet, Hoek.ignore);
-        }).to.throw(/Missing decoration property name/);
-
-        done();
+        await expect(server.register(Closet)).to.reject(/Missing decoration property name/);
     });
 
-    it('allows options to be optional', (done) => {
+    it('allows options to be optional', async () => {
 
-        const server = new Hapi.Server();
-        server.connection();
+        const server = Hapi.server();
 
-        const plugin = (srv, options, next) => {
+        const plugin = {
+            name: 'no-options-plugin',
+            register: async (srv, options) => {
 
-            HauteCouture.using(`${__dirname}/closet/specific`)(srv, (err) => {
-
-                if (err) {
-                    return next(err);
-                }
-
+                await HauteCouture.using(`${__dirname}/closet/specific`)(srv);
                 expect(srv.registrations['specific-sub-plugin']).to.exist();
-
-                next();
-            });
+            }
         };
 
-        plugin.attributes = { name: 'no-options-plugin' };
+        await server.register(plugin);
 
-        server.register(plugin, (err) => {
-
-            if (err) {
-                return done(err);
-            }
-
-            expect(server.registrations['no-options-plugin']).to.exist();
-            done();
-        });
+        expect(server.registrations['no-options-plugin']).to.exist();
     });
 
-    it('supports promises.', (done) => {
+    it('rejects when something bad happens.', async () => {
 
-        const server = new Hapi.Server();
-        server.connection();
+        const server = Hapi.server();
 
-        const plugin = (srv, options, next) => {
-
-            HauteCouture
-                .using(`${__dirname}/closet/specific`)(srv, options)
-                .then(() => {
-
-                    expect(srv.registrations['specific-sub-plugin']).to.exist();
-                    next();
-                })
-                .catch((err) => {
-
-                    next(err);
-                });
-        };
-
-        plugin.attributes = { name: 'promise-plugin' };
-
-        server.register(plugin, (err) => {
-
-            if (err) {
-                return done(err);
-            }
-
-            expect(server.registrations['promise-plugin']).to.exist();
-            done();
-        });
-    });
-
-    it('allows options, next to be optional.', (done) => {
-
-        const server = new Hapi.Server();
-        server.connection();
-
-        const plugin = (srv, options, next) => {
-
-            HauteCouture
-                .using(`${__dirname}/closet/specific`)(srv)
-                .then(() => {
-
-                    expect(srv.registrations['specific-sub-plugin']).to.exist();
-                    next();
-                })
-                .catch((err) => {
-
-                    next(err);
-                });
-        };
-
-        plugin.attributes = { name: 'no-options-no-callback-plugin' };
-
-        server.register(plugin, (err) => {
-
-            if (err) {
-                return done(err);
-            }
-
-            expect(server.registrations['no-options-no-callback-plugin']).to.exist();
-            done();
-        });
-    });
-
-    it('promise returns error in catch.', (done) => {
-
-        const server = new Hapi.Server();
-        server.connection();
-
-        HauteCouture
-            .using(`${__dirname}/closet/bad-plugin`)(server)
-            .then(() => {
-
-                return done(new Error('Shouldn\'t make it here!'));
-            })
-            .catch((err) => {
-
-                expect(err.message).to.endWith('Ya blew it!');
-                done();
-            });
+        await expect(HauteCouture.using(`${__dirname}/closet/bad-plugin`)(server)).to.reject(/Ya blew it!/);
     });
 
     describe('manifest', () => {
 
         describe('create()', () => {
 
-            it('returns the default haute manifest.', (done) => {
+            it('returns the default haute manifest.', () => {
 
                 const manifest = HauteCouture.manifest.create();
                 Joi.assert(manifest, Joi.array().items({
@@ -706,31 +436,26 @@ describe('HauteCouture', () => {
 
                 expect(summary).to.equal([
                     'path() at path',
-                    'bind() at bind',
-                    'connection() at connections',
                     'register() at plugins',
-                    'dependency() at dependencies',
                     'cache.provision() at caches',
-                    'method() at methods',
-                    'seneca.use() at seneca-plugins',
-                    'action() at action-methods',
                     'views() at view-manager',
                     'decorate() at decorations',
-                    'handler() at handler-types',
-                    'ext() at extensions',
                     'expose() at expose',
+                    'state() at cookies',
+                    'schwifty() at models',
+                    'registerService() at services',
+                    'bind() at bind',
+                    'dependency() at dependencies',
+                    'method() at methods',
+                    'ext() at extensions',
                     'auth.scheme() at auth/schemes',
                     'auth.strategy() at auth/strategies',
                     'auth.default() at auth/default',
-                    'state() at cookies',
-                    'schwifty() at models',
                     'route() at routes'
                 ]);
-
-                done();
             });
 
-            it('returns the default haute manifest with extras.', (done) => {
+            it('returns the default haute manifest with extras.', () => {
 
                 const manifest = HauteCouture.manifest.create(null, true);
 
@@ -754,31 +479,26 @@ describe('HauteCouture', () => {
 
                 expect(summary).to.equal([
                     'path() at path',
-                    'bind() at bind',
-                    'connection() at connections',
                     'register() at plugins',
-                    'dependency() at dependencies',
                     'cache.provision() at caches',
-                    'method() at methods',
-                    'seneca.use() at seneca-plugins',
-                    'action() at action-methods',
                     'views() at view-manager',
                     'decorate() at decorations',
-                    'handler() at handler-types',
-                    'ext() at extensions',
                     'expose() at expose',
+                    'state() at cookies',
+                    'schwifty() at models',
+                    'registerService() at services',
+                    'bind() at bind',
+                    'dependency() at dependencies',
+                    'method() at methods',
+                    'ext() at extensions',
                     'auth.scheme() at auth/schemes',
                     'auth.strategy() at auth/strategies',
                     'auth.default() at auth/default',
-                    'state() at cookies',
-                    'schwifty() at models',
                     'route() at routes'
                 ]);
-
-                done();
             });
 
-            it('removes single item from the manifest by place.', (done) => {
+            it('removes single item from the manifest by place.', () => {
 
                 const defaultManifest = HauteCouture.manifest.create();
                 const manifest = HauteCouture.manifest.create({
@@ -791,15 +511,13 @@ describe('HauteCouture', () => {
 
                     expect(item).to.equal(defaultManifest[i]);
                 });
-
-                done();
             });
 
-            it('removes items from the manifest by place.', (done) => {
+            it('removes items from the manifest by place.', () => {
 
                 const defaultManifest = HauteCouture.manifest.create();
                 const manifest = HauteCouture.manifest.create({
-                    remove: ['models', 'routes']
+                    remove: ['auth/default', 'routes'] // Bottom two
                 });
 
                 expect(manifest.length).to.equal(defaultManifest.length - 2);
@@ -808,11 +526,9 @@ describe('HauteCouture', () => {
 
                     expect(item).to.equal(defaultManifest[i]);
                 });
-
-                done();
             });
 
-            it('replaces items in the manifest by place.', (done) => {
+            it('replaces items in the manifest by place.', () => {
 
                 const defaultManifest = HauteCouture.manifest.create();
                 const manifest = HauteCouture.manifest.create({
@@ -830,11 +546,9 @@ describe('HauteCouture', () => {
                     place: 'routes',
                     method: 'myRoute'
                 });
-
-                done();
             });
 
-            it('replaces items in the manifest by place.', (done) => {
+            it('replaces items in the manifest by place.', () => {
 
                 const defaultManifest = HauteCouture.manifest.create();
                 const manifest = HauteCouture.manifest.create({
@@ -864,11 +578,9 @@ describe('HauteCouture', () => {
                     place: 'models',
                     method: 'mySchwifty'
                 });
-
-                done();
             });
 
-            it('adds new items to the manifest.', (done) => {
+            it('adds new items to the manifest.', () => {
 
                 const defaultManifest = HauteCouture.manifest.create();
                 const manifest = HauteCouture.manifest.create({
@@ -901,11 +613,9 @@ describe('HauteCouture', () => {
                     place: 'funky-bind',
                     method: 'funkyBind'
                 });
-
-                done();
             });
 
-            it('adds new single item to the manifest.', (done) => {
+            it('adds new single item to the manifest.', () => {
 
                 const defaultManifest = HauteCouture.manifest.create();
                 const manifest = HauteCouture.manifest.create({
@@ -927,11 +637,9 @@ describe('HauteCouture', () => {
                     place: 'funky-routes',
                     method: 'funkyRoutes'
                 });
-
-                done();
             });
 
-            it('respects before/after options for additional items.', (done) => {
+            it('respects before/after options for additional items.', () => {
 
                 const defaultManifest = HauteCouture.manifest.create();
                 const manifest = HauteCouture.manifest.create({
@@ -972,263 +680,58 @@ describe('HauteCouture', () => {
 
                 expect(funkyIndex).to.be.above(indexOf('auth/strategies', manifest));
                 expect(funkyIndex).to.be.below(indexOf('auth/default', manifest));
-
-                done();
-            });
-        });
-
-        describe('dogwater amendment', () => {
-
-            const plugin = HauteCouture.using(`${__dirname}/closet/amendments/dogwater`, {
-                add: [
-                    HauteCouture.manifest.dogwater
-                ]
-            });
-
-            plugin.attributes = { name: 'my-dogwater-plugin' };
-
-            it('defines dogwater models in models/.', (done, onCleanup) => {
-
-                onCleanup((next) => {
-
-                    reset();
-                    return next();
-                });
-
-                const server = new Hapi.Server();
-                server.connection();
-
-                notUsing([
-                    'amendments/dogwater/models/bad-arr-model.js'
-                ]);
-
-                server.register(plugin, (err) => {
-
-                    if (err) {
-                        return done(err);
-                    }
-
-                    server.initialize((err) => {
-
-                        if (err) {
-                            return done(err);
-                        }
-
-                        const collections = server.collections(true);
-                        expect(collections).to.have.length(2);
-                        expect(collections['my-named-model']).to.exist();
-                        expect(collections['test-model']).to.exist();
-                        done();
-                    });
-                });
-            });
-
-            it('does not apply filename to dogwater models in array.', (done, onCleanup) => {
-
-                onCleanup((next) => {
-
-                    reset();
-                    return next();
-                });
-
-                const server = new Hapi.Server();
-                server.connection();
-
-                using([
-                    'amendments',
-                    'amendments/dogwater',
-                    'amendments/dogwater/plugins.js',
-                    'amendments/dogwater/models',
-                    'amendments/dogwater/models/bad-arr-model.js'
-                ]);
-
-                const domain = Domain.create();
-
-                domain.on('error', (err) => {
-
-                    expect(err.message).to.match(/\"identity\" is required/);
-                    done();
-                });
-
-                domain.run(() => server.register(plugin, Hoek.ignore));
-            });
-        });
-
-        describe('loveboat amendment', () => {
-
-            const hc = HauteCouture.using(`${__dirname}/closet/amendments/loveboat`, {
-                add: [
-                    HauteCouture.manifest.loveboat // Also tests nesting, since this is an array itself
-                ]
-            });
-
-            const plugin = (server, options, next) => {
-
-                hc(server, options, (err) => {
-
-                    if (err) {
-                        return next(err);
-                    }
-
-                    server.app.realm = server.realm;
-                    next();
-                });
-            };
-
-            plugin.attributes = { name: 'my-loveboat-plugin' };
-
-            it('defines loveboat transforms in route-transforms/.', (done, onCleanup) => {
-
-                onCleanup((next) => {
-
-                    reset();
-                    return next();
-                });
-
-                const server = new Hapi.Server();
-                server.connection();
-
-                notUsing([
-                    'amendments/loveboat/route-transforms/bad-arr-transform.js'
-                ]);
-
-                server.register(plugin, (err) => {
-
-                    if (err) {
-                        return done(err);
-                    }
-
-                    const transforms = server.app.realm.plugins.loveboat.transforms.nodes;
-                    const transformNames = transforms.map((transform) => transform.transform.name).sort();
-
-                    expect(transformNames).to.equal(['my-named-transform', 'test-transform']);
-                    done();
-                });
-            });
-
-            it('defines loveboat routes in routes-loveboat/.', (done, onCleanup) => {
-
-                onCleanup((next) => {
-
-                    reset();
-                    return next();
-                });
-
-                const server = new Hapi.Server();
-                server.connection();
-
-                notUsing([
-                    'amendments/loveboat/route-transforms/bad-arr-transform.js'
-                ]);
-
-                server.register(plugin, (err) => {
-
-                    if (err) {
-                        return done(err);
-                    }
-
-                    const route = server.lookup('loveboat');
-                    expect(route).to.exist();
-                    expect(route.settings.app).to.equal({
-                        myNamedTransform: true,
-                        testTransform: true
-                    });
-                    done();
-                });
-            });
-
-            it('does not apply filename to loveboat transforms in array.', (done, onCleanup) => {
-
-                onCleanup((next) => {
-
-                    reset();
-                    return next();
-                });
-
-                const server = new Hapi.Server();
-                server.connection();
-
-                using([
-                    'amendments',
-                    'amendments/loveboat',
-                    'amendments/loveboat/plugins.js',
-                    'amendments/loveboat/route-transforms',
-                    'amendments/loveboat/route-transforms/bad-arr-transform.js'
-                ]);
-
-                const domain = Domain.create();
-
-                domain.on('error', (err) => {
-
-                    expect(err.message).to.match(/\"name\" is required/);
-                    done();
-                });
-
-                domain.run(() => server.register(plugin, Hoek.ignore));
             });
         });
     });
 
     describe('.hc.js', () => {
 
-        it('specifies amendments for the current directory used by haute-couture.', (done) => {
+        it('specifies amendments for the current directory used by haute-couture.', async () => {
 
-            const server = new Hapi.Server();
-            server.connection();
+            const server = Hapi.server();
 
-            const plugin = HauteCouture.using(`${__dirname}/closet/hc-file`);
-            plugin.attributes = { name: 'my-hc-plugin' };
+            const plugin = {
+                name: 'my-hc-plugin',
+                register: HauteCouture.using(`${__dirname}/closet/hc-file`)
+            };
 
-            server.register(plugin, (err) => {
+            await server.register(plugin);
 
-                if (err) {
-                    return done(err);
-                }
-
-                expect(server.methods.controllerOne()).to.equal('controller-one');
-                expect(server.methods.controllerTwo()).to.equal('controller-two');
-                expect(server.methods.methodOne).to.not.exist();
-                expect(server.methods.methodTwo).to.not.exist();
-                done();
-            });
+            expect(server.methods.controllerOne()).to.equal('controller-one');
+            expect(server.methods.controllerTwo()).to.equal('controller-two');
+            expect(server.methods.methodOne).to.not.exist();
+            expect(server.methods.methodTwo).to.not.exist();
         });
 
-        it('is ignored when amendments are passed explicitly.', (done) => {
+        it('is ignored when amendments are passed explicitly.', async () => {
 
-            const server = new Hapi.Server();
-            server.connection();
+            const server = Hapi.server();
 
-            const plugin = HauteCouture.using(`${__dirname}/closet/hc-file`, {});
-            plugin.attributes = { name: 'my-hc-plugin' };
+            const plugin = {
+                name: 'my-hc-plugin',
+                register: HauteCouture.using(`${__dirname}/closet/hc-file`, {})
+            };
 
-            server.register(plugin, (err) => {
+            await server.register(plugin);
 
-                if (err) {
-                    return done(err);
-                }
-
-                expect(server.methods.controllerOne).to.not.exist();
-                expect(server.methods.controllerTwo).to.not.exist();
-                expect(server.methods.methodOne()).to.equal('method-one');
-                expect(server.methods.methodTwo()).to.equal('method-two');
-                done();
-            });
+            expect(server.methods.controllerOne).to.not.exist();
+            expect(server.methods.controllerTwo).to.not.exist();
+            expect(server.methods.methodOne()).to.equal('method-one');
+            expect(server.methods.methodTwo()).to.equal('method-two');
         });
 
-        it('causes an error if it has a bad require.', (done) => {
+        it('causes an error if it has a bad require.', () => {
 
             const makePlugin = () => HauteCouture.using(`${__dirname}/closet/bad-require-hc-file`);
 
             expect(makePlugin).to.throw(/Cannot find module/);
-            done();
         });
 
-        it('causes an error if it has a general runtime exception.', (done) => {
+        it('causes an error if it has a general runtime exception.', () => {
 
             const makePlugin = () => HauteCouture.using(`${__dirname}/closet/bad-syntax-hc-file`);
 
             expect(makePlugin).to.throw(SyntaxError, /unexpected token/i);
-            done();
         });
     });
 });

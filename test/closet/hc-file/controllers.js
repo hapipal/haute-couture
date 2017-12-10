@@ -4,11 +4,11 @@ module.exports = [
     {
         name: 'controllerOne',
         method: () => 'controller-one',
-        options: { callback: false }
+        options: {}
     },
     {
         name: 'controllerTwo',
         method: () => 'controller-two',
-        options: { callback: false }
+        options: {}
     }
 ];
