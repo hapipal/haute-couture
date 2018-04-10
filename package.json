@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/devinivy/haute-couture.git"
+    "url": "git+https://github.com/hapipal/haute-couture.git"
   },
   "keywords": [
     "hapi",
@@ -30,9 +30,9 @@
   "author": "Devin Ivy <devin@bigroomstudios.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/devinivy/haute-couture/issues"
+    "url": "https://github.com/hapipal/haute-couture/issues"
   },
-  "homepage": "https://github.com/devinivy/haute-couture#readme",
+  "homepage": "https://github.com/hapipal/haute-couture#readme",
   "dependencies": {
     "haute": "2.x.x",
     "hoek": "5.x.x",

@@ -2,7 +2,7 @@
 
 File-based hapi plugin composer
 
-[![Build Status](https://travis-ci.org/devinivy/haute-couture.svg?branch=master)](https://travis-ci.org/devinivy/haute-couture) [![Coverage Status](https://coveralls.io/repos/devinivy/haute-couture/badge.svg?branch=master&service=github)](https://coveralls.io/github/devinivy/haute-couture?branch=master)
+[![Build Status](https://travis-ci.org/hapipal/haute-couture.svg?branch=master)](https://travis-ci.org/hapipal/haute-couture) [![Coverage Status](https://coveralls.io/repos/hapipal/haute-couture/badge.svg?branch=master&service=github)](https://coveralls.io/github/hapipal/haute-couture?branch=master)
 
 Lead Maintainer - [Devin Ivy](https://github.com/devinivy)
 
@@ -20,7 +20,7 @@ To name a few,
  - You can teach haute-couture how to use your own custom server decorations.
  - You can still write all the custom plugin code you desire.
 
-Again, **haute-couture** understands 17 hapi plugin methods– those for server methods, server/request decorations, request lifecycle extensions, route configuration, cookie definitions, [vision](https://github.com/hapijs/vision) view managers, [schwifty](https://github.com/BigRoomStudios/schwifty) models, [schmervice](https://github.com/devinivy/schmervice) services, and plenty more.  It can also be used as an alternative to [glue](https://github.com/hapijs/glue) for composing a server.
+Again, **haute-couture** understands 17 hapi plugin methods– those for server methods, server/request decorations, request lifecycle extensions, route configuration, cookie definitions, [vision](https://github.com/hapijs/vision) view managers, [schwifty](https://github.com/hapipal/schwifty) models, [schmervice](https://github.com/hapipal/schmervice) services, and plenty more.  It can also be used as an alternative to [glue](https://github.com/hapijs/glue) for composing a server.
 
 ## Usage
 > See also the [API Reference](API.md)
