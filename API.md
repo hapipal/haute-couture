@@ -47,19 +47,19 @@ Here's the complete rundown of how files and directories are mapped to API calls
   - **`path.js`** - export `relativeTo`.
   - **`path/index.js`** - export `relativeTo`.
 
-#### Plugin registrations
-> [`await server.register(plugins, [options])`](https://github.com/hapijs/hapi/blob/master/API.md#server.register())
-
-  - **`plugins.js`** - export an array of objects `{ plugins, options }`.
-  - **`plugins/index.js`** - export an array of objects.
-  - **`plugins/plugin-name.js`** - export an object.  If a plugin isn't specified in `plugins` it will be `require()`d using the filename.
-
 #### Provisioning caches
 > [`await server.cache.provision(options)`](https://github.com/hapijs/hapi/blob/master/API.md#server.cache.provision())
 
   - **`caches.js`** - export an array of `options`.
   - **`caches/index.js`** - export an array of `options`.
   - **`caches/some-cache-name.js`** - export `options`.  The cache's `options.name` will be assigned `'cache-name'` from the filename if a name isn't already specified.
+
+#### Plugin registrations
+> [`await server.register(plugins, [options])`](https://github.com/hapijs/hapi/blob/master/API.md#server.register())
+
+  - **`plugins.js`** - export an array of objects `{ plugins, options }`.
+  - **`plugins/index.js`** - export an array of objects.
+  - **`plugins/plugin-name.js`** - export an object.  If a plugin isn't specified in `plugins` it will be `require()`d using the filename.
 
 #### View manager (for [vision](https://github.com/hapijs/vision))
 > [`server.views(options)`](https://github.com/hapijs/vision/blob/master/API.md#serverviewsoptions)
