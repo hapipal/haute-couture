@@ -436,8 +436,8 @@ describe('HauteCouture', () => {
 
                 expect(summary).to.equal([
                     'path() at path',
-                    'register() at plugins',
                     'cache.provision() at caches',
+                    'register() at plugins',
                     'views() at view-manager',
                     'decorate() at decorations',
                     'expose() at expose',
@@ -479,8 +479,8 @@ describe('HauteCouture', () => {
 
                 expect(summary).to.equal([
                     'path() at path',
-                    'register() at plugins',
                     'cache.provision() at caches',
+                    'register() at plugins',
                     'views() at view-manager',
                     'decorate() at decorations',
                     'expose() at expose',
