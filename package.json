@@ -55,7 +55,7 @@
     "renamer": "0.6.x",
     "schmervice": "1.x.x",
     "schwifty": "3.x.x",
-    "sqlite3": "3.x.x",
+    "sqlite3": "4.x.x",
     "vision": "5.x.x"
   }
 }
