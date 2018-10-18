@@ -126,7 +126,7 @@ describe('HauteCouture', () => {
 
         const server = Hapi.server();
 
-        const amendments = { remove: ['plugins'] };
+        const amendments = { plugins: false };
         const plugin = {
             register: HauteCouture.using(`${__dirname}/closet/specific`, amendments),
             name: 'my-specific-plugin'
@@ -143,10 +143,9 @@ describe('HauteCouture', () => {
         const server = Hapi.server();
 
         const defaultManifest = HauteCouture.manifest.create();
-        const placeOf = (item) => item.place;
 
         // Remove all instructions
-        const amendments = { remove: defaultManifest.map(placeOf) };
+        const amendments = defaultManifest.reduce((collect, item) => ({ ...collect, [item.place]: false }), {});
         const plugin = {
             register: HauteCouture.using(amendments),
             name: 'my-specific-plugin'
@@ -502,7 +501,7 @@ describe('HauteCouture', () => {
 
                 const defaultManifest = HauteCouture.manifest.create();
                 const manifest = HauteCouture.manifest.create({
-                    remove: 'routes'
+                    routes: false
                 });
 
                 expect(manifest.length).to.equal(defaultManifest.length - 1);
@@ -517,7 +516,8 @@ describe('HauteCouture', () => {
 
                 const defaultManifest = HauteCouture.manifest.create();
                 const manifest = HauteCouture.manifest.create({
-                    remove: ['auth/default', 'routes'] // Bottom two
+                    'auth/default': false,  // Bottom two
+                    routes: false
                 });
 
                 expect(manifest.length).to.equal(defaultManifest.length - 2);
