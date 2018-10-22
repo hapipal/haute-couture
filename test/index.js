@@ -425,8 +425,8 @@ describe('HauteCouture', () => {
         const server = Hapi.server();
 
         const plugin = {
-            register: HauteCouture.using(`${__dirname}/closet/recurse`),
-            name: 'my-recurse-plugin'
+            register: HauteCouture.using(`${__dirname}/closet/recursive`),
+            name: 'my-recursive-plugin'
         };
 
         await server.register(plugin);
@@ -441,10 +441,10 @@ describe('HauteCouture', () => {
         const server = Hapi.server();
 
         const plugin = {
-            register: HauteCouture.using(`${__dirname}/closet/recurse`, {
-                recurse: true
+            register: HauteCouture.using(`${__dirname}/closet/recursive`, {
+                recursive: true
             }),
-            name: 'my-recurse-plugin'
+            name: 'my-recursive-plugin'
         };
 
         await server.register(plugin);
@@ -464,15 +464,15 @@ describe('HauteCouture', () => {
         const server = Hapi.server();
 
         const plugin = {
-            register: HauteCouture.using(`${__dirname}/closet/recurse`, {
-                recurse: true,
+            register: HauteCouture.using(`${__dirname}/closet/recursive`, {
+                recursive: true,
                 exclude: (filename, path) => {
 
                     return path.split(Path.sep).includes('a') ||
                         path.split(Path.sep).includes('helpers');
                 }
             }),
-            name: 'my-recurse-plugin'
+            name: 'my-recursive-plugin'
         };
 
         await server.register(plugin);
@@ -489,14 +489,14 @@ describe('HauteCouture', () => {
         const server = Hapi.server();
 
         const plugin = {
-            register: HauteCouture.using(`${__dirname}/closet/recurse`, {
-                recurse: true,
+            register: HauteCouture.using(`${__dirname}/closet/recursive`, {
+                recursive: true,
                 include: (filename, path) => {
 
                     return path.split(Path.sep).includes('one');
                 }
             }),
-            name: 'my-recurse-plugin'
+            name: 'my-recursive-plugin'
         };
 
         await server.register(plugin);
@@ -524,7 +524,7 @@ describe('HauteCouture', () => {
                     async: Joi.boolean(),
                     list: Joi.boolean(),
                     useFilename: Joi.func(),
-                    recurse: Joi.boolean(),
+                    recursive: Joi.boolean(),
                     exclude: Joi.func(),
                     include: Joi.func()
                 }));
@@ -567,7 +567,7 @@ describe('HauteCouture', () => {
                     async: Joi.boolean(),
                     list: Joi.boolean(),
                     useFilename: Joi.func(),
-                    recurse: Joi.boolean(),
+                    recursive: Joi.boolean(),
                     exclude: Joi.func(),
                     include: Joi.func(),
                     before: Joi.array().items(Joi.string()).single(),
@@ -649,7 +649,7 @@ describe('HauteCouture', () => {
                 expect(routeItem).to.equal({
                     place: 'routes',
                     method: 'myRoute',
-                    recurse: false
+                    recursive: false
                 });
             });
 
@@ -677,14 +677,14 @@ describe('HauteCouture', () => {
                 expect(routeItem).to.equal({
                     place: 'routes',
                     method: 'myRoute',
-                    recurse: false
+                    recursive: false
                 });
 
                 const schwiftyItem = manifest.find((item) => item.place === 'models');
                 expect(schwiftyItem).to.equal({
                     place: 'models',
                     method: 'mySchwifty',
-                    recurse: false
+                    recursive: false
                 });
             });
 
@@ -696,7 +696,7 @@ describe('HauteCouture', () => {
                         {
                             place: 'funky-routes',
                             method: 'funkyRoutes',
-                            recurse: true
+                            recursive: true
                         },
                         {
                             place: 'funky-bind',
@@ -717,13 +717,13 @@ describe('HauteCouture', () => {
                 expect(manifest[defaultLength]).to.equal({
                     place: 'funky-routes',
                     method: 'funkyRoutes',
-                    recurse: true
+                    recursive: true
                 });
 
                 expect(manifest[defaultLength + 1]).to.equal({
                     place: 'funky-bind',
                     method: 'funkyBind',
-                    recurse: false
+                    recursive: false
                 });
             });
 
@@ -749,7 +749,7 @@ describe('HauteCouture', () => {
                 expect(manifest[defaultLength]).to.equal({
                     place: 'funky-routes',
                     method: 'funkyRoutes',
-                    recurse: false
+                    recursive: false
                 });
             });
 
