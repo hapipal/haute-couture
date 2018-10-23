@@ -12,12 +12,89 @@ Returns a function with the signature `async function(server, [options])`, ident
         - `after` - a single or array of `place` values for which the given item should be positioned subsequent to other items in the manifest.
         - `example` - an example value for this item, primarily used by the [pal CLI](https://github.com/devinivy/paldo).
       - `remove` - a single or array of `place` values of items that should be removed from the manifest.  This would be utilized to opt a file/directory out of usage by haute-couture.
+      - `recursive` - when `true` this option causes files to be picked-up recursively within their directory rather than just files that live directly under `place`.  Flip this to true if you'd like to have a nested folder structure, e.g. `routes/users/login.js` versus `routes/users-login.js`.
+      - `include` - may be a function `(filename, path) => Boolean` or a RegExp.  When this option is used, a file will only be used as a call when the function returns `true` or the RegExp matches `path`.
+      - `exclude` - takes a function or RegExp, identically to `include`.  When this option is used, a file will only be used as a call when the function returns `false` or the RegExp does not match `path`.  This option defaults to exclude any file that lives under a directory named `helpers/`.
     - An array of items used identically to the `add` option above.
 
 #### Specifying amendments with `.hc.js`
 
 When a call to `HauteCouture.using([dirname], [amendments])` specifies no `amendments`, haute-couture will check the relevant directory `dirname` for a file named `.hc.js`.  Any amendments exported by this file are used identically to amendments passed as an argument.  This is a nice way to keep haute-couture-related configuration separate from your plugin code, and also offer a standard way for tools such as the [pal CLI](https://github.com/devinivy/paldo) to cater to your particular usage of haute-couture.
 
+#### Amendment example
+
+This example demonstrates how to use a `.hc.js` file in order to swap-out [schwifty's](https://github.com/hapipal/schwifty) handling of [Objection ORM](http://vincit.github.io/objection.js/) models for a much simplified handling of [Mongoose](https://mongoosejs.com) models.  You can even continue to use [`hpal make`](https://github.com/hapipal/hpal#hpal-make) to scaffold your Mongoose models inside the `models/` directory.
+
+##### `index.js`
+```js
+'use strict';
+
+const HauteCouture = require('haute-couture');
+const Mongoose = require('mongoose');
+
+module.exports = {
+    name: 'my-hapi-plugin',
+    register: async (server, options) => {
+
+        // When registering this plugin pass something like this as plugin options:
+        // { mongoURI: 'mongodb://localhost/test' }
+
+        server.app.connection = Mongoose.createConnection(options.mongoURI);
+
+        await HauteCouture.using()(server, options);
+    }
+};
+```
+
+##### `.hc.js`
+```js
+'use strict';
+
+module.exports = {
+    add: [{
+        place: 'models',
+        list: true,
+        signature: ['name', 'schema'],
+        method: (server, options, name, schema) => {
+
+            const { connection } = server.app;
+
+            // Access the Dog model as such in a route handler:
+            // const { Dog } = request.server.app.models;
+
+            server.app.models = server.app.models || {};
+            server.app.models[name] = connection.model(name, schema);
+        },
+        // This example below isn't essential. But it allows you to use
+        // `hpal make model <model-name>` in order to scaffold your
+        // Mongoose models from the command line.
+        example: {
+            $requires: ['mongoose'],
+            $value: {
+                name: 'ModelName',
+                schema: { $literal: 'new Mongoose.Schema({})'}
+            }
+        }
+    }]
+};
+```
+
+##### `models/dog.js`
+```js
+'use strict';
+
+// Scaffolded using the CLI:
+// npx hpal make model dog
+
+const Mongoose = require('mongoose');
+
+module.exports = {
+    name: 'Dog',
+    schema: new Mongoose.Schema({
+        name: String
+    })
+};
+```
 
 ### `HauteCouture.manifest.create([amendments, [includeExtras]])`
 
@@ -59,7 +136,7 @@ Here's the complete rundown of how files and directories are mapped to API calls
 
   - **`plugins.js`** - export an array of objects `{ plugins, options }` or `function(server, options)` that returns an array of objects `{ plugins, options }`.
   - **`plugins/index.js`** - export an array of objects or `function(server, options)` that returns an array of objects.
-  - **`plugins/plugin-name.js`** - export an object or `function(server, options)` that returns an object. If a plugin isn't specified in `plugins` it will be `require()`d using the filename.
+  - **`plugins/plugin-name.js`** - export an object or `function(server, options)` that returns an object. If a plugin isn't specified in `plugins` it will be `require()`d using the filename.  Scoped plugins may also be specified using a dot (`.`) as a separator between the scope and the package name, e.g. `plugins/@my-scope.my-package.js` would register the plugin `require('@my-scope/my-package')`.
 
 #### View manager (for [vision](https://github.com/hapijs/vision))
 > [`server.views(options)`](https://github.com/hapijs/vision/blob/master/API.md#serverviewsoptions)
@@ -164,9 +241,12 @@ Here's the complete rundown of how files and directories are mapped to API calls
 
 A haute manifest item describes the mapping of a file/directory's place and contents to a call to the hapi plugin (`server`) API.  In short, the place is mapped to a hapi plugin method, and the file contents are mapped to arguments for that method.  It is an object of the form,
   - `place` - a relative path to the file or directory, typically excluding any file extensions.  E.g. `'auth/strategies'` or `'plugins'`.
-  - `method` - the name of the method in the hapi plugin API.  May be a deep method.  E.g. `'auth.strategy'` or `'register'`.
+  - `method` - the name of the method in the hapi plugin API.  May be a deep method.  E.g. `'auth.strategy'` or `'register'`.  Also may be a function with signature `(server, options, ...values) => void` where `values` are the call's arguments, originating from file contents (see `signature` below).
   - `signature` - (optional) an array of argument names taken by the hapi plugin's method.  When omitted the entire file contents are passed as the sole argument.  An argument may be marked as optional by surrounding it in brackets `[]`.  E.g. `['name', '[options]']` would map file contents of the form `{ name, options }` to a call `server.someMethod(name, options)`, and `{ name }` to a call `server.someMethod(name)`.
   - `list` - (optional) when `true`, indicates to call the hapi plugin method on either,
     - each item in an array exported at `place`, when `place` represents a single file (e.g. `plugins.js`) or a directory with an index file (e.g. `plugins/index.js`) or,
     - each value exported by the files within `place` when `place` is a directory without an index file (e.g. `plugins/vision.js`, `plugins/inert.js`).
-  - `useFilename` - (optional) when `list` is `true` and `place` is a directory without an index file, then this option allows one to use the name of the each file within `place` to modify its contents.  Should be a function with signature `function(filename, value)` that receives the file's `filename` (without file extension) and its contents at `value`, returning a new value to be used as arguments for hapi plugin API call.
+  - `useFilename` - (optional) when `list` is `true` and `place` is a directory without an index file, then this option allows one to use the name of the each file within `place` to modify its contents.  Should be a function with signature `function(filename, value, path)` that receives the file's `filename` (without file extension); its contents at `value`; and the file's path relative to `place`.  The function should return a new value to be used as arguments for hapi plugin API call.
+  - `recursive` - when `true` and `list` is in effect, this option causes files to be picked-up recursively within `place` rather than just files that live directly under `place`.
+  - `include` - may be a function `(filename, path) => Boolean` or a RegExp where `filename` (a filename without extension) and `path` (a file's path relative to `place`) are particular to files under `place`.  When this option is used, a file will only be used as a call when the function returns `true` or the RegExp matches `path`.
+  - `exclude` - takes a function or RegExp, identically to `include`.  When this option is used, a file will only be used as a call when the function returns `false` or the RegExp does not match `path`.  This option defaults to exclude any file that lives under a directory named `helpers/`.
