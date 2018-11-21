@@ -219,7 +219,7 @@ Here's the complete rundown of how files and directories are mapped to API calls
 #### Authentication strategies
 > [`server.auth.strategy(name, scheme, [options])`](https://github.com/hapijs/hapi/blob/master/API.md#server.auth.strategy())
 
-  - **`auth/strategies.js`** - export an array of objects `{ name, scheme, mode, options }` or `function(server, options)` that returns an array of objects.
+  - **`auth/strategies.js`** - export an array of objects `{ name, scheme, options }` or `function(server, options)` that returns an array of objects.
   - **`auth/strategies/index.js`** - export an array of objects or `function(server, options)` that returns an array of objects.
   - **`auth/strategies/strategy-name.js`** - export an object or `function(server, options)` that returns an object.  The `name` will be assigned `'strategy-name'` from the filename if it isn't already specified.
 
