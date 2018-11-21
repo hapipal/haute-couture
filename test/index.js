@@ -48,40 +48,39 @@ describe('HauteCouture', () => {
             .filter((file) => ['', 'index.js'].indexOf(file) === -1);
     };
 
+    const renamer = new Renamer();
+
     const using = (files) => {
 
         const offFiles = allFiles().filter((file) => files.indexOf(file) === -1);
 
-        Renamer.rename(Renamer.replace({
+        renamer.rename({
             files: offFiles.map(makeAbsolute),
-            find: '$',
-            replace: '.off',
-            regex: true
-        }));
+            find: /$/,
+            replace: '.off'
+        });
 
         invalidateCache();
     };
 
     const notUsing = (files) => {
 
-        Renamer.rename(Renamer.replace({
+        renamer.rename({
             files: files.map(makeAbsolute),
-            find: '$',
-            replace: '.off',
-            regex: true
-        }));
+            find: /$/,
+            replace: '.off'
+        });
 
         invalidateCache();
     };
 
     const reset = () => {
 
-        Renamer.rename(Renamer.replace({
+        renamer.rename({
             files: allFiles().map(makeAbsolute),
-            find: '\\.off$',
-            replace: '',
-            regex: true
-        }));
+            find: /\.off$/,
+            replace: ''
+        });
     };
 
     const bigServer = Hapi.server();

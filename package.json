@@ -35,7 +35,7 @@
   "homepage": "https://github.com/hapipal/haute-couture#readme",
   "dependencies": {
     "haute": "3.x.x",
-    "hoek": "5.x.x",
+    "hoek": "6.x.x",
     "parent-module": "0.1.x",
     "topo": "3.x.x"
   },
@@ -44,18 +44,18 @@
   },
   "devDependencies": {
     "@softonic/hapi-error-logger": "2.x.x",
-    "catbox-memory": "3.x.x",
+    "catbox-memory": "4.x.x",
     "code": "5.x.x",
     "coveralls": "3.x.x",
     "glob": "7.x.x",
     "hapi": "17.x.x",
-    "joi": "13.x.x",
-    "knex": "0.14.x",
-    "lab": "15.x.x",
-    "objection": "0.9.x",
-    "renamer": "0.6.x",
+    "joi": "14.x.x",
+    "knex": "0.15.x",
+    "lab": "18.x.x",
+    "objection": "1.x.x",
+    "renamer": "1.x.x",
     "schmervice": "1.x.x",
-    "schwifty": "3.x.x",
+    "schwifty": "4.x.x",
     "sqlite3": "4.x.x",
     "vision": "5.x.x"
   }
