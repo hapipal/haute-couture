@@ -524,6 +524,7 @@ describe('HauteCouture', () => {
                     list: Joi.boolean(),
                     useFilename: Joi.func(),
                     recursive: Joi.boolean(),
+                    noUseStrictHeader: Joi.boolean(),
                     exclude: Joi.func(),
                     include: Joi.func()
                 }));
@@ -567,6 +568,7 @@ describe('HauteCouture', () => {
                     list: Joi.boolean(),
                     useFilename: Joi.func(),
                     recursive: Joi.boolean(),
+                    noUseStrictHeader: Joi.boolean(),
                     exclude: Joi.func(),
                     include: Joi.func(),
                     before: Joi.array().items(Joi.string()).single(),
@@ -630,7 +632,7 @@ describe('HauteCouture', () => {
                 });
             });
 
-            it('replaces items in the manifest by place.', () => {
+            it('replaces item in the manifest by place.', () => {
 
                 const defaultManifest = HauteCouture.manifest.create().map(ignoreFields);
                 const manifest = HauteCouture.manifest.create({
@@ -648,7 +650,8 @@ describe('HauteCouture', () => {
                 expect(routeItem).to.equal({
                     place: 'routes',
                     method: 'myRoute',
-                    recursive: false
+                    recursive: false,
+                    noUseStrictHeader: false
                 });
             });
 
@@ -676,14 +679,16 @@ describe('HauteCouture', () => {
                 expect(routeItem).to.equal({
                     place: 'routes',
                     method: 'myRoute',
-                    recursive: false
+                    recursive: false,
+                    noUseStrictHeader: false
                 });
 
                 const schwiftyItem = manifest.find((item) => item.place === 'models');
                 expect(schwiftyItem).to.equal({
                     place: 'models',
                     method: 'mySchwifty',
-                    recursive: false
+                    recursive: false,
+                    noUseStrictHeader: false
                 });
             });
 
@@ -699,7 +704,8 @@ describe('HauteCouture', () => {
                         },
                         {
                             place: 'funky-bind',
-                            method: 'funkyBind'
+                            method: 'funkyBind',
+                            noUseStrictHeader: true
                         }
                     ]
                 })
@@ -716,13 +722,15 @@ describe('HauteCouture', () => {
                 expect(manifest[defaultLength]).to.equal({
                     place: 'funky-routes',
                     method: 'funkyRoutes',
-                    recursive: true
+                    recursive: true,
+                    noUseStrictHeader: false
                 });
 
                 expect(manifest[defaultLength + 1]).to.equal({
                     place: 'funky-bind',
                     method: 'funkyBind',
-                    recursive: false
+                    recursive: false,
+                    noUseStrictHeader: true
                 });
             });
 
@@ -748,7 +756,8 @@ describe('HauteCouture', () => {
                 expect(manifest[defaultLength]).to.equal({
                     place: 'funky-routes',
                     method: 'funkyRoutes',
-                    recursive: false
+                    recursive: false,
+                    noUseStrictHeader: false
                 });
             });
 
