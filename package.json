@@ -36,11 +36,11 @@
   "dependencies": {
     "haute": "3.x.x",
     "hoek": "6.x.x",
-    "parent-module": "0.1.x",
+    "parent-module": "1.x.x",
     "topo": "3.x.x"
   },
   "peerDependencies": {
-    "hapi": ">=17 <18"
+    "hapi": ">=17 <19"
   },
   "devDependencies": {
     "@softonic/hapi-error-logger": "2.x.x",
@@ -48,9 +48,9 @@
     "code": "5.x.x",
     "coveralls": "3.x.x",
     "glob": "7.x.x",
-    "hapi": "17.x.x",
+    "hapi": "18.x.x",
     "joi": "14.x.x",
-    "knex": "0.15.x",
+    "knex": "0.16.x",
     "lab": "18.x.x",
     "objection": "1.x.x",
     "renamer": "1.x.x",
