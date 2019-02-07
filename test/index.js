@@ -390,11 +390,11 @@ describe('HauteCouture', () => {
         await client.connect();
         await client.subscribe('/subscription-test', (data) => {
 
-            expect(data).to.equal({ test : 'test' });
+            expect(data).to.equal({ id : 1, message: 'test' });
             team.attend();
         });
 
-        await bigServer.publish('/subscription-test', { test : 'test' });
+        await bigServer.publish('/subscription-test', { id : 1, message: 'test' });
         await team.work;
         client.disconnect();
         await bigServer.stop();
