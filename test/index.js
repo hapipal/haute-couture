@@ -386,9 +386,9 @@ describe('HauteCouture', () => {
 
         const team = new Teamwork();
         await bigServer.start();
-        flags.onCleanup = () => {
+        flags.onCleanup = async () => {
 
-            bigServer.stop();
+            await bigServer.stop();
         };
 
         const client = new Nes.Client(`ws://localhost:${ bigServer.info.port }`);
