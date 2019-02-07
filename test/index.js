@@ -524,9 +524,9 @@ describe('HauteCouture', () => {
                     list: Joi.boolean(),
                     useFilename: Joi.func(),
                     recursive: Joi.boolean(),
-                    noUseStrictHeader: Joi.boolean(),
                     exclude: Joi.func(),
-                    include: Joi.func()
+                    include: Joi.func(),
+                    meta: Joi.object()
                 }));
 
                 const summarize = (item) => `${item.method}() at ${item.place}`;
@@ -568,12 +568,12 @@ describe('HauteCouture', () => {
                     list: Joi.boolean(),
                     useFilename: Joi.func(),
                     recursive: Joi.boolean(),
-                    noUseStrictHeader: Joi.boolean(),
                     exclude: Joi.func(),
                     include: Joi.func(),
                     before: Joi.array().items(Joi.string()).single(),
                     after: Joi.array().items(Joi.string()).single(),
-                    example: Joi.any()
+                    example: Joi.any(),
+                    meta: Joi.object()
                 }));
 
                 const summarize = (item) => `${item.method}() at ${item.place}`;
@@ -651,7 +651,7 @@ describe('HauteCouture', () => {
                     place: 'routes',
                     method: 'myRoute',
                     recursive: false,
-                    noUseStrictHeader: false
+                    meta: {}
                 });
             });
 
@@ -680,7 +680,7 @@ describe('HauteCouture', () => {
                     place: 'routes',
                     method: 'myRoute',
                     recursive: false,
-                    noUseStrictHeader: false
+                    meta: {}
                 });
 
                 const schwiftyItem = manifest.find((item) => item.place === 'models');
@@ -688,7 +688,7 @@ describe('HauteCouture', () => {
                     place: 'models',
                     method: 'mySchwifty',
                     recursive: false,
-                    noUseStrictHeader: false
+                    meta: {}
                 });
             });
 
@@ -704,8 +704,7 @@ describe('HauteCouture', () => {
                         },
                         {
                             place: 'funky-bind',
-                            method: 'funkyBind',
-                            noUseStrictHeader: true
+                            method: 'funkyBind'
                         }
                     ]
                 })
@@ -723,14 +722,14 @@ describe('HauteCouture', () => {
                     place: 'funky-routes',
                     method: 'funkyRoutes',
                     recursive: true,
-                    noUseStrictHeader: false
+                    meta: {}
                 });
 
                 expect(manifest[defaultLength + 1]).to.equal({
                     place: 'funky-bind',
                     method: 'funkyBind',
                     recursive: false,
-                    noUseStrictHeader: true
+                    meta: {}
                 });
             });
 
@@ -757,7 +756,7 @@ describe('HauteCouture', () => {
                     place: 'funky-routes',
                     method: 'funkyRoutes',
                     recursive: false,
-                    noUseStrictHeader: false
+                    meta: {}
                 });
             });
 
@@ -803,6 +802,23 @@ describe('HauteCouture', () => {
 
                 expect(funkyIndex).to.be.above(indexOf('auth/strategies', manifest));
                 expect(funkyIndex).to.be.below(indexOf('auth/default', manifest));
+            });
+
+            it('passes through additional keys as meta on each item.', () => {
+
+                const defaultManifest = HauteCouture.manifest.create().map(ignoreFields);
+                const manifest = HauteCouture.manifest.create({
+                    exampleUseStrict: false
+                })
+                    .map(ignoreFields);
+
+                expect(manifest.length).to.equal(defaultManifest.length);
+
+                defaultManifest.forEach((item, i) => {
+
+                    expect(item).to.not.equal(manifest[i]);
+                    expect({ ...item, meta: { exampleUseStrict: false } }).to.equal(manifest[i]);
+                });
             });
         });
     });
