@@ -236,6 +236,13 @@ Here's the complete rundown of how files and directories are mapped to API calls
   - **`routes/index.js`** - export an array of `options` or `function(server, options)` that returns an array of `options`.
   - **`routes/route-id.js`** - export `options` or `function(server, options)` that returns `options`.  If `options` is a single route config object, the route's `config.id` will be assigned `'route-id'` from the filename if it isn't already specified.  The filename could just as easily represent a group of routes (rather than an id) and the file could export an array of route configs.
 
+#### Subscriptions (for [nes](https://github.com/hapijs/nes))
+> [`server.subscription(name, [options])`](https://github.com/hapijs/nes/blob/master/API.md#serversubscriptionpath-options)
+
+  - **`subscriptions.js`** - export an array of objects `{ path, options }` or function(server, options)` that returns an array of objects.
+  - **`subscriptions/index.js`** - export an array of objects `{ path, options }` or function(server, options)` that returns an array of objects.
+  - **`subscriptions/service-name.js`** - export an object `{ path, options }` or `function(server, options)` that returns an object.
+
 ### Extras
 #### Structure of a [haute](https://github.com/devinivy/haute) manifest item
 

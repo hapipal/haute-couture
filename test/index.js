@@ -9,6 +9,8 @@ const Hapi = require('hapi');
 const Joi = require('joi');
 const Renamer = require('renamer');
 const Glob = require('glob');
+const Nes = require('nes');
+const Teamwork = require('teamwork');
 const Closet = require('./closet');
 const HauteCouture = require('..');
 
@@ -380,6 +382,24 @@ describe('HauteCouture', () => {
         expect(bigServer.match('get', '/arr-route-two')).to.exist();
     });
 
+    it('defines subscriptions in subscriptions/.', async () => {
+
+        const team = new Teamwork();
+        await bigServer.start();
+        const client = new Nes.Client(`ws://localhost:${ bigServer.info.port }`);
+        await client.connect();
+        await client.subscribe('/subscription-test', (data) => {
+
+            expect(data).to.equal({ test : 'test' });
+            team.attend();
+        });
+
+        await bigServer.publish('/subscription-test', { test : 'test' });
+        await team.work;
+        client.disconnect();
+        await bigServer.stop();
+    });
+
     it('does not apply filename to decorations with more than two parts.', async (flags) => {
 
         flags.onCleanup = reset;
@@ -548,6 +568,7 @@ describe('HauteCouture', () => {
                     'auth.scheme() at auth/schemes',
                     'auth.strategy() at auth/strategies',
                     'auth.default() at auth/default',
+                    'subscription() at subscriptions',
                     'route() at routes'
                 ]);
             });
@@ -594,6 +615,7 @@ describe('HauteCouture', () => {
                     'auth.scheme() at auth/schemes',
                     'auth.strategy() at auth/strategies',
                     'auth.default() at auth/default',
+                    'subscription() at subscriptions',
                     'route() at routes'
                 ]);
             });
@@ -618,7 +640,7 @@ describe('HauteCouture', () => {
 
                 const defaultManifest = HauteCouture.manifest.create().map(ignoreFields);
                 const manifest = HauteCouture.manifest.create({
-                    remove: ['auth/default', 'routes'] // Bottom two
+                    remove: ['subscriptions', 'routes'] // Bottom two
                 })
                     .map(ignoreFields);
 
