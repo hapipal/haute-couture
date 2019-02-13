@@ -384,24 +384,27 @@ describe('HauteCouture', () => {
 
     it('defines subscriptions in subscriptions/.', async (flags) => {
 
-        const team = new Teamwork();
         await bigServer.start();
+        const client = new Nes.Client(`ws://localhost:${bigServer.info.port}`);
+
         flags.onCleanup = async () => {
 
+            client.disconnect();
             await bigServer.stop();
         };
 
-        const client = new Nes.Client(`ws://localhost:${ bigServer.info.port }`);
+        const team = new Teamwork();
+
         await client.connect();
         await client.subscribe('/subscription-test', (data) => {
 
-            expect(data).to.equal({ id : 1, message : 'test' });
+            expect(data).to.equal({ id: 1, message: 'test' });
             team.attend();
         });
 
-        await bigServer.publish('/subscription-test', { id : 1, message : 'test' });
+        await bigServer.publish('/subscription-test', { id: 1, message: 'test' });
+
         await team.work;
-        client.disconnect();
     });
 
     it('does not apply filename to decorations with more than two parts.', async (flags) => {
