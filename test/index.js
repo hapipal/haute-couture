@@ -525,7 +525,8 @@ describe('HauteCouture', () => {
                     useFilename: Joi.func(),
                     recursive: Joi.boolean(),
                     exclude: Joi.func(),
-                    include: Joi.func()
+                    include: Joi.func(),
+                    meta: Joi.object()
                 }));
 
                 const summarize = (item) => `${item.method}() at ${item.place}`;
@@ -571,7 +572,8 @@ describe('HauteCouture', () => {
                     include: Joi.func(),
                     before: Joi.array().items(Joi.string()).single(),
                     after: Joi.array().items(Joi.string()).single(),
-                    example: Joi.any()
+                    example: Joi.any(),
+                    meta: Joi.object()
                 }));
 
                 const summarize = (item) => `${item.method}() at ${item.place}`;
@@ -630,7 +632,7 @@ describe('HauteCouture', () => {
                 });
             });
 
-            it('replaces items in the manifest by place.', () => {
+            it('replaces item in the manifest by place.', () => {
 
                 const defaultManifest = HauteCouture.manifest.create().map(ignoreFields);
                 const manifest = HauteCouture.manifest.create({
@@ -648,7 +650,8 @@ describe('HauteCouture', () => {
                 expect(routeItem).to.equal({
                     place: 'routes',
                     method: 'myRoute',
-                    recursive: false
+                    recursive: false,
+                    meta: {}
                 });
             });
 
@@ -676,14 +679,16 @@ describe('HauteCouture', () => {
                 expect(routeItem).to.equal({
                     place: 'routes',
                     method: 'myRoute',
-                    recursive: false
+                    recursive: false,
+                    meta: {}
                 });
 
                 const schwiftyItem = manifest.find((item) => item.place === 'models');
                 expect(schwiftyItem).to.equal({
                     place: 'models',
                     method: 'mySchwifty',
-                    recursive: false
+                    recursive: false,
+                    meta: {}
                 });
             });
 
@@ -716,13 +721,15 @@ describe('HauteCouture', () => {
                 expect(manifest[defaultLength]).to.equal({
                     place: 'funky-routes',
                     method: 'funkyRoutes',
-                    recursive: true
+                    recursive: true,
+                    meta: {}
                 });
 
                 expect(manifest[defaultLength + 1]).to.equal({
                     place: 'funky-bind',
                     method: 'funkyBind',
-                    recursive: false
+                    recursive: false,
+                    meta: {}
                 });
             });
 
@@ -748,7 +755,8 @@ describe('HauteCouture', () => {
                 expect(manifest[defaultLength]).to.equal({
                     place: 'funky-routes',
                     method: 'funkyRoutes',
-                    recursive: false
+                    recursive: false,
+                    meta: {}
                 });
             });
 
@@ -794,6 +802,23 @@ describe('HauteCouture', () => {
 
                 expect(funkyIndex).to.be.above(indexOf('auth/strategies', manifest));
                 expect(funkyIndex).to.be.below(indexOf('auth/default', manifest));
+            });
+
+            it('passes through additional keys as meta on each item.', () => {
+
+                const defaultManifest = HauteCouture.manifest.create().map(ignoreFields);
+                const manifest = HauteCouture.manifest.create({
+                    exampleUseStrict: false
+                })
+                    .map(ignoreFields);
+
+                expect(manifest.length).to.equal(defaultManifest.length);
+
+                defaultManifest.forEach((item, i) => {
+
+                    expect(item).to.not.equal(manifest[i]);
+                    expect({ ...item, meta: { exampleUseStrict: false } }).to.equal(manifest[i]);
+                });
             });
         });
     });
