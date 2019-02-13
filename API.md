@@ -10,11 +10,12 @@ Returns a function with the signature `async function(server, [options])`, ident
       - `add` - a single or array of items to add to the hapi haute manifest.  Also may be a nested array of items (e.g. `[{}, [{}, {}]]`).  If any items have `place` equal to an item in the default manifest, the default manifest item will be replaced.  Supports the following additional keys per [haute manifest item](#structure-of-a-haute-manifest-item),
         - `before` - a single or array of `place` values for which the given item should be positioned prior to other items in the manifest.
         - `after` - a single or array of `place` values for which the given item should be positioned subsequent to other items in the manifest.
-        - `example` - an example value for this item, primarily used by the [pal CLI](https://github.com/devinivy/paldo).
+        - `example` - an example value for this item, primarily used by the [hpal CLI](https://github.com/hapipal/hpal).
       - `remove` - a single or array of `place` values of items that should be removed from the manifest.  This would be utilized to opt a file/directory out of usage by haute-couture.
       - `recursive` - when `true` this option causes files to be picked-up recursively within their directory rather than just files that live directly under `place`.  Flip this to true if you'd like to have a nested folder structure, e.g. `routes/users/login.js` versus `routes/users-login.js`.
       - `include` - may be a function `(filename, path) => Boolean` or a RegExp.  When this option is used, a file will only be used as a call when the function returns `true` or the RegExp matches `path`.
       - `exclude` - takes a function or RegExp, identically to `include`.  When this option is used, a file will only be used as a call when the function returns `false` or the RegExp does not match `path`.  This option defaults to exclude any file that lives under a directory named `helpers/`.
+      - Any unrecognized properties listed here will be defaults for each generated manfiest item's `meta` property.  This may be used to configure behavior of other tools, such as the [hpal CLI](https://github.com/hapipal/hpal).
     - An array of items used identically to the `add` option above.
 
 #### Specifying amendments with `.hc.js`
@@ -258,3 +259,4 @@ A haute manifest item describes the mapping of a file/directory's place and cont
   - `recursive` - when `true` and `list` is in effect, this option causes files to be picked-up recursively within `place` rather than just files that live directly under `place`.
   - `include` - may be a function `(filename, path) => Boolean` or a RegExp where `filename` (a filename without extension) and `path` (a file's path relative to `place`) are particular to files under `place`.  When this option is used, a file will only be used as a call when the function returns `true` or the RegExp matches `path`.
   - `exclude` - takes a function or RegExp, identically to `include`.  When this option is used, a file will only be used as a call when the function returns `false` or the RegExp does not match `path`.  This option defaults to exclude any file that lives under a directory named `helpers/`.
+  - `meta` - an object containing any meta information not required by haute-couture or haute, primarily for integration with other tools.
