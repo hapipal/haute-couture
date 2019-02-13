@@ -1,8 +1,8 @@
 'use strict';
 
 module.exports = {
-    path    : '/subscription-test',
-    options : {
-        auth : false
+    path: '/subscription-test',
+    options: {
+        auth: false
     }
 };

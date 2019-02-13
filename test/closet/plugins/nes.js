@@ -1,9 +1,9 @@
 'use strict';
 
 module.exports = {
-    plugins : {
-        options : {
-            auth : false
+    plugins: {
+        options: {
+            auth: false
         }
     }
 };

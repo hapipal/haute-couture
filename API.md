@@ -114,8 +114,9 @@ Here's the complete rundown of how files and directories are mapped to API calls
 > **But first, an important note.**
 >
 > Below you'll find that this library can be used in conjunction with several hapi plugins.  There is no way to properly express an "optional peer dependency" using npm, so here I am to tell you which versions of those plugins work with haute-couture.
->  - schwifty - 3.x.x
+>  - schwifty - 3.x.x through 4.x.x
 >  - schmervice - 1.x.x
+>  - nes - 7.x.x through 10.x.x
 >  - vision - 5.x.x
 
 #### Path prefix
@@ -229,19 +230,19 @@ Here's the complete rundown of how files and directories are mapped to API calls
   - **`auth/default.js`** - export `options` or `function(server, options)` that returns `options`.
   - **`auth/default/index.js`** - export `options` or `function(server, options)` that returns `options`.
 
-#### Routes
-> [`server.route(options)`](https://github.com/hapijs/hapi/blob/master/API.md#server.route())
-
-  - **`routes.js`** - export an array of `options` or `function(server, options)` that returns an array of `options`.
-  - **`routes/index.js`** - export an array of `options` or `function(server, options)` that returns an array of `options`.
-  - **`routes/route-id.js`** - export `options` or `function(server, options)` that returns `options`.  If `options` is a single route config object, the route's `config.id` will be assigned `'route-id'` from the filename if it isn't already specified.  The filename could just as easily represent a group of routes (rather than an id) and the file could export an array of route configs.
-
 #### Subscriptions (for [nes](https://github.com/hapijs/nes))
 > [`server.subscription(path, [options])`](https://github.com/hapijs/nes/blob/master/API.md#serversubscriptionpath-options)
 
   - **`subscriptions.js`** - export an array of objects `{ path, options }` or `function(server, options)` that returns an array of objects.
   - **`subscriptions/index.js`** - export an array of objects `{ path, options }` or `function(server, options)` that returns an array of objects.
   - **`subscriptions/service-name.js`** - export an object `{ path, options }` or `function(server, options)` that returns an object.
+
+#### Routes
+> [`server.route(options)`](https://github.com/hapijs/hapi/blob/master/API.md#server.route())
+
+  - **`routes.js`** - export an array of `options` or `function(server, options)` that returns an array of `options`.
+  - **`routes/index.js`** - export an array of `options` or `function(server, options)` that returns an array of `options`.
+  - **`routes/route-id.js`** - export `options` or `function(server, options)` that returns `options`.  If `options` is a single route config object, the route's `config.id` will be assigned `'route-id'` from the filename if it isn't already specified.  The filename could just as easily represent a group of routes (rather than an id) and the file could export an array of route configs.
 
 ### Extras
 #### Structure of a [haute](https://github.com/devinivy/haute) manifest item
