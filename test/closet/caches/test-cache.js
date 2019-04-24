@@ -1,5 +1,5 @@
 'use strict';
 
 module.exports = {
-    provider: require('catbox-memory')
+    provider: require('@hapi/catbox-memory')
 };

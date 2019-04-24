@@ -3,14 +3,14 @@
 // Load modules
 
 const Path = require('path');
-const Lab = require('lab');
-const Code = require('code');
-const Hapi = require('hapi');
-const Joi = require('joi');
+const Lab = require('@hapi/lab');
+const Code = require('@hapi/code');
+const Hapi = require('@hapi/hapi');
+const Joi = require('@hapi/joi');
 const Renamer = require('renamer');
 const Glob = require('glob');
-const Nes = require('nes');
-const Teamwork = require('teamwork');
+const Nes = require('@hapi/nes');
+const Teamwork = require('@hapi/teamwork');
 const Closet = require('./closet');
 const HauteCouture = require('..');
 
