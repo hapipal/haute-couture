@@ -58,7 +58,6 @@
     "objection": "1.x.x",
     "renamer": "1.x.x",
     "schmervice": "1.x.x",
-    "schwifty": "4.x.x",
-    "sqlite3": "4.x.x"
+    "schwifty": "4.x.x"
   }
 }
