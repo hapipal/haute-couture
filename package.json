@@ -34,31 +34,31 @@
   },
   "homepage": "https://github.com/hapipal/haute-couture#readme",
   "dependencies": {
-    "haute": "3.x.x",
     "@hapi/hoek": "6.x.x",
-    "parent-module": "1.x.x",
-    "@hapi/topo": "3.x.x"
+    "@hapi/topo": "3.x.x",
+    "haute": "3.x.x",
+    "parent-module": "1.x.x"
   },
   "peerDependencies": {
     "@hapi/hapi": ">=17 <19"
   },
   "devDependencies": {
-    "@softonic/hapi-error-logger": "2.x.x",
     "@hapi/catbox-memory": "4.x.x",
     "@hapi/code": "5.x.x",
+    "@hapi/hapi": "18.x.x",
+    "@hapi/joi": "15.x.x",
+    "@hapi/lab": "18.x.x",
+    "@hapi/nes": "11.x.x",
+    "@hapi/teamwork": "3.x.x",
+    "@hapi/vision": "5.x.x",
+    "@softonic/hapi-error-logger": "2.x.x",
     "coveralls": "3.x.x",
     "glob": "7.x.x",
-    "@hapi/hapi": "18.x.x",
-    "@hapi/joi": "14.x.x",
     "knex": "0.16.x",
-    "@hapi/lab": "18.x.x",
-    "@hapi/nes": "10.x.x",
     "objection": "1.x.x",
     "renamer": "1.x.x",
     "schmervice": "1.x.x",
     "schwifty": "4.x.x",
-    "sqlite3": "4.x.x",
-    "@hapi/teamwork": "3.x.x",
-    "@hapi/vision": "5.x.x"
+    "sqlite3": "4.x.x"
   }
 }
