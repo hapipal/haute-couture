@@ -52,11 +52,25 @@ describe('HauteCouture', () => {
 
     const renamer = new Renamer();
 
+    const rename = (opts) => {
+
+        return renamer.rename({
+            ...opts,
+            // Specifying specific default plugins works around a change in
+            // require.resolve()'s path option (see nodejs/node#23683) as it is
+            // used internally to the renamer module.
+            plugin: [
+                require.resolve('renamer/lib/plugin/index'),
+                require.resolve('renamer/lib/plugin/default')
+            ]
+        });
+    };
+
     const using = (files) => {
 
         const offFiles = allFiles().filter((file) => files.indexOf(file) === -1);
 
-        renamer.rename({
+        rename({
             files: offFiles.map(makeAbsolute),
             find: /$/,
             replace: '.off'
@@ -67,7 +81,7 @@ describe('HauteCouture', () => {
 
     const notUsing = (files) => {
 
-        renamer.rename({
+        rename({
             files: files.map(makeAbsolute),
             find: /$/,
             replace: '.off'
@@ -78,7 +92,7 @@ describe('HauteCouture', () => {
 
     const reset = () => {
 
-        renamer.rename({
+        rename({
             files: allFiles().map(makeAbsolute),
             find: /\.off$/,
             replace: ''
