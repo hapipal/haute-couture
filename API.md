@@ -108,7 +108,7 @@ Files will always export an array of values (representing multiple API calls) or
 
 For example, a file defining a new server method (representing a call to `server.method(name, method)`) would export an object of the format `{ name, method }`.
 
-Lastly, files can always export a function with signature `function(server, options)` that returns the intended value or array of values.
+Lastly, files can always export a function with signature `function(server, options)` or `async function(server, options)` that returns the intended value or array of values.
 
 Here's the complete rundown of how files and directories are mapped to API calls.  The order here reflects the order in which the calls would be made.
 
