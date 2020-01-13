@@ -40,7 +40,7 @@
     "parent-module": "2.x.x"
   },
   "peerDependencies": {
-    "@hapi/hapi": ">=17 <19"
+    "@hapi/hapi": ">=17 <20"
   },
   "devDependencies": {
     "@hapi/catbox-memory": "4.x.x",

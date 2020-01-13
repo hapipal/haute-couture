@@ -10,10 +10,10 @@ const Renamer = require('renamer');
 const Glob = require('glob');
 const Nes = require('@hapi/nes');
 const Teamwork = require('@hapi/teamwork');
+const Somever = require('@hapi/somever');
 const Closet = require('./closet');
 const HauteCouture = require('..');
 
-const Somever = require('@hapi/somever');
 const Hapi = Somever.match('>=12', process.version) ? require('@hapi/hapi-19') : require('@hapi/hapi');
 
 // Test shortcuts
