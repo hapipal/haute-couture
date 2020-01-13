@@ -5,7 +5,6 @@
 const Path = require('path');
 const Lab = require('@hapi/lab');
 const Code = require('@hapi/code');
-const Hapi = require('@hapi/hapi');
 const Joi = require('@hapi/joi');
 const Renamer = require('renamer');
 const Glob = require('glob');
@@ -13,6 +12,9 @@ const Nes = require('@hapi/nes');
 const Teamwork = require('@hapi/teamwork');
 const Closet = require('./closet');
 const HauteCouture = require('..');
+
+const Somever = require('@hapi/somever');
+const Hapi = Somever.match('>=12', process.version) ? require('@hapi/hapi-19') : require('@hapi/hapi');
 
 // Test shortcuts
 
