@@ -10,7 +10,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "lab -a @hapi/code -t 100 -I '__core-js_shared__' && lab -dlL",
+    "test": "lab -a @hapi/code -t 100 -I && lab -dlL",
     "coveralls": "lab -r lcov | coveralls"
   },
   "repository": {
