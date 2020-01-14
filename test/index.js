@@ -14,7 +14,7 @@ const Somever = require('@hapi/somever');
 const Closet = require('./closet');
 const HauteCouture = require('..');
 
-const Hapi = Somever.match('>=12', process.version) ? require('@hapi/hapi-19') : require('@hapi/hapi');
+const Hapi = Somever.match(process.version, '>=12') ? require('@hapi/hapi-19') : require('@hapi/hapi');
 
 // Test shortcuts
 
