@@ -32,7 +32,7 @@ for (const [which, Hapi] of eachVersion) {
 
     if (!Hapi) {
         console.log(which, 'not supported in this version of node');
-        return
+        return;
     }
 
     describe(`HauteCouture using ${which}`, () => {
