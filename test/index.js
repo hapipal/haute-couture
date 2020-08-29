@@ -21,6 +21,15 @@ const Hapi = Somever.match(process.version, '>=12') ? require('@hapi/hapi-20') :
 const { before, describe, it } = exports.lab = Lab.script();
 const { expect } = Code;
 
+const itOnLatestHapi = (...args) => {
+
+    if (Somever.match(process.version, '>=12')) {
+        return it(...args);
+    }
+
+    return it.skip(...args);
+};
+
 const internals = {};
 
 describe('HauteCouture', () => {
@@ -109,7 +118,9 @@ describe('HauteCouture', () => {
 
         notUsing([
             'decorations/server.bad.test-dec.js',
-            'methods/bad-arr-method.js'
+            'methods/bad-arr-method.js',
+            'validator.js',
+            'routes/validator-route.js'
         ]);
 
         await bigServer.register(Closet);
@@ -423,6 +434,32 @@ describe('HauteCouture', () => {
         await team.work;
     });
 
+    itOnLatestHapi('sets a validator in validator.js', async (flags) => {
+        // Note, this test is only running on latest hapi because server.validator() doesn't
+        // exist until hapi v19, yet we have tests against hapi v18 to test below node v12.
+
+        flags.onCleanup = reset;
+
+        const plugin = {
+            name: 'my-validator-plugin',
+            register: HauteCouture.using(`${__dirname}/closet`)
+        };
+
+        // Without validator, registering this route should fail
+
+        using(['routes', 'routes/validator-route.js']);
+
+        await expect(Hapi.server().register(plugin)).to.reject(/Cannot set uncompiled validation rules without configuring a validator/);
+
+        reset();
+
+        // Prove validator exists by observing that route registration now succeeds
+
+        using(['validator.js', 'routes', 'routes/validator-route.js']);
+
+        await expect(Hapi.server().register(plugin)).to.not.reject();
+    });
+
     it('does not apply filename to decorations with more than two parts.', async (flags) => {
 
         flags.onCleanup = reset;
@@ -593,6 +630,7 @@ describe('HauteCouture', () => {
                     'auth.strategy() at auth/strategies',
                     'auth.default() at auth/default',
                     'subscription() at subscriptions',
+                    'validator() at validator',
                     'route() at routes'
                 ]);
             });
@@ -641,6 +679,7 @@ describe('HauteCouture', () => {
                     'auth.strategy() at auth/strategies',
                     'auth.default() at auth/default',
                     'subscription() at subscriptions',
+                    'validator() at validator',
                     'route() at routes'
                 ]);
             });
@@ -665,7 +704,7 @@ describe('HauteCouture', () => {
 
                 const defaultManifest = HauteCouture.manifest.create().map(ignoreFields);
                 const manifest = HauteCouture.manifest.create({
-                    remove: ['subscriptions', 'routes'] // Bottom two
+                    remove: ['validator', 'routes'] // Bottom two
                 })
                     .map(ignoreFields);
 

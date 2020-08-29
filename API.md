@@ -178,11 +178,11 @@ Here's the complete rundown of how files and directories are mapped to API calls
   - **`models/model-name.js`** - export `models` or `function(server, options)` that returns an array of `models`.
 
 #### Service definitions (for [schmervice](https://github.com/devinivy/schmervice))
-> [`server.registerService(ServiceClass)`](https://github.com/devinivy/schmervice/blob/master/API.md#serverregisterserviceserviceclass)
+> [`server.registerService(serviceFactory)`](https://github.com/hapipal/schmervice/blob/master/API.md#serverregisterserviceservicefactory)
 
-  - **`services.js`** - export an array of `ServiceClass`es or `function(server, options)` that returns an array of `ServiceClass`es.
-  - **`services/index.js`** - export an array of `ServiceClass`es or `function(server, options)` that returns an array of `ServiceClass`es.
-  - **`services/service-name.js`** - export `ServiceClass` or `function(server, options)` that returns `ServiceClass`.
+  - **`services.js`** - export an array of `serviceFactory`s or `function(server, options)` that returns an array of `serviceFactory`s.
+  - **`services/index.js`** - export an array of `serviceFactory`s or `function(server, options)` that returns an array of `serviceFactory`s.
+  - **`services/service-name.js`** - export `serviceFactory` or `function(server, options)` that returns `serviceFactory`.
 
 #### Globally bound context
 > [`server.bind(context)`](https://github.com/hapijs/hapi/blob/master/API.md#server.bind())
@@ -237,6 +237,12 @@ Here's the complete rundown of how files and directories are mapped to API calls
   - **`subscriptions.js`** - export an array of objects `{ path, options }` or `function(server, options)` that returns an array of objects.
   - **`subscriptions/index.js`** - export an array of objects `{ path, options }` or `function(server, options)` that returns an array of objects.
   - **`subscriptions/service-name.js`** - export an object `{ path, options }` or `function(server, options)` that returns an object.
+
+#### Validator (for hapi v19+)
+> [`server.validator(validator)`](https://github.com/hapijs/hapi/blob/master/API.md#server.validator())
+
+  - **`validator.js`** - export `validator` or `function(server, options)` that returns `validator`.
+  - **`validator/index.js`** - export `validator` or `function(server, options)` that returns `validator`.
 
 #### Routes
 > [`server.route(options)`](https://github.com/hapijs/hapi/blob/master/API.md#server.route())
