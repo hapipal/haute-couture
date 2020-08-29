@@ -10,7 +10,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "lab -a @hapi/code -t 100 -I && lab -dlL",
+    "test": "lab -a @hapi/code -t 100 -I \"FinalizationRegistry,WeakRef\" && lab -dlL",
     "coveralls": "lab -r lcov | coveralls"
   },
   "repository": {
@@ -46,8 +46,8 @@
     "@hapi/catbox-memory": "4.x.x",
     "@hapi/code": "6.x.x",
     "@hapi/hapi": "18.x.x",
-    "@hapi/hapi-19": "npm:@hapi/hapi@19",
     "@hapi/hapi-20": "npm:@hapi/hapi@20",
+    "@hapi/joi": "16.x.x",
     "@hapi/lab": "20.x.x",
     "@hapi/nes": "11.x.x",
     "@hapi/somever": "2.x.x",
@@ -56,7 +56,6 @@
     "@softonic/hapi-error-logger": "2.x.x",
     "coveralls": "3.x.x",
     "glob": "7.x.x",
-    "joi": "17.x.x",
     "knex": "0.20.x",
     "objection": "2.x.x",
     "renamer": "1.x.x",
