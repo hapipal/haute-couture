@@ -35,7 +35,7 @@
   "homepage": "https://github.com/hapipal/haute-couture#readme",
   "dependencies": {
     "@hapi/hoek": "9.x.x",
-    "@hapi/topo": "3.x.x",
+    "@hapi/topo": "5.x.x",
     "haute": ">=3.1.x <4",
     "parent-module": "2.x.x"
   },
