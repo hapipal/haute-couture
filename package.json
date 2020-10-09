@@ -4,7 +4,7 @@
   "description": "File-based hapi plugin composer",
   "main": "lib/index.js",
   "engines": {
-    "node": ">=8"
+    "node": ">=12"
   },
   "directories": {
     "test": "test"
