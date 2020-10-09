@@ -44,7 +44,7 @@
   },
   "devDependencies": {
     "@hapi/catbox-memory": "5.x.x",
-    "@hapi/code": "6.x.x",
+    "@hapi/code": "8.x.x",
     "@hapi/hapi": "18.x.x",
     "@hapi/hapi-20": "npm:@hapi/hapi@20",
     "@hapi/joi": "16.x.x",
