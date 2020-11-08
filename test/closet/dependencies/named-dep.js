@@ -1,10 +1,10 @@
 'use strict';
 
 module.exports = {
-    dependencies: 'vision',
+    dependencies: '@hapi/vision',
     after: (server) => {
 
         server.app.deps = server.app.deps || [];
-        server.app.deps.push('vision');
+        server.app.deps.push('@hapi/vision');
     }
 };
