@@ -1,1 +1,3 @@
-import: hapipal/ci-config-travis:node_js.yml@master
+import:
+  - source: hapipal/ci-config-travis:node_js.yml@master
+  - source: hapipal/ci-config-travis:hapi_all.yml@master

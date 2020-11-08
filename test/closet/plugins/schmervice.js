@@ -1,3 +1,3 @@
 'use strict';
 
-module.exports = [{ plugins: require('schmervice') }];
+module.exports = { plugins: require('@hapipal/schmervice') };

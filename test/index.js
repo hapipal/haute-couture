@@ -8,29 +8,16 @@ const Code = require('@hapi/code');
 const Joi = require('@hapi/joi');
 const Renamer = require('renamer');
 const Glob = require('glob');
+const Hapi = require('@hapi/hapi');
 const Nes = require('@hapi/nes');
-const Teamwork = require('@hapi/teamwork');
-const Somever = require('@hapi/somever');
+const { Team } = require('@hapi/teamwork');
 const Closet = require('./closet');
 const HauteCouture = require('..');
-
-const Hapi = Somever.match(process.version, '>=12') ? require('@hapi/hapi-20') : require('@hapi/hapi');
 
 // Test shortcuts
 
 const { before, describe, it } = exports.lab = Lab.script();
 const { expect } = Code;
-
-const itOnLatestHapi = (...args) => {
-
-    if (Somever.match(process.version, '>=12')) {
-        return it(...args);
-    }
-
-    return it.skip(...args);
-};
-
-const internals = {};
 
 describe('HauteCouture', () => {
 
@@ -38,7 +25,9 @@ describe('HauteCouture', () => {
 
         Object.keys(require.cache).forEach((key) => {
 
-            delete require.cache[key];
+            if (key.startsWith(__dirname)) {
+                delete require.cache[key];
+            }
         });
 
         // It's dirty, but without this requiring a missing module that was
@@ -47,7 +36,9 @@ describe('HauteCouture', () => {
 
         Object.keys(module.constructor._pathCache).forEach((key) => {
 
-            delete module.constructor._pathCache[key];
+            if (key.startsWith(__dirname)) {
+                delete module.constructor._pathCache[key];
+            }
         });
     };
 
@@ -133,7 +124,7 @@ describe('HauteCouture', () => {
     it('defaults to look in the caller\'s directory.', () => {
 
         // Just an example to show it used the caller's directory
-        expect(bigServer.registrations.vision).to.exist();
+        expect(bigServer.registrations['@hapi/vision']).to.exist();
     });
 
     it('can look in specific directory.', async () => {
@@ -222,13 +213,13 @@ describe('HauteCouture', () => {
     it('registers plugins in plugins/.', () => {
 
         // Plugins specified, but not an array and no `plugin`
-        expect(bigServer.registrations.schwifty).to.exist();
+        expect(bigServer.registrations['@hapipal/schwifty']).to.exist();
 
         // No plugins specified
-        expect(bigServer.registrations.vision).to.exist();
+        expect(bigServer.registrations['@hapi/vision']).to.exist();
 
         // No plugins specified, with scoped module
-        expect(bigServer.registrations['@softonic/hapi-error-logger']).to.exist();
+        expect(bigServer.registrations['hapi-api-version']).to.exist();
 
         // Passes options, plugins specified as array
         expect(bigServer.registrations['test-dep']).to.exist();
@@ -239,7 +230,7 @@ describe('HauteCouture', () => {
     it('enforces dependencies in dependencies/.', () => {
 
         expect(bigServer.app.deps).have.length(2);
-        expect(bigServer.app.deps).to.only.contain(['vision', 'test-dep']);
+        expect(bigServer.app.deps).to.only.contain(['@hapi/vision', 'test-dep']);
     });
 
     it('provisions caches in caches/.', () => {
@@ -420,7 +411,7 @@ describe('HauteCouture', () => {
             await bigServer.stop();
         };
 
-        const team = new Teamwork();
+        const team = new Team();
 
         await client.connect();
         await client.subscribe('/subscription-test', (data) => {
@@ -434,7 +425,7 @@ describe('HauteCouture', () => {
         await team.work;
     });
 
-    itOnLatestHapi('sets a validator in validator.js', async (flags) => {
+    it('sets a validator in validator.js', async (flags) => {
         // Note, this test is only running on latest hapi because server.validator() doesn't
         // exist until hapi v19, yet we have tests against hapi v18 to test below node v12.
 
@@ -620,7 +611,7 @@ describe('HauteCouture', () => {
                     'decorate() at decorations',
                     'expose() at expose',
                     'state() at cookies',
-                    'schwifty() at models',
+                    'registerModel() at models',
                     'registerService() at services',
                     'bind() at bind',
                     'dependency() at dependencies',
@@ -669,7 +660,7 @@ describe('HauteCouture', () => {
                     'decorate() at decorations',
                     'expose() at expose',
                     'state() at cookies',
-                    'schwifty() at models',
+                    'registerModel() at models',
                     'registerService() at services',
                     'bind() at bind',
                     'dependency() at dependencies',

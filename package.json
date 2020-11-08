@@ -10,7 +10,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "lab -a @hapi/code -t 100 -I \"FinalizationRegistry,WeakRef\" && lab -dlL",
+    "test": "lab -a @hapi/code -t 100 && lab -dlL",
     "coveralls": "lab -r lcov | coveralls"
   },
   "repository": {
@@ -19,13 +19,16 @@
   },
   "keywords": [
     "hapi",
+    "hapijs",
     "scaffold",
     "boilerplate",
     "directory",
     "structure",
     "utility",
     "schwifty",
-    "schmervice"
+    "schmervice",
+    "compose",
+    "plugin"
   ],
   "author": "Devin Ivy <devin@bigroomstudios.com>",
   "license": "MIT",
@@ -40,26 +43,42 @@
     "parent-module": "2.x.x"
   },
   "peerDependencies": {
-    "@hapi/hapi": ">=17 <21"
+    "@hapi/hapi": ">=19 <21",
+    "@hapi/nes": ">=11",
+    "@hapi/vision": ">=5",
+    "@hapipal/schmervice": ">=6",
+    "@hapipal/schwifty": ">=1"
+  },
+  "peerDependenciesMeta": {
+    "@hapi/nes": {
+      "optional": true
+    },
+    "@hapi/vision": {
+      "optional": true
+    },
+    "@hapipal/schmervice": {
+      "optional": true
+    },
+    "@hapipal/schwifty": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@hapi/catbox-memory": "5.x.x",
     "@hapi/code": "8.x.x",
-    "@hapi/hapi": "18.x.x",
-    "@hapi/hapi-20": "npm:@hapi/hapi@20",
-    "@hapi/joi": "16.x.x",
-    "@hapi/lab": "20.x.x",
-    "@hapi/nes": "11.x.x",
-    "@hapi/somever": "2.x.x",
-    "@hapi/teamwork": "3.x.x",
-    "@hapi/vision": "5.x.x",
-    "@softonic/hapi-error-logger": "2.x.x",
+    "@hapi/hapi": "20.x.x",
+    "@hapi/joi": "17.x.x",
+    "@hapi/lab": "24.x.x",
+    "@hapi/nes": "12.x.x",
+    "@hapi/teamwork": "5.x.x",
+    "@hapi/vision": "6.x.x",
+    "@hapipal/schmervice": "2.x.x",
+    "@hapipal/schwifty": "6.x.x",
     "coveralls": "3.x.x",
     "glob": "7.x.x",
-    "knex": "0.20.x",
+    "hapi-api-version": "2.x.x",
+    "knex": "0.21.x",
     "objection": "2.x.x",
-    "renamer": "1.x.x",
-    "schmervice": "1.x.x",
-    "schwifty": "4.x.x"
+    "renamer": "2.x.x"
   }
 }

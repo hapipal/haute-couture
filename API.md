@@ -115,10 +115,10 @@ Here's the complete rundown of how files and directories are mapped to API calls
 > **But first, an important note.**
 >
 > Below you'll find that this library can be used in conjunction with several hapi plugins.  There is no way to properly express an "optional peer dependency" using npm, so here I am to tell you which versions of those plugins work with haute-couture.
->  - schwifty - 3.x.x through 4.x.x
->  - schmervice - 1.x.x
->  - nes - 7.x.x through 10.x.x
->  - vision - 5.x.x
+>  - schwifty - v6
+>  - schmervice - v1 and v2
+>  - nes - v11 and v12
+>  - vision - v5 and v6
 
 #### Path prefix
 > [`server.path(relativeTo)`](https://github.com/hapijs/hapi/blob/master/API.md#server.path())
@@ -169,13 +169,11 @@ Here's the complete rundown of how files and directories are mapped to API calls
   - **`cookies/cookie-name.js`** - export an object  or `function(server, options)` that returns an object.  The `name` will be assigned `'cookie-name'` from the filename if it isn't already specified.
 
 #### Model definitions (for [schwifty](https://github.com/BigRoomStudios/schwifty))
-> [`server.schwifty(models)`](https://github.com/BigRoomStudios/schwifty/blob/master/API.md#serverschwiftyconfig)
->
-> Note, while `models` will typically be a single Objection model class, you may also specify any configuration accepted by `server.schwifty()`, per the docs linked above.
+> [`server.registerModel(models)`](https://github.com/hapipal/schwifty/blob/master/API.md#serverregistermodelmodels)
 
   - **`models.js`** - export an array of `models` or `function(server, options)` that returns an array of `models`.
   - **`models/index.js`** - export an array of `models` or `function(server, options)` that returns an array of `models`.
-  - **`models/model-name.js`** - export `models` or `function(server, options)` that returns an array of `models`.
+  - **`models/model-name.js`** - export `models` or `function(server, options)` that returns `models`.
 
 #### Service definitions (for [schmervice](https://github.com/devinivy/schmervice))
 > [`server.registerService(serviceFactory)`](https://github.com/hapipal/schmervice/blob/master/API.md#serverregisterserviceservicefactory)
