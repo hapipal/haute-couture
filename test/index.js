@@ -132,8 +132,10 @@ describe('HauteCouture', () => {
         const server = Hapi.server();
 
         const plugin = {
-            register: HauteCouture.using(`${__dirname}/closet/specific`),
-            name: 'my-specific-plugin'
+            name: 'my-specific-plugin',
+            register: HauteCouture.composeWith({
+                dirname: `${__dirname}/closet/specific`
+            })
         };
 
         await server.register(plugin);
@@ -148,8 +150,11 @@ describe('HauteCouture', () => {
 
         const amendments = { remove: ['plugins'] };
         const plugin = {
-            register: HauteCouture.using(`${__dirname}/closet/specific`, amendments),
-            name: 'my-specific-plugin'
+            name: 'my-specific-plugin',
+            register: HauteCouture.composeWith({
+                amendments,
+                dirname: `${__dirname}/closet/specific`
+            })
         };
 
         await server.register(plugin);
@@ -168,8 +173,8 @@ describe('HauteCouture', () => {
         // Remove all instructions
         const amendments = { remove: defaultManifest.map(placeOf) };
         const plugin = {
-            register: HauteCouture.using(amendments),
-            name: 'my-specific-plugin'
+            name: 'my-specific-plugin',
+            register: HauteCouture.composeWith({ amendments })
         };
 
         await server.register(plugin);
@@ -194,12 +199,15 @@ describe('HauteCouture', () => {
 
         const plugin = {
             name: 'my-special-plugin',
-            register: HauteCouture.using(`${__dirname}/closet`, [{
-                place: 'special',
-                method: 'special',
-                signature: ['myArg'],
-                list: false
-            }])
+            register: HauteCouture.composeWith({
+                dirname: `${__dirname}/closet`,
+                amendments: [{
+                    place: 'special',
+                    method: 'special',
+                    signature: ['myArg'],
+                    list: false
+                }]
+            })
         };
 
         using(['special.js']);
@@ -433,7 +441,9 @@ describe('HauteCouture', () => {
 
         const plugin = {
             name: 'my-validator-plugin',
-            register: HauteCouture.using(`${__dirname}/closet`)
+            register: HauteCouture.composeWith({
+                dirname: `${__dirname}/closet`
+            })
         };
 
         // Without validator, registering this route should fail
@@ -465,38 +475,23 @@ describe('HauteCouture', () => {
         await expect(server.register(Closet)).to.reject(/Missing decoration property name/);
     });
 
-    it('allows options to be optional', async () => {
-
-        const server = Hapi.server();
-
-        const plugin = {
-            name: 'no-options-plugin',
-            register: async (srv, options) => {
-
-                await HauteCouture.using(`${__dirname}/closet/specific`)(srv);
-                expect(srv.registrations['specific-sub-plugin']).to.exist();
-            }
-        };
-
-        await server.register(plugin);
-
-        expect(server.registrations['no-options-plugin']).to.exist();
-    });
-
     it('rejects when something bad happens.', async () => {
 
         const server = Hapi.server();
 
-        await expect(HauteCouture.using(`${__dirname}/closet/bad-plugin`)(server)).to.reject(/Ya blew it!/);
+        await expect(HauteCouture.compose(server, {}, { dirname: `${__dirname}/closet/bad-plugin` })).to.reject(/Ya blew it!/);
     });
 
+    // TODO this behavior is changing
     it('does not recurse by default.', async () => {
 
         const server = Hapi.server();
 
         const plugin = {
-            register: HauteCouture.using(`${__dirname}/closet/recursive`),
-            name: 'my-recursive-plugin'
+            name: 'my-recursive-plugin',
+            register: HauteCouture.composeWith({
+                dirname: `${__dirname}/closet/recursive`
+            })
         };
 
         await server.register(plugin);
@@ -511,10 +506,13 @@ describe('HauteCouture', () => {
         const server = Hapi.server();
 
         const plugin = {
-            register: HauteCouture.using(`${__dirname}/closet/recursive`, {
-                recursive: true
-            }),
-            name: 'my-recursive-plugin'
+            name: 'my-recursive-plugin',
+            register: HauteCouture.composeWith({
+                dirname: `${__dirname}/closet/recursive`,
+                amendments: {
+                    recursive: true
+                }
+            })
         };
 
         await server.register(plugin);
@@ -534,15 +532,18 @@ describe('HauteCouture', () => {
         const server = Hapi.server();
 
         const plugin = {
-            register: HauteCouture.using(`${__dirname}/closet/recursive`, {
-                recursive: true,
-                exclude: (filename, path) => {
+            name: 'my-recursive-plugin',
+            register: HauteCouture.composeWith({
+                dirname: `${__dirname}/closet/recursive`,
+                amendments: {
+                    recursive: true,
+                    exclude: (filename, path) => {
 
-                    return path.split(Path.sep).includes('a') ||
-                        path.split(Path.sep).includes('helpers');
+                        return path.split(Path.sep).includes('a') ||
+                            path.split(Path.sep).includes('helpers');
+                    }
                 }
-            }),
-            name: 'my-recursive-plugin'
+            })
         };
 
         await server.register(plugin);
@@ -559,14 +560,17 @@ describe('HauteCouture', () => {
         const server = Hapi.server();
 
         const plugin = {
-            register: HauteCouture.using(`${__dirname}/closet/recursive`, {
-                recursive: true,
-                include: (filename, path) => {
+            name: 'my-recursive-plugin',
+            register: HauteCouture.composeWith({
+                dirname: `${__dirname}/closet/recursive`,
+                amendments: {
+                    recursive: true,
+                    include: (filename, path) => {
 
-                    return path.split(Path.sep).includes('one');
+                        return path.split(Path.sep).includes('one');
+                    }
                 }
-            }),
-            name: 'my-recursive-plugin'
+            })
         };
 
         await server.register(plugin);
@@ -906,7 +910,9 @@ describe('HauteCouture', () => {
 
             const plugin = {
                 name: 'my-hc-plugin',
-                register: HauteCouture.using(`${__dirname}/closet/hc-file`)
+                register: HauteCouture.composeWith({
+                    dirname: `${__dirname}/closet/hc-file`
+                })
             };
 
             await server.register(plugin);
@@ -923,7 +929,10 @@ describe('HauteCouture', () => {
 
             const plugin = {
                 name: 'my-hc-plugin',
-                register: HauteCouture.using(`${__dirname}/closet/hc-file`, {})
+                register: HauteCouture.composeWith({
+                    dirname: `${__dirname}/closet/hc-file`,
+                    amendments: {}
+                })
             };
 
             await server.register(plugin);
@@ -934,18 +943,22 @@ describe('HauteCouture', () => {
             expect(server.methods.methodTwo()).to.equal('method-two');
         });
 
-        it('causes an error if it has a bad require.', () => {
+        it('causes an error if it has a bad require.', async () => {
 
-            const makePlugin = () => HauteCouture.using(`${__dirname}/closet/bad-require-hc-file`);
+            const server = Hapi.server();
 
-            expect(makePlugin).to.throw(/Cannot find module/);
+            await expect(HauteCouture.compose(server, {}, {
+                dirname: `${__dirname}/closet/bad-require-hc-file`
+            })).to.reject(/Cannot find module/);
         });
 
-        it('causes an error if it has a general runtime exception.', () => {
+        it('causes an error if it has a general runtime exception.', async () => {
 
-            const makePlugin = () => HauteCouture.using(`${__dirname}/closet/bad-syntax-hc-file`);
+            const server = Hapi.server();
 
-            expect(makePlugin).to.throw(SyntaxError, /unexpected token/i);
+            await expect(HauteCouture.compose(server, {}, {
+                dirname: `${__dirname}/closet/bad-syntax-hc-file`
+            })).to.reject(SyntaxError, /unexpected token/i);
         });
     });
 });
