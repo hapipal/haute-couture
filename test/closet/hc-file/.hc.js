@@ -1,10 +1,9 @@
 'use strict';
 
 module.exports = {
-    add: {
-        place: 'controllers',
+    methods: false,
+    controllers: {
         method: 'method',
         list: true
-    },
-    remove: 'methods'
+    }
 };

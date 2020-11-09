@@ -148,11 +148,10 @@ describe('HauteCouture', () => {
 
         const server = Hapi.server();
 
-        const amendments = { remove: ['plugins'] };
         const plugin = {
             name: 'my-specific-plugin',
             register: HauteCouture.composeWith({
-                amendments,
+                amendments: { plugins: false },
                 dirname: `${__dirname}/closet/specific`
             })
         };
@@ -167,14 +166,16 @@ describe('HauteCouture', () => {
 
         const server = Hapi.server();
 
-        const defaultManifest = HauteCouture.manifest.create();
-        const placeOf = (item) => item.place;
-
         // Remove all instructions
-        const amendments = { remove: defaultManifest.map(placeOf) };
+
         const plugin = {
             name: 'my-specific-plugin',
-            register: HauteCouture.composeWith({ amendments })
+            register: HauteCouture.composeWith({
+                amendments: HauteCouture.manifest().reduce((collect, { place }) => ({
+                    ...collect,
+                    [place]: false
+                }), {})
+            })
         };
 
         await server.register(plugin);
@@ -201,12 +202,13 @@ describe('HauteCouture', () => {
             name: 'my-special-plugin',
             register: HauteCouture.composeWith({
                 dirname: `${__dirname}/closet`,
-                amendments: [{
-                    place: 'special',
-                    method: 'special',
-                    signature: ['myArg'],
-                    list: false
-                }]
+                amendments: {
+                    special: {
+                        method: 'special',
+                        signature: ['myArg'],
+                        list: false
+                    }
+                }
             })
         };
 
@@ -482,8 +484,7 @@ describe('HauteCouture', () => {
         await expect(HauteCouture.compose(server, {}, { dirname: `${__dirname}/closet/bad-plugin` })).to.reject(/Ya blew it!/);
     });
 
-    // TODO this behavior is changing
-    it('does not recurse by default.', async () => {
+    it('recurses by default.', async () => {
 
         const server = Hapi.server();
 
@@ -497,7 +498,12 @@ describe('HauteCouture', () => {
         await server.register(plugin);
 
         expect(server.table().map((r) => r.settings.id)).to.equal([
-            'item-one'
+            'item-one',
+            'two-item-one',
+            'one-a-item-one',
+            'one-a-item-two',
+            'one-b-item-one',
+            'two-a-item-one'
         ]);
     });
 
@@ -510,7 +516,9 @@ describe('HauteCouture', () => {
             register: HauteCouture.composeWith({
                 dirname: `${__dirname}/closet/recursive`,
                 amendments: {
-                    recursive: true
+                    $default: {
+                        recursive: true
+                    }
                 }
             })
         };
@@ -536,11 +544,13 @@ describe('HauteCouture', () => {
             register: HauteCouture.composeWith({
                 dirname: `${__dirname}/closet/recursive`,
                 amendments: {
-                    recursive: true,
-                    exclude: (filename, path) => {
+                    $default: {
+                        recursive: true,
+                        exclude: (filename, path) => {
 
-                        return path.split(Path.sep).includes('a') ||
-                            path.split(Path.sep).includes('helpers');
+                            return path.split(Path.sep).includes('a') ||
+                                path.split(Path.sep).includes('helpers');
+                        }
                     }
                 }
             })
@@ -564,10 +574,12 @@ describe('HauteCouture', () => {
             register: HauteCouture.composeWith({
                 dirname: `${__dirname}/closet/recursive`,
                 amendments: {
-                    recursive: true,
-                    include: (filename, path) => {
+                    $default: {
+                        recursive: true,
+                        include: (filename, path) => {
 
-                        return path.split(Path.sep).includes('one');
+                            return path.split(Path.sep).includes('one');
+                        }
                     }
                 }
             })
