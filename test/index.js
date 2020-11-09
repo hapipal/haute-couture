@@ -596,12 +596,50 @@ describe('HauteCouture', () => {
 
     describe('amendment()', () => {
 
-        it('', () => {});
+        it('fetches default amendment by place.', () => {
+
+            expect(HauteCouture.amendment('subscriptions')).to.equal({
+                method: 'subscription',
+                signature: ['path', '[options]'],
+                list: true,
+                after: ['plugins'],
+                example: {
+                    path: '',
+                    options: { $value: {}, $comment: 'Optional' }
+                }
+            });
+        });
+
+        it('fetches default amendment with modification.', () => {
+
+            const opts = {
+                recurse: false,
+                meta: { info: true }
+            };
+
+            expect(HauteCouture.amendment('subscriptions', opts)).to.equal({
+                method: 'subscription',
+                signature: ['path', '[options]'],
+                list: true,
+                after: ['plugins'],
+                example: {
+                    path: '',
+                    options: { $value: {}, $comment: 'Optional' }
+                },
+                recurse: false,
+                meta: { info: true }
+            });
+        });
+
+        it('throws when no such amendment exists.', () => {
+
+            expect(() => HauteCouture.amendment('nope')).to.throw('There is no default amendment at "nope".');
+        });
     });
 
     describe('amendments()', () => {
 
-        it('returns the default haute amendments.', () => {
+        it('returns the default amendments.', () => {
 
             const amendments = HauteCouture.amendments();
 
@@ -642,6 +680,45 @@ describe('HauteCouture', () => {
                 'registerModel() at models',
                 'registerService() at services',
                 'route() at routes',
+                'state() at cookies',
+                'subscription() at subscriptions',
+                'validator() at validator',
+                'views() at view-manager'
+            ]);
+        });
+
+        it('returns the default amendments with additions, removals, and replacements.', () => {
+
+            const amendments = HauteCouture.amendments({
+                'funky-bind': {
+                    method: 'funkyBind'
+                },
+                path: false,
+                routes: {
+                    ...HauteCouture.amendment('routes'),
+                    method: 'funkyRoute'
+                }
+            });
+
+            const summarize = ([place, item]) => `${item.method}() at ${place}`;
+            const summary = Object.entries(amendments).map(summarize);
+
+            expect(summary.sort()).to.equal([
+                'auth.default() at auth/default',
+                'auth.scheme() at auth/schemes',
+                'auth.strategy() at auth/strategies',
+                'bind() at bind',
+                'cache.provision() at caches',
+                'decorate() at decorations',
+                'dependency() at dependencies',
+                'expose() at expose',
+                'ext() at extensions',
+                'funkyBind() at funky-bind',
+                'funkyRoute() at routes',
+                'method() at methods',
+                'register() at plugins',
+                'registerModel() at models',
+                'registerService() at services',
                 'state() at cookies',
                 'subscription() at subscriptions',
                 'validator() at validator',
