@@ -594,322 +594,281 @@ describe('HauteCouture', () => {
         ]);
     });
 
-    describe('manifest', () => {
+    describe('amendment()', () => {
 
-        describe('create()', () => {
+        it('', () => {});
+    });
 
-            const ignoreFields = ({ include, exclude, ...item }) => item;
+    describe('amendments()', () => {
 
-            it('returns the default haute manifest.', () => {
+        it('returns the default haute amendments.', () => {
 
-                const manifest = HauteCouture.manifest.create();
-                Joi.assert(manifest, Joi.array().items({
-                    place: Joi.string().regex(/[\w\.]+/),
-                    method: Joi.string().regex(/[\w\.]+/),
-                    signature: Joi.array().items(Joi.string().regex(/^\[?\w+\]?$/)),
-                    async: Joi.boolean(),
-                    list: Joi.boolean(),
-                    useFilename: Joi.func(),
-                    recursive: Joi.boolean(),
-                    exclude: Joi.func(),
-                    include: Joi.func(),
-                    meta: Joi.object()
-                }));
+            const amendments = HauteCouture.amendments();
 
-                const summarize = (item) => `${item.method}() at ${item.place}`;
-                const summary = manifest.map(summarize);
+            expect(Object.values(amendments).some((item) => item.example)).to.equal(true);
+            expect(Object.values(amendments).some((item) => item.after)).to.equal(true);
 
-                expect(summary).to.equal([
-                    'path() at path',
-                    'cache.provision() at caches',
-                    'register() at plugins',
-                    'views() at view-manager',
-                    'decorate() at decorations',
-                    'expose() at expose',
-                    'state() at cookies',
-                    'registerModel() at models',
-                    'registerService() at services',
-                    'bind() at bind',
-                    'dependency() at dependencies',
-                    'method() at methods',
-                    'ext() at extensions',
-                    'auth.scheme() at auth/schemes',
-                    'auth.strategy() at auth/strategies',
-                    'auth.default() at auth/default',
-                    'subscription() at subscriptions',
-                    'validator() at validator',
-                    'route() at routes'
-                ]);
+            Joi.assert(amendments, Joi.object().pattern(Joi.any(), {
+                place: Joi.string().regex(/[\w\.]+/),
+                method: Joi.string().regex(/[\w\.]+/),
+                signature: Joi.array().items(Joi.string().regex(/^\[?\w+\]?$/)),
+                list: Joi.boolean(),
+                useFilename: Joi.func(),
+                recursive: Joi.boolean(),
+                exclude: Joi.func(),
+                include: Joi.func(),
+                before: Joi.array().items(Joi.string()).single(),
+                after: Joi.array().items(Joi.string()).single(),
+                example: Joi.any(),
+                meta: Joi.object()
+            }));
+
+            const summarize = ([place, item]) => `${item.method}() at ${place}`;
+            const summary = Object.entries(amendments).map(summarize);
+
+            expect(summary.sort()).to.equal([
+                'auth.default() at auth/default',
+                'auth.scheme() at auth/schemes',
+                'auth.strategy() at auth/strategies',
+                'bind() at bind',
+                'cache.provision() at caches',
+                'decorate() at decorations',
+                'dependency() at dependencies',
+                'expose() at expose',
+                'ext() at extensions',
+                'method() at methods',
+                'path() at path',
+                'register() at plugins',
+                'registerModel() at models',
+                'registerService() at services',
+                'route() at routes',
+                'state() at cookies',
+                'subscription() at subscriptions',
+                'validator() at validator',
+                'views() at view-manager'
+            ]);
+        });
+    });
+
+    describe('manifest()', () => {
+
+        const ignoreFields = ({ include, exclude, ...item }) => item;
+
+        it('returns the default haute manifest.', () => {
+
+            const manifest = HauteCouture.manifest();
+            Joi.assert(manifest, Joi.array().items({
+                place: Joi.string().regex(/[\w\.]+/),
+                method: Joi.string().regex(/[\w\.]+/),
+                signature: Joi.array().items(Joi.string().regex(/^\[?\w+\]?$/)),
+                list: Joi.boolean(),
+                useFilename: Joi.func(),
+                recursive: Joi.boolean(),
+                exclude: Joi.func(),
+                include: Joi.func(),
+                meta: Joi.object()
+            }));
+
+            const summarize = (item) => `${item.method}() at ${item.place}`;
+            const summary = manifest.map(summarize);
+
+            expect(summary).to.equal([
+                'path() at path',
+                'cache.provision() at caches',
+                'register() at plugins',
+                'views() at view-manager',
+                'decorate() at decorations',
+                'expose() at expose',
+                'state() at cookies',
+                'registerModel() at models',
+                'registerService() at services',
+                'bind() at bind',
+                'dependency() at dependencies',
+                'method() at methods',
+                'ext() at extensions',
+                'auth.scheme() at auth/schemes',
+                'auth.strategy() at auth/strategies',
+                'auth.default() at auth/default',
+                'subscription() at subscriptions',
+                'validator() at validator',
+                'route() at routes'
+            ]);
+        });
+
+        it('removes items from the manifest by place.', () => {
+
+            const defaultManifest = HauteCouture.manifest().map(ignoreFields);
+            const manifest = HauteCouture.manifest({
+                // Bottom two
+                validator: false,
+                routes: false
+            })
+                .map(ignoreFields);
+
+            expect(manifest.length).to.equal(defaultManifest.length - 2);
+
+            manifest.forEach((item, i) => {
+
+                expect(item).to.equal(defaultManifest[i]);
+            });
+        });
+
+        it('replaces items in the manifest by place.', () => {
+
+            const defaultManifest = HauteCouture.manifest().map(ignoreFields);
+            const manifest = HauteCouture.manifest({
+                routes: {
+                    method: 'myRoute'
+                },
+                models: {
+                    method: 'mySchwifty'
+                }
+            })
+                .map(ignoreFields);
+
+            const allOthers = (item) => item.place !== 'routes' && item.place !== 'models';
+            expect(manifest.filter(allOthers)).to.equal(defaultManifest.filter(allOthers));
+
+            const routeItem = manifest.find((item) => item.place === 'routes');
+            expect(routeItem).to.equal({
+                place: 'routes',
+                method: 'myRoute'
             });
 
-            it('returns the default haute manifest with extras.', () => {
-
-                const manifest = HauteCouture.manifest.create(null, true);
-
-                expect(manifest.some((item) => item.example)).to.equal(true);
-                expect(manifest.some((item) => item.after)).to.equal(true);
-
-                Joi.assert(manifest, Joi.array().items({
-                    place: Joi.string().regex(/[\w\.]+/),
-                    method: Joi.string().regex(/[\w\.]+/),
-                    signature: Joi.array().items(Joi.string().regex(/^\[?\w+\]?$/)),
-                    async: Joi.boolean(),
-                    list: Joi.boolean(),
-                    useFilename: Joi.func(),
-                    recursive: Joi.boolean(),
-                    exclude: Joi.func(),
-                    include: Joi.func(),
-                    before: Joi.array().items(Joi.string()).single(),
-                    after: Joi.array().items(Joi.string()).single(),
-                    example: Joi.any(),
-                    meta: Joi.object()
-                }));
-
-                const summarize = (item) => `${item.method}() at ${item.place}`;
-                const summary = manifest.map(summarize);
-
-                expect(summary).to.equal([
-                    'path() at path',
-                    'cache.provision() at caches',
-                    'register() at plugins',
-                    'views() at view-manager',
-                    'decorate() at decorations',
-                    'expose() at expose',
-                    'state() at cookies',
-                    'registerModel() at models',
-                    'registerService() at services',
-                    'bind() at bind',
-                    'dependency() at dependencies',
-                    'method() at methods',
-                    'ext() at extensions',
-                    'auth.scheme() at auth/schemes',
-                    'auth.strategy() at auth/strategies',
-                    'auth.default() at auth/default',
-                    'subscription() at subscriptions',
-                    'validator() at validator',
-                    'route() at routes'
-                ]);
+            const schwiftyItem = manifest.find((item) => item.place === 'models');
+            expect(schwiftyItem).to.equal({
+                place: 'models',
+                method: 'mySchwifty'
             });
+        });
 
-            it('removes single item from the manifest by place.', () => {
+        it('adds new items to the manifest.', () => {
 
-                const defaultManifest = HauteCouture.manifest.create().map(ignoreFields);
-                const manifest = HauteCouture.manifest.create({
-                    remove: 'routes'
-                })
-                    .map(ignoreFields);
-
-                expect(manifest.length).to.equal(defaultManifest.length - 1);
-
-                manifest.forEach((item, i) => {
-
-                    expect(item).to.equal(defaultManifest[i]);
-                });
-            });
-
-            it('removes items from the manifest by place.', () => {
-
-                const defaultManifest = HauteCouture.manifest.create().map(ignoreFields);
-                const manifest = HauteCouture.manifest.create({
-                    remove: ['validator', 'routes'] // Bottom two
-                })
-                    .map(ignoreFields);
-
-                expect(manifest.length).to.equal(defaultManifest.length - 2);
-
-                manifest.forEach((item, i) => {
-
-                    expect(item).to.equal(defaultManifest[i]);
-                });
-            });
-
-            it('replaces item in the manifest by place.', () => {
-
-                const defaultManifest = HauteCouture.manifest.create().map(ignoreFields);
-                const manifest = HauteCouture.manifest.create({
-                    add: [{
-                        place: 'routes',
-                        method: 'myRoute'
-                    }]
-                })
-                    .map(ignoreFields);
-
-                const allOthers = (item) => item.place !== 'routes';
-                expect(manifest.filter(allOthers)).to.equal(defaultManifest.filter(allOthers));
-
-                const routeItem = manifest.find((item) => item.place === 'routes');
-                expect(routeItem).to.equal({
-                    place: 'routes',
-                    method: 'myRoute',
-                    recursive: false,
-                    meta: {}
-                });
-            });
-
-            it('replaces items in the manifest by place.', () => {
-
-                const defaultManifest = HauteCouture.manifest.create().map(ignoreFields);
-                const manifest = HauteCouture.manifest.create({
-                    add: [
-                        {
-                            place: 'routes',
-                            method: 'myRoute'
-                        },
-                        {
-                            place: 'models',
-                            method: 'mySchwifty'
-                        }
-                    ]
-                })
-                    .map(ignoreFields);
-
-                const allOthers = (item) => item.place !== 'routes' && item.place !== 'models';
-                expect(manifest.filter(allOthers)).to.equal(defaultManifest.filter(allOthers));
-
-                const routeItem = manifest.find((item) => item.place === 'routes');
-                expect(routeItem).to.equal({
-                    place: 'routes',
-                    method: 'myRoute',
-                    recursive: false,
-                    meta: {}
-                });
-
-                const schwiftyItem = manifest.find((item) => item.place === 'models');
-                expect(schwiftyItem).to.equal({
-                    place: 'models',
-                    method: 'mySchwifty',
-                    recursive: false,
-                    meta: {}
-                });
-            });
-
-            it('adds new items to the manifest.', () => {
-
-                const defaultManifest = HauteCouture.manifest.create().map(ignoreFields);
-                const manifest = HauteCouture.manifest.create({
-                    add: [
-                        {
-                            place: 'funky-routes',
-                            method: 'funkyRoutes',
-                            recursive: true
-                        },
-                        {
-                            place: 'funky-bind',
-                            method: 'funkyBind'
-                        }
-                    ]
-                })
-                    .map(ignoreFields);
-
-                defaultManifest.forEach((item, i) => {
-
-                    expect(item).to.equal(manifest[i]);
-                });
-
-                const defaultLength = defaultManifest.length;
-                expect(manifest.length).to.equal(defaultLength + 2);
-
-                expect(manifest[defaultLength]).to.equal({
-                    place: 'funky-routes',
+            const defaultManifest = HauteCouture.manifest().map(ignoreFields);
+            const manifest = HauteCouture.manifest({
+                'funky-routes': {
                     method: 'funkyRoutes',
-                    recursive: true,
-                    meta: {}
-                });
+                    recursive: false
+                },
+                'funky-bind': {
+                    method: 'funkyBind'
+                }
+            })
+                .map(ignoreFields);
 
-                expect(manifest[defaultLength + 1]).to.equal({
-                    place: 'funky-bind',
-                    method: 'funkyBind',
-                    recursive: false,
-                    meta: {}
-                });
+            defaultManifest.forEach((item, i) => {
+
+                expect(item).to.equal(manifest[i]);
             });
 
-            it('adds new single item to the manifest.', () => {
+            const defaultLength = defaultManifest.length;
+            expect(manifest.length).to.equal(defaultLength + 2);
 
-                const defaultManifest = HauteCouture.manifest.create().map(ignoreFields);
-                const manifest = HauteCouture.manifest.create({
-                    add: {
-                        place: 'funky-routes',
-                        method: 'funkyRoutes'
-                    }
-                })
-                    .map(ignoreFields);
+            expect(manifest[defaultLength]).to.equal({
+                place: 'funky-routes',
+                method: 'funkyRoutes',
+                recursive: false
+            });
 
-                defaultManifest.forEach((item, i) => {
+            expect(manifest[defaultLength + 1]).to.equal({
+                place: 'funky-bind',
+                method: 'funkyBind'
+            });
+        });
 
-                    expect(item).to.equal(manifest[i]);
-                });
+        it('respects before/after options for additional items.', () => {
 
-                const defaultLength = defaultManifest.length;
-                expect(manifest.length).to.equal(defaultLength + 1);
-
-                expect(manifest[defaultLength]).to.equal({
-                    place: 'funky-routes',
+            const defaultManifest = HauteCouture.manifest().map(ignoreFields);
+            const manifest = HauteCouture.manifest({
+                'funky-routes': {
                     method: 'funkyRoutes',
+                    before: ['auth/default'],
+                    after: ['auth/strategies']
+                }
+            })
+                .map(ignoreFields);
+
+            const indexOf = (place, mf) => {
+
+                let index = null;
+
+                for (let i = 0; i < mf.length; ++i) {
+                    const item = mf[i];
+
+                    if (item.place === place) {
+                        index = i;
+                        break;
+                    }
+                }
+
+                return index;
+            };
+
+            // Default manifest has strategies and defaults side-by-side
+
+            const defStrategiesIndex = indexOf('auth/strategies', defaultManifest);
+
+            expect(defaultManifest[defStrategiesIndex].place).to.equal('auth/strategies');
+            expect(defaultManifest[defStrategiesIndex + 1].place).to.equal('auth/default');
+
+            // New manifest has it between strategies and defaults
+
+            const funkyIndex = indexOf('funky-routes', manifest);
+
+            expect(funkyIndex).to.be.above(indexOf('auth/strategies', manifest));
+            expect(funkyIndex).to.be.below(indexOf('auth/default', manifest));
+        });
+
+        it('applies defaults with $default.', () => {
+
+            const defaultManifest = HauteCouture.manifest().map(ignoreFields);
+            const manifest = HauteCouture.manifest({
+                $default: {
                     recursive: false,
-                    meta: {}
-                });
+                    meta: { exampleUseStrict: false }
+                }
+            })
+                .map(ignoreFields);
+
+            expect(manifest.length).to.equal(defaultManifest.length);
+
+            defaultManifest.forEach((item, i) => {
+
+                expect(item).to.not.equal(manifest[i]);
+                expect({ ...item, recursive: false, meta: { exampleUseStrict: false } }).to.equal(manifest[i]);
+            });
+        });
+
+        it('applies defaults with default symbol.', () => {
+
+            const defaultManifest = HauteCouture.manifest().map(ignoreFields);
+            const manifest = HauteCouture.manifest({
+                [HauteCouture.default]: {
+                    recursive: false,
+                    meta: { exampleUseStrict: false }
+                },
+                $default: {
+                    method: 'funkyRoutes',
+                    recursive: true
+                }
+            })
+                .map(ignoreFields);
+
+            expect(manifest.length).to.equal(defaultManifest.length + 1);
+
+            defaultManifest.forEach((item, i) => {
+
+                expect(item).to.not.equal(manifest[i]);
+                expect({ ...item, recursive: false, meta: { exampleUseStrict: false } }).to.equal(manifest[i]);
             });
 
-            it('respects before/after options for additional items.', () => {
-
-                const defaultManifest = HauteCouture.manifest.create().map(ignoreFields);
-                const manifest = HauteCouture.manifest.create({
-                    add: {
-                        place: 'funky-routes',
-                        method: 'funkyRoutes',
-                        before: ['auth/default'],
-                        after: ['auth/strategies']
-                    }
-                })
-                    .map(ignoreFields);
-
-                const indexOf = (place, mf) => {
-
-                    let index = null;
-
-                    for (let i = 0; i < mf.length; ++i) {
-                        const item = mf[i];
-
-                        if (item.place === place) {
-                            index = i;
-                            break;
-                        }
-                    }
-
-                    return index;
-                };
-
-                // Default manifest has strategies and defaults side-by-side
-
-                const defStrategiesIndex = indexOf('auth/strategies', defaultManifest);
-
-                expect(defaultManifest[defStrategiesIndex].place).to.equal('auth/strategies');
-                expect(defaultManifest[defStrategiesIndex + 1].place).to.equal('auth/default');
-
-                // New manifest has it between strategies and defaults
-
-                const funkyIndex = indexOf('funky-routes', manifest);
-
-                expect(funkyIndex).to.be.above(indexOf('auth/strategies', manifest));
-                expect(funkyIndex).to.be.below(indexOf('auth/default', manifest));
-            });
-
-            it('passes through additional keys as meta on each item.', () => {
-
-                const defaultManifest = HauteCouture.manifest.create().map(ignoreFields);
-                const manifest = HauteCouture.manifest.create({
+            expect(manifest[manifest.length - 1]).to.equal({
+                place: '$default',
+                method: 'funkyRoutes',
+                recursive: true,
+                meta: {
                     exampleUseStrict: false
-                })
-                    .map(ignoreFields);
-
-                expect(manifest.length).to.equal(defaultManifest.length);
-
-                defaultManifest.forEach((item, i) => {
-
-                    expect(item).to.not.equal(manifest[i]);
-                    expect({ ...item, meta: { exampleUseStrict: false } }).to.equal(manifest[i]);
-                });
+                }
             });
         });
     });
