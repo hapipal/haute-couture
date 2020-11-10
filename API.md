@@ -1,26 +1,46 @@
 # API Reference
 
-### `HauteCouture.using([dirname], [amendments])`
+### `await HauteCouture.compose(server, options, [composeOptions])`
 
-Returns a function with the signature `async function(server, [options])`, identical in meaning to the signature of a [hapi plugin](https://github.com/hapijs/hapi/blob/master/API.md#plugins).  Invoking the function makes hapi plugin API calls on `server` as described [below](#files-and-directories).  Typically `server` will be a server object passed to a plugin and `options` will be plugin options.  However, `server` could be any hapi server object (such as the root server) and `options` are not required.  It takes the following options,
+Composes `server` by making calls into hapi from file and directory contents as described in [Files and directories](#files-and-directories).  For example, the contents of each file in `routes/` may be used to make a call to `server.routes()` and define a hapi route.  The same goes for many other directories, and many other methods in the hapi server/plugin interface [starting here](https://hapi.dev/api/#server.auth.default()).  Typically this call is made as a subroutine of hapi plugin registration, and `options` are plugin registration options:
 
-  - `dirname` - an absolute directory path in which to look for the files and directories described [below](#files-and-directories).  It defaults to the directory path of the caller.
-  - `amendments` - specifies additions and/or removals of items in the **[haute](https://github.com/devinivy/haute)** manifest that is used to map directory structure to hapi plugin API calls.  May be either of,
-    - An object,
-      - `add` - a single or array of items to add to the hapi haute manifest.  Also may be a nested array of items (e.g. `[{}, [{}, {}]]`).  If any items have `place` equal to an item in the default manifest, the default manifest item will be replaced.  Supports the following additional keys per [haute manifest item](#structure-of-a-haute-manifest-item),
-        - `before` - a single or array of `place` values for which the given item should be positioned prior to other items in the manifest.
-        - `after` - a single or array of `place` values for which the given item should be positioned subsequent to other items in the manifest.
-        - `example` - an example value for this item, primarily used by the [hpal CLI](https://github.com/hapipal/hpal).
-      - `remove` - a single or array of `place` values of items that should be removed from the manifest.  This would be utilized to opt a file/directory out of usage by haute-couture.
-      - `recursive` - when `true` this option causes files to be picked-up recursively within their directory rather than just files that live directly under `place`.  Flip this to true if you'd like to have a nested folder structure, e.g. `routes/users/login.js` versus `routes/users-login.js`.
-      - `include` - may be a function `(filename, path) => Boolean` or a RegExp.  When this option is used, a file will only be used as a call when the function returns `true` or the RegExp matches `path`.
-      - `exclude` - takes a function or RegExp, identically to `include`.  When this option is used, a file will only be used as a call when the function returns `false` or the RegExp does not match `path`.  This option defaults to exclude any file that lives under a directory named `helpers/`.
-      - Any unrecognized properties listed here will be defaults for each generated manfiest item's `meta` property.  This may be used to configure behavior of other tools, such as the [hpal CLI](https://github.com/hapipal/hpal).
-    - An array of items used identically to the `add` option above.
+```js
+const HauteCouture = require('@hapipal/haute-couture');
+
+module.exports = {
+    name: 'my-hapi-plugin',
+    async register(server, options) {
+
+        // Custom plugin code can go here
+
+        await HauteCouture.compose(server, options);
+    }
+};
+```
+
+When `composeOptions` is specified then it may define the following properties:
+
+ - `dirname` - an absolute directory path in which to look for the files and directories described [below](#files-and-directories), as well as those from `amendments`.  It defaults to the directory path of the caller.
+ - `amendments` - and object whose keys are directories and whose values are configuration about how to interpret the contents of that directory into calls to hapi.  The keys represent directories relative to `dirname`, and we call these "places."  The values follow the format of a [haute manifest item](#structure-of-a-haute-manifest-item) (except the property `place`, which is defined by the value's key).
+
+ There are many amendments that haute-couture uses to provide its default behavior, as described in [Files and directories](#files-and-directories).  In the case that `amendments` defines an amendment at a place for which haute-couture has a default, the contents of `amendment` will override the default.  If `amendments` contains a key whose value is `false`, that place specified by that key will be ignored by haute-couture.  You may also specify the key [`HauteCouture.default` or `'$default'`](#hautecouturedefault) to define defaults for all items.  The following are amendment settings that can be changed through defaults:
+
+  - `recursive` - this option causes files to be picked-up recursively within their directory rather than just files that live directly under `place`.  Flip this to `false` if you would prefer not to have a nested folder structure, e.g. `routes/users/login.js` versus `routes/users-login.js`.
+  - `include` - may be a function `(filename, path) => Boolean` or a RegExp where `filename` (a filename without extension) and `path` (a file's path relative to `place`) are particular to files under `place`.  When this option is used, a file will only be used as a call when the function returns `true` or the RegExp matches `path`.
+  - `exclude` - takes a function or RegExp, identically to `include`.  When this option is used, a file will only be used as a call when the function returns `false` or the RegExp does not match `path`.  This option defaults to exclude any file that lives under a directory named `helpers/`.
+  - `meta` - an object containing any meta information not required by haute-couture or haute, primarily for integration with other tools.
+
+In addition to these settings and the standard [haute item](#structure-of-a-haute-manifest-item) properties, you may also specify the following on an amendment:
+
+  - `before` - a single or array of `place` values for which the given item should be positioned prior to other items.  This modifies the order of the calls made to hapi on `server`.
+  - `after` - a single or array of `place` values for which the given item should be positioned subsequent to other items in the manifest.  This modifies the order of the calls made to hapi on `server`.
+  - `example` - an example value for this item (i.e. file contents within `place`), primarily used by the [hpal CLI](https://github.com/hapipal/hpal) to scaffold new files at `place`.
+
+See the amendment example below for illustration, noting that the format of `.hc.js` and the format of `composeOptions.amendments` are identical.
 
 #### Specifying amendments with `.hc.js`
 
-When a call to `HauteCouture.using([dirname], [amendments])` specifies no `amendments`, haute-couture will check the relevant directory `dirname` for a file named `.hc.js`.  Any amendments exported by this file are used identically to amendments passed as an argument.  This is a nice way to keep haute-couture-related configuration separate from your plugin code, and also offer a standard way for tools such as the [pal CLI](https://github.com/devinivy/paldo) to cater to your particular usage of haute-couture.
+When a call to `HauteCouture.compose(server, options, composeOptions)` specifies no `composeOptions.amendments`, haute-couture will check the relevant directory `composeOptions.dirname` for a file named `.hc.js`.  Any amendments exported by this file are used identically to amendments passed as an argument.  This is a nice way to keep haute-couture-related configuration separate from your plugin code, and also offer a standard way for tools such as the [pal CLI](https://github.com/devinivy/paldo) to cater to your particular usage of haute-couture.
 
 #### Amendment example
 
@@ -30,7 +50,7 @@ This example demonstrates how to use a `.hc.js` file in order to swap-out [schwi
 ```js
 'use strict';
 
-const HauteCouture = require('haute-couture');
+const HauteCouture = require('@hapipal/haute-couture');
 const Mongoose = require('mongoose');
 
 module.exports = {
@@ -42,7 +62,7 @@ module.exports = {
 
         server.app.connection = Mongoose.createConnection(options.mongoURI);
 
-        await HauteCouture.using()(server, options);
+        await HauteCouture.compose(server, options);
     }
 };
 ```
@@ -52,8 +72,7 @@ module.exports = {
 'use strict';
 
 module.exports = {
-    add: [{
-        place: 'models',
+    models: {
         list: true,
         signature: ['name', 'schema'],
         method: (server, options, name, schema) => {
@@ -76,7 +95,7 @@ module.exports = {
                 schema: { $literal: 'new Mongoose.Schema({})'}
             }
         }
-    }]
+    }
 };
 ```
 
@@ -97,24 +116,85 @@ module.exports = {
 };
 ```
 
-### `HauteCouture.manifest.create([amendments, [includeExtras]])`
+### `HauteCouture.composeWith(composeOptions)`
 
-Returns the hapi **[haute](https://github.com/devinivy/haute)** manifest, incorporating optional `amendments` to the manifest as described in [`HauteCouture.using([dirname], [amendments])`](#hautecoutureusingdirname-amendments).  When `includeExtras` is `true` the manifest will include additional amendment information such as `before`, `after`, and `example` as described above.
+Returns a function with the signature `async function(server, options)`, identical in meaning to the signature of a [hapi plugin](https://hapi.dev/api/#plugins).  This function behaves identically to [`HauteCouture.compose(server, options, composeOptions)`](#await-hautecouturecomposeserver-options-composeoptions) with the final argument fixed.
+
+```js
+module.exports = {
+    name: 'my-plugin',
+    register: HauteCouture.composeWith({
+        amendments: {
+            $default: {
+                recursive: false
+            }
+        }
+    })
+};
+```
+
+### `HauteCouture.amendment(place, [patch])`
+
+Returns the default amendment at `place`.  For example, `HauteCouture.amendment('auth/strategies')` will return the default amendment that defines the call to `server.auth.strategy()`.  When `patch` is specified then it will be used to alter the returned amendment.
+
+```js
+await HauteCouture.compose(server, options, {
+    amendments: {
+        routes: HauteCouture.amendment('routes', {
+            recursive: false
+        })
+    }
+});
+```
+
+### `HauteCouture.amendments([amendments])`
+> This is most likely to be used by tooling that is interoperating with haute-couture, and isn't a part of everyday usage.
+
+Returns haute-couture's default amendments with `amendments` overrides applied.  The result is an object whose keys are `place`s and values are amendments as described in documentation for [`HauteCouture.compose()`](#await-hautecouturecomposeserver-options-composeoptions).
+
+### `HauteCouture.manifest([amendments, [dirname]])`
+> This is most likely to be used by tooling that is interoperating with haute-couture, and isn't a part of everyday usage.
+
+Returns the hapi [haute](https://github.com/devinivy/haute) manifest, incorporating optional `amendments` to the manifest as described in documentation for [`HauteCouture.compose()`](#await-hautecouturecomposeserver-options-composeoptions).  Haute requires each manifest item have an `item.dirname`, which will be set if `dirname` is specified.
+
+### `HauteCouture.default`
+
+A symbol that may be used as a key to specify amendment defaults anywhere `amendments` are passed.  Note that `'$default'` may also be used as a key for this purpose.  When `HauteCouture.default` and `'$default'` both appear in `amendments`, the value at `HauteCouture.default` is used to determine defaults and the value at `'$default'` is interpreted as a place (i.e. a directory named `$default/`).
+
+```js
+await HauteCouture.compose(server, options, {
+    amendments: {
+        // Do not look recursively into directories anywhere aside from routes/
+        [HauteCouture.default]: {
+            recursive: false
+        },
+        routes: HauteCouture.amendment('routes', {
+            recursive: true
+        })
+    }
+});
+```
 
 ### Files and directories
-**haute-couture** is quite astute in mapping files and directories to hapi API calls.  And as seen in the comments of the [usage example](README.md#routespingerjs), it also infers configuration from filenames where applicable.
+We've worked to make haute-couture quite astute in mapping files and directories to hapi calls defining your server or plugin.  And as seen in the comments of the [usage example](README.md#routespingerjs), it also infers configuration from filenames where applicable.
 
-Files will always export an array of values (representing multiple API calls) or a single value (one API call).  When a hapi method takes more than one argument, a single value consists of an object whose keys are the names of the arguments and whose values are the intended argument values.  The format of the argument values come from the [hapi API](https://github.com/hapijs/hapi/blob/master/API.md) unless otherwise specified.
+#### Mapping file contents ⟶ calls to hapi
+
+Here's the intuition for what's happening (it's pretty simple!).  If a file `place/my-file.js` exports `contents`, then haute-couture will make a call on your server `server.place(contents)`.  For example, if `{ method, path, handler }` is exported from `routes/my-route.js`, then haute-couture will define a route for you by calling `server.route({ method, path, handler })`.  This is all configurable as described in [`HauteCouture.compose()`](#await-hautecouturecomposeserver-options-composeoptions), but most of the time that's all that's happening.  You will find that haute-couture is a pretty thin adapter between file contents and your hapi server.
+
+#### More on file contents
+
+Files will always export an array of values (representing multiple calls into hapi) or a single value (one call into hapi).  When a hapi method takes more than one argument, a single value consists of an object whose keys are the names of the arguments and whose values are the intended argument values.  The format of the argument values come from the [hapi API](https://github.com/hapijs/hapi/blob/master/API.md) unless otherwise specified.
 
 For example, a file defining a new server method (representing a call to `server.method(name, method)`) would export an object of the format `{ name, method }`.
 
 Lastly, files can always export a function with signature `function(server, options)` or `async function(server, options)` that returns the intended value or array of values.
 
-Here's the complete rundown of how files and directories are mapped to API calls.  The order here reflects the order in which the calls would be made.
+Here's the complete rundown of how files and directories are mapped to calls on your hapi `server`.  The order here reflects the order in which the calls would be made.
 
-> **But first, an important note.**
+> **Note**
 >
-> Below you'll find that this library can be used in conjunction with several hapi plugins.  There is no way to properly express an "optional peer dependency" using npm, so here I am to tell you which versions of those plugins work with haute-couture.
+> You'll see that this library can be used in conjunction with several hapi plugins.  Here are those plugins and their supported versions.
 >  - schwifty - v6
 >  - schmervice - v1 and v2
 >  - nes - v11 and v12
