@@ -1,26 +1,46 @@
 # API Reference
 
-### `HauteCouture.using([dirname], [amendments])`
+### `await HauteCouture.compose(server, options, [composeOptions])`
 
-Returns a function with the signature `async function(server, [options])`, identical in meaning to the signature of a [hapi plugin](https://github.com/hapijs/hapi/blob/master/API.md#plugins).  Invoking the function makes hapi plugin API calls on `server` as described [below](#files-and-directories).  Typically `server` will be a server object passed to a plugin and `options` will be plugin options.  However, `server` could be any hapi server object (such as the root server) and `options` are not required.  It takes the following options,
+Composes `server` by making calls into hapi from file and directory contents as described in [Files and directories](#files-and-directories).  For example, the contents of each file in `routes/` may be used to make a call to `server.routes()` and define a hapi route.  The same goes for many other directories, and many other methods in the hapi server/plugin interface [starting here](https://hapi.dev/api/#server.auth.default()).  Typically `HauteCouture.compose()` is called as a subroutine of hapi plugin registration, and `options` are plugin registration options:
 
-  - `dirname` - an absolute directory path in which to look for the files and directories described [below](#files-and-directories).  It defaults to the directory path of the caller.
-  - `amendments` - specifies additions and/or removals of items in the **[haute](https://github.com/devinivy/haute)** manifest that is used to map directory structure to hapi plugin API calls.  May be either of,
-    - An object,
-      - `add` - a single or array of items to add to the hapi haute manifest.  Also may be a nested array of items (e.g. `[{}, [{}, {}]]`).  If any items have `place` equal to an item in the default manifest, the default manifest item will be replaced.  Supports the following additional keys per [haute manifest item](#structure-of-a-haute-manifest-item),
-        - `before` - a single or array of `place` values for which the given item should be positioned prior to other items in the manifest.
-        - `after` - a single or array of `place` values for which the given item should be positioned subsequent to other items in the manifest.
-        - `example` - an example value for this item, primarily used by the [hpal CLI](https://github.com/hapipal/hpal).
-      - `remove` - a single or array of `place` values of items that should be removed from the manifest.  This would be utilized to opt a file/directory out of usage by haute-couture.
-      - `recursive` - when `true` this option causes files to be picked-up recursively within their directory rather than just files that live directly under `place`.  Flip this to true if you'd like to have a nested folder structure, e.g. `routes/users/login.js` versus `routes/users-login.js`.
-      - `include` - may be a function `(filename, path) => Boolean` or a RegExp.  When this option is used, a file will only be used as a call when the function returns `true` or the RegExp matches `path`.
-      - `exclude` - takes a function or RegExp, identically to `include`.  When this option is used, a file will only be used as a call when the function returns `false` or the RegExp does not match `path`.  This option defaults to exclude any file that lives under a directory named `helpers/`.
-      - Any unrecognized properties listed here will be defaults for each generated manfiest item's `meta` property.  This may be used to configure behavior of other tools, such as the [hpal CLI](https://github.com/hapipal/hpal).
-    - An array of items used identically to the `add` option above.
+```js
+const HauteCouture = require('@hapipal/haute-couture');
+
+module.exports = {
+    name: 'my-hapi-plugin',
+    async register(server, options) {
+
+        // Custom plugin code can go here
+
+        await HauteCouture.compose(server, options);
+    }
+};
+```
+
+When `composeOptions` is specified then it may define the following properties:
+
+ - `dirname` - an absolute directory path in which to look for the files and directories described [below](#files-and-directories), as well as those from `amendments`.  It defaults to the directory path of the caller.
+ - `amendments` - an object whose keys are directories and whose values are configuration about how to interpret the contents of that directory into calls to hapi.  The keys represent directories relative to `dirname`, and we call these "places."  The values follow the format of a [haute manifest item](#structure-of-a-haute-manifest-item) (except the property `place`, which is defined by the value's key), and we call these "amendments".
+
+ There are many amendments that haute-couture uses to provide its default behavior, as described in [Files and directories](#files-and-directories).  In the case that `amendments` defines an amendment at a place for which haute-couture has a default, the contents of `amendment` will override the default.  If `amendments` contains a key whose value is `false`, that place specified by that key will be ignored by haute-couture.  You may also specify the key [`HauteCouture.default` or `'$default'`](#hautecouturedefault) to define defaults for all items.  The following are amendment settings that can be changed through defaults:
+
+  - `recursive` - this option causes files to be picked-up recursively within their directory rather than just files that live directly under `place`.  Flip this to `false` if you would prefer not to have a nested folder structure, e.g. `routes/users/login.js` versus `routes/users-login.js`.
+  - `include` - may be a function `(filename, path) => Boolean` or a RegExp where `filename` (a filename without extension) and `path` (a file's path relative to `place`) are particular to files under `place`.  When this option is used, a file will only be used as a call when the function returns `true` or the RegExp matches `path`.
+  - `exclude` - takes a function or RegExp, identically to `include`.  When this option is used, a file will only be used as a call when the function returns `false` or the RegExp does not match `path`.  This option defaults to exclude any file that lives under a directory named `helpers/`.
+  - `meta` - an object containing any meta information not required by haute-couture or haute, primarily for integration with other tools.
+
+In addition to these settings and the standard [haute item](#structure-of-a-haute-manifest-item) properties, you may also specify the following on an amendment:
+
+  - `before` - a single or array of `place` values for which the given item should be positioned prior to other items.  This modifies the order of the calls made to hapi on `server`.
+  - `after` - a single or array of `place` values for which the given item should be positioned subsequent to other items in the manifest.  This modifies the order of the calls made to hapi on `server`.
+  - `example` - an example value for this item (i.e. file contents within `place`), primarily used by the [hpal CLI](https://github.com/hapipal/hpal) to scaffold new files at `place`.
+
+See the amendment example below for illustration, noting that the format of `.hc.js` and the format of `composeOptions.amendments` are identical.
 
 #### Specifying amendments with `.hc.js`
 
-When a call to `HauteCouture.using([dirname], [amendments])` specifies no `amendments`, haute-couture will check the relevant directory `dirname` for a file named `.hc.js`.  Any amendments exported by this file are used identically to amendments passed as an argument.  This is a nice way to keep haute-couture-related configuration separate from your plugin code, and also offer a standard way for tools such as the [pal CLI](https://github.com/devinivy/paldo) to cater to your particular usage of haute-couture.
+When a call to `HauteCouture.compose(server, options, composeOptions)` specifies no `composeOptions.amendments`, haute-couture will check the relevant directory `composeOptions.dirname` for a file named `.hc.js`.  Any amendments exported by this file are used identically to amendments passed as an argument.  This is a nice way to keep haute-couture-related configuration separate from your plugin code, and also offer a standard way for tools such as the [pal CLI](https://github.com/devinivy/paldo) to cater to your particular usage of haute-couture.
 
 #### Amendment example
 
@@ -30,7 +50,7 @@ This example demonstrates how to use a `.hc.js` file in order to swap-out [schwi
 ```js
 'use strict';
 
-const HauteCouture = require('haute-couture');
+const HauteCouture = require('@hapipal/haute-couture');
 const Mongoose = require('mongoose');
 
 module.exports = {
@@ -42,7 +62,7 @@ module.exports = {
 
         server.app.connection = Mongoose.createConnection(options.mongoURI);
 
-        await HauteCouture.using()(server, options);
+        await HauteCouture.compose(server, options);
     }
 };
 ```
@@ -52,8 +72,7 @@ module.exports = {
 'use strict';
 
 module.exports = {
-    add: [{
-        place: 'models',
+    models: {
         list: true,
         signature: ['name', 'schema'],
         method: (server, options, name, schema) => {
@@ -76,7 +95,7 @@ module.exports = {
                 schema: { $literal: 'new Mongoose.Schema({})'}
             }
         }
-    }]
+    }
 };
 ```
 
@@ -97,57 +116,118 @@ module.exports = {
 };
 ```
 
-### `HauteCouture.manifest.create([amendments, [includeExtras]])`
+### `HauteCouture.composeWith(composeOptions)`
 
-Returns the hapi **[haute](https://github.com/devinivy/haute)** manifest, incorporating optional `amendments` to the manifest as described in [`HauteCouture.using([dirname], [amendments])`](#hautecoutureusingdirname-amendments).  When `includeExtras` is `true` the manifest will include additional amendment information such as `before`, `after`, and `example` as described above.
+Returns a function with the signature `async function(server, options)`, identical in meaning to the signature of a [hapi plugin](https://hapi.dev/api/#plugins).  This function behaves identically to [`HauteCouture.compose(server, options, composeOptions)`](#await-hautecouturecomposeserver-options-composeoptions) with the final argument fixed.
+
+```js
+module.exports = {
+    name: 'my-plugin',
+    register: HauteCouture.composeWith({
+        amendments: {
+            $default: {
+                recursive: false
+            }
+        }
+    })
+};
+```
+
+### `HauteCouture.amendment(place, [patch])`
+
+Returns the default amendment at `place`.  For example, `HauteCouture.amendment('auth/strategies')` will return the default amendment that defines the call to `server.auth.strategy()`.  When `patch` is specified then it will be used to alter the returned amendment.
+
+```js
+await HauteCouture.compose(server, options, {
+    amendments: {
+        routes: HauteCouture.amendment('routes', {
+            recursive: false
+        })
+    }
+});
+```
+
+### `HauteCouture.amendments([amendments])`
+> This is most likely to be used by tooling that is interoperating with haute-couture, and isn't a part of everyday usage.
+
+Returns haute-couture's default amendments with `amendments` overrides applied.  The result is an object whose keys are `place`s and values are amendments as described in documentation for [`HauteCouture.compose()`](#await-hautecouturecomposeserver-options-composeoptions).
+
+### `HauteCouture.manifest([amendments, [dirname]])`
+> This is most likely to be used by tooling that is interoperating with haute-couture, and isn't a part of everyday usage.
+
+Returns the hapi [haute](https://github.com/devinivy/haute) manifest, incorporating optional `amendments` to the manifest as described in documentation for [`HauteCouture.compose()`](#await-hautecouturecomposeserver-options-composeoptions).  Haute requires each manifest item have an `item.dirname`, which will be set if `dirname` is specified.
+
+### `HauteCouture.default`
+
+A symbol that may be used as a key to specify amendment defaults anywhere `amendments` are passed.  Note that `'$default'` may also be used as a key for this purpose.  When `HauteCouture.default` and `'$default'` both appear in `amendments`, the value at `HauteCouture.default` is used to determine defaults and the value at `'$default'` is interpreted as a place (i.e. a directory named `$default/`).
+
+```js
+await HauteCouture.compose(server, options, {
+    amendments: {
+        // Do not look recursively into directories anywhere aside from routes/
+        [HauteCouture.default]: {
+            recursive: false
+        },
+        routes: HauteCouture.amendment('routes', {
+            recursive: true
+        })
+    }
+});
+```
 
 ### Files and directories
-**haute-couture** is quite astute in mapping files and directories to hapi API calls.  And as seen in the comments of the [usage example](README.md#routespingerjs), it also infers configuration from filenames where applicable.
+We've worked hard to make haute-couture astute in mapping files and directories to hapi calls defining your server or plugin.  And as seen in the comments of the [usage example](README.md#routespingerjs), it also infers configuration from filenames where applicable.
 
-Files will always export an array of values (representing multiple API calls) or a single value (one API call).  When a hapi method takes more than one argument, a single value consists of an object whose keys are the names of the arguments and whose values are the intended argument values.  The format of the argument values come from the [hapi API](https://github.com/hapijs/hapi/blob/master/API.md) unless otherwise specified.
+#### Mapping file contents ⟶ calls to hapi
+
+Here's the intuition for what's happening (it's pretty simple!).  If a file `place/my-file.js` exports `contents`, then haute-couture will make a call on your server `server.place(contents)`.  For example, if `{ method, path, handler }` is exported from `routes/my-route.js`, then haute-couture will define a route for you by calling `server.route({ method, path, handler })`.  The behavior is configurable as described in [`HauteCouture.compose()`](#await-hautecouturecomposeserver-options-composeoptions) using "amendments", but most of the time this is all that's happening.  You will find that haute-couture is a pretty thin adapter between file contents and your hapi server.
+
+#### More on file contents
+
+Files will always export an array of values (representing multiple calls into hapi) or a single value (one call into hapi).  When a hapi method takes more than one argument, a single value consists of an object whose keys are the names of the arguments and whose values are the intended argument values.  The format of the argument values come from the [hapi API](https://hapi.dev/api/) unless otherwise specified.
 
 For example, a file defining a new server method (representing a call to `server.method(name, method)`) would export an object of the format `{ name, method }`.
 
 Lastly, files can always export a function with signature `function(server, options)` or `async function(server, options)` that returns the intended value or array of values.
 
-Here's the complete rundown of how files and directories are mapped to API calls.  The order here reflects the order in which the calls would be made.
+Here's the complete rundown of how files and directories are mapped to calls on your hapi `server`.  The order here reflects the order in which the calls would be made.
 
-> **But first, an important note.**
+> **Note**
 >
-> Below you'll find that this library can be used in conjunction with several hapi plugins.  There is no way to properly express an "optional peer dependency" using npm, so here I am to tell you which versions of those plugins work with haute-couture.
+> You'll see that this library can be used in conjunction with several hapi plugins.  Here are those plugins and their supported versions.
 >  - schwifty - v6
 >  - schmervice - v1 and v2
 >  - nes - v11 and v12
 >  - vision - v5 and v6
 
 #### Path prefix
-> [`server.path(relativeTo)`](https://github.com/hapijs/hapi/blob/master/API.md#server.path())
+> [`server.path(relativeTo)`](https://hapi.dev/api/#server.path())
 
   - **`path.js`** - export `relativeTo` or `function(server, options)` that returns `relativeTo`.
   - **`path/index.js`** - export `relativeTo` or `function(server, options)` that returns `relativeTo`.
 
 #### Provisioning caches
-> [`await server.cache.provision(options)`](https://github.com/hapijs/hapi/blob/master/API.md#server.cache.provision())
+> [`await server.cache.provision(options)`](https://hapi.dev/api/#server.cache.provision())
 
   - **`caches.js`** - export an array of `options` or `function(server, options)` that returns array of `options`.
   - **`caches/index.js`** - export an array of `options` or `function(server, options)` that returns array of `options`.
   - **`caches/some-cache-name.js`** - export `options` or `function(server, options)` that returns `options`.  The cache's `options.name` will be assigned `'cache-name'` from the filename if a name isn't already specified.
 
 #### Plugin registrations
-> [`await server.register(plugins, [options])`](https://github.com/hapijs/hapi/blob/master/API.md#server.register())
+> [`await server.register(plugins, [options])`](https://hapi.dev/api/#server.register())
 
   - **`plugins.js`** - export an array of objects `{ plugins, options }` or `function(server, options)` that returns an array of objects `{ plugins, options }`.
   - **`plugins/index.js`** - export an array of objects or `function(server, options)` that returns an array of objects.
   - **`plugins/plugin-name.js`** - export an object or `function(server, options)` that returns an object. If a plugin isn't specified in `plugins` it will be `require()`d using the filename.  Scoped plugins may also be specified using a dot (`.`) as a separator between the scope and the package name, e.g. `plugins/@my-scope.my-package.js` would register the plugin `require('@my-scope/my-package')`.
 
 #### View manager (for [vision](https://github.com/hapijs/vision))
-> [`server.views(options)`](https://github.com/hapijs/vision/blob/master/API.md#serverviewsoptions)
+> [`server.views(options)`](https://hapi.dev/module/vision/api/#serverviewsoptions)
 
   - **`view-manager.js`** - export `options` or `function(server, options)` that returns `options`.
   - **`view-manager/index.js`** - export `options` or `function(server, options)` that returns `options`.
 
 #### Decorations
-> [`server.decorate(type, property, method, [options])`](https://github.com/hapijs/hapi/blob/master/API.md#server.decorate())
+> [`server.decorate(type, property, method, [options])`](https://hapi.dev/api/#server.decorate())
 
   - **`decorations.js`** - export an array of objects `{ type, property, method, options }` or `function(server, options)` that returns an array of objects.
   - **`decorations/index.js`** - export an array of objects or `function(server, options)` that returns an array of objects.
@@ -155,95 +235,95 @@ Here's the complete rundown of how files and directories are mapped to API calls
   - **`decorations/[type].decoration-name.js`** - export an object or `function(server, options)` that returns an object. The `type` will additionally be inferred from the filename if it isn't already specified.
 
 #### Exposed properties
-> [`server.expose(key, value)`](https://github.com/hapijs/hapi/blob/master/API.md#server.expose())
+> [`server.expose(key, value)`](https://hapi.dev/api/#server.expose())
 
   - **`expose.js`** - export an array of objects `{ key, value }` or `function(server, options)` that returns an array of objects.
   - **`expose/index.js`** - export an array of objects or `function(server, options)` that returns an array of objects.
   - **`expose/property-name.js`** - export an object or `function(server, options)` that returns an object.  The `key` will be assigned `'propertyName'` camel-cased from the filename if it isn't already specified.
 
 #### Cookies
-> [`server.state(name, [options])`](https://github.com/hapijs/hapi/blob/master/API.md#server.state())
+> [`server.state(name, [options])`](https://hapi.dev/api/#server.state())
 
   - **`cookies.js`** - export an array of objects `{ name, options }` or `function(server, options)` that returns an array of objects.
   - **`cookies/index.js`** - export an array of objects or `function(server, options)` that returns an array of objects.
   - **`cookies/cookie-name.js`** - export an object  or `function(server, options)` that returns an object.  The `name` will be assigned `'cookie-name'` from the filename if it isn't already specified.
 
 #### Model definitions (for [schwifty](https://github.com/BigRoomStudios/schwifty))
-> [`server.registerModel(models)`](https://github.com/hapipal/schwifty/blob/master/API.md#serverregistermodelmodels)
+> [`server.registerModel(models)`](https://hapipal.com/docs/schwifty#serverregistermodelmodels)
 
   - **`models.js`** - export an array of `models` or `function(server, options)` that returns an array of `models`.
   - **`models/index.js`** - export an array of `models` or `function(server, options)` that returns an array of `models`.
   - **`models/model-name.js`** - export `models` or `function(server, options)` that returns `models`.
 
 #### Service definitions (for [schmervice](https://github.com/devinivy/schmervice))
-> [`server.registerService(serviceFactory)`](https://github.com/hapipal/schmervice/blob/master/API.md#serverregisterserviceservicefactory)
+> [`server.registerService(serviceFactory)`](https://hapipal.com/docs/schmervice#serverregisterserviceservicefactory)
 
   - **`services.js`** - export an array of `serviceFactory`s or `function(server, options)` that returns an array of `serviceFactory`s.
   - **`services/index.js`** - export an array of `serviceFactory`s or `function(server, options)` that returns an array of `serviceFactory`s.
   - **`services/service-name.js`** - export `serviceFactory` or `function(server, options)` that returns `serviceFactory`.
 
 #### Globally bound context
-> [`server.bind(context)`](https://github.com/hapijs/hapi/blob/master/API.md#server.bind())
+> [`server.bind(context)`](https://hapi.dev/api/#server.bind())
 
   - **`bind.js`** - export `context` or `function(server, options)` that returns `context`.
   - **`bind/index.js`** - export `context` or `function(server, options)` that returns `context`.
 
 #### Dependencies
-> [`server.dependency(dependencies, [after])`](https://github.com/hapijs/hapi/blob/master/API.md#server.dependency())
+> [`server.dependency(dependencies, [after])`](https://hapi.dev/api/#server.dependency())
 
   - **`dependencies.js`** - export an array of objects `{ dependencies, after }` or `function(server, options)` that returns an array of objects.
   - **`dependencies/index.js`** - export an array of objects or `function(server, options)` that returns an array of objects.
   - **`dependencies/plugin-name.js`** - export an object or `function(server, options)` that returns an object. `dependencies` will be derived from the filename if it is not already specified.
 
 #### Server methods
-> [`server.method(name, method, [options])`](https://github.com/hapijs/hapi/blob/master/API.md#server.method())
+> [`server.method(name, method, [options])`](https://hapi.dev/api/#server.method())
 
   - **`methods.js`** - export an array of objects `{ name, method, options }` or `function(server, options)` that returns an array of objects.
   - **`methods/index.js`** - export an array of objects or `function(server, options)` that returns an array of objects.
   - **`methods/method-name.js`** - export an object or `function(server, options)` that returns an object.  The `name` will be assigned `'methodName'` camel-cased from the filename if it isn't already specified.
 
 #### Server/request extensions
-> [`server.ext(events)`](https://github.com/hapijs/hapi/blob/master/API.md#server.ext())
+> [`server.ext(events)`](https://hapi.dev/api/#server.ext())
 
   - **`extensions.js`** - export an array of `events` or `function(server, options)` that returns an array of `events`.
   - **`extensions/index.js`** - export an array of `events` or `function(server, options)` that returns an array of `events`.
   - **`extensions/[event-type].js`** - export `events` or `function(server, options)` that returns `events`.  The `type` (of each item if there are multiple) will be assigned `[event-type]` camel-cased from the filename if it isn't already specified.  E.g. `onPreHandler`-type events can be placed in `extensions/on-pre-handler.js`.
 
 #### Authentication schemes
-> [`server.auth.scheme(name, scheme)`](https://github.com/hapijs/hapi/blob/master/API.md#server.auth.scheme())
+> [`server.auth.scheme(name, scheme)`](https://hapi.dev/api/#server.auth.scheme())
 
   - **`auth/schemes.js`** - export an array of objects `{ name, scheme }` or `function(server, options)` that returns an array of objects.
   - **`auth/schemes/index.js`** - export an array of objects or `function(server, options)` that returns an array of objects.
   - **`auth/schemes/scheme-name.js`** - export an object or `function(server, options)` that returns an object.  The `name` will be assigned `'scheme-name'` from the filename if it isn't already specified.
 
 #### Authentication strategies
-> [`server.auth.strategy(name, scheme, [options])`](https://github.com/hapijs/hapi/blob/master/API.md#server.auth.strategy())
+> [`server.auth.strategy(name, scheme, [options])`](https://hapi.dev/api/#server.auth.strategy())
 
   - **`auth/strategies.js`** - export an array of objects `{ name, scheme, options }` or `function(server, options)` that returns an array of objects.
   - **`auth/strategies/index.js`** - export an array of objects or `function(server, options)` that returns an array of objects.
   - **`auth/strategies/strategy-name.js`** - export an object or `function(server, options)` that returns an object.  The `name` will be assigned `'strategy-name'` from the filename if it isn't already specified.
 
 #### Default auth strategy
-> [`server.auth.default(options)`](https://github.com/hapijs/hapi/blob/master/API.md#server.auth.default())
+> [`server.auth.default(options)`](https://hapi.dev/api/#server.auth.default())
 
   - **`auth/default.js`** - export `options` or `function(server, options)` that returns `options`.
   - **`auth/default/index.js`** - export `options` or `function(server, options)` that returns `options`.
 
 #### Subscriptions (for [nes](https://github.com/hapijs/nes))
-> [`server.subscription(path, [options])`](https://github.com/hapijs/nes/blob/master/API.md#serversubscriptionpath-options)
+> [`server.subscription(path, [options])`](https://hapi.dev/module/nes/api/#serversubscriptionpath-options)
 
   - **`subscriptions.js`** - export an array of objects `{ path, options }` or `function(server, options)` that returns an array of objects.
   - **`subscriptions/index.js`** - export an array of objects `{ path, options }` or `function(server, options)` that returns an array of objects.
   - **`subscriptions/service-name.js`** - export an object `{ path, options }` or `function(server, options)` that returns an object.
 
 #### Validator (for hapi v19+)
-> [`server.validator(validator)`](https://github.com/hapijs/hapi/blob/master/API.md#server.validator())
+> [`server.validator(validator)`](https://hapi.dev/api/#server.validator())
 
   - **`validator.js`** - export `validator` or `function(server, options)` that returns `validator`.
   - **`validator/index.js`** - export `validator` or `function(server, options)` that returns `validator`.
 
 #### Routes
-> [`server.route(options)`](https://github.com/hapijs/hapi/blob/master/API.md#server.route())
+> [`server.route(options)`](https://hapi.dev/api/#server.route())
 
   - **`routes.js`** - export an array of `options` or `function(server, options)` that returns an array of `options`.
   - **`routes/index.js`** - export an array of `options` or `function(server, options)` that returns an array of `options`.
