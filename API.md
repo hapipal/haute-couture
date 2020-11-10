@@ -2,7 +2,7 @@
 
 ### `await HauteCouture.compose(server, options, [composeOptions])`
 
-Composes `server` by making calls into hapi from file and directory contents as described in [Files and directories](#files-and-directories).  For example, the contents of each file in `routes/` may be used to make a call to `server.routes()` and define a hapi route.  The same goes for many other directories, and many other methods in the hapi server/plugin interface [starting here](https://hapi.dev/api/#server.auth.default()).  Typically this call is made as a subroutine of hapi plugin registration, and `options` are plugin registration options:
+Composes `server` by making calls into hapi from file and directory contents as described in [Files and directories](#files-and-directories).  For example, the contents of each file in `routes/` may be used to make a call to `server.routes()` and define a hapi route.  The same goes for many other directories, and many other methods in the hapi server/plugin interface [starting here](https://hapi.dev/api/#server.auth.default()).  Typically `HauteCouture.compose()` is called as a subroutine of hapi plugin registration, and `options` are plugin registration options:
 
 ```js
 const HauteCouture = require('@hapipal/haute-couture');
@@ -21,7 +21,7 @@ module.exports = {
 When `composeOptions` is specified then it may define the following properties:
 
  - `dirname` - an absolute directory path in which to look for the files and directories described [below](#files-and-directories), as well as those from `amendments`.  It defaults to the directory path of the caller.
- - `amendments` - and object whose keys are directories and whose values are configuration about how to interpret the contents of that directory into calls to hapi.  The keys represent directories relative to `dirname`, and we call these "places."  The values follow the format of a [haute manifest item](#structure-of-a-haute-manifest-item) (except the property `place`, which is defined by the value's key).
+ - `amendments` - an object whose keys are directories and whose values are configuration about how to interpret the contents of that directory into calls to hapi.  The keys represent directories relative to `dirname`, and we call these "places."  The values follow the format of a [haute manifest item](#structure-of-a-haute-manifest-item) (except the property `place`, which is defined by the value's key), and we call these "amendments".
 
  There are many amendments that haute-couture uses to provide its default behavior, as described in [Files and directories](#files-and-directories).  In the case that `amendments` defines an amendment at a place for which haute-couture has a default, the contents of `amendment` will override the default.  If `amendments` contains a key whose value is `false`, that place specified by that key will be ignored by haute-couture.  You may also specify the key [`HauteCouture.default` or `'$default'`](#hautecouturedefault) to define defaults for all items.  The following are amendment settings that can be changed through defaults:
 
