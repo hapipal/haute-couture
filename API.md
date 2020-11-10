@@ -176,15 +176,15 @@ await HauteCouture.compose(server, options, {
 ```
 
 ### Files and directories
-We've worked to make haute-couture quite astute in mapping files and directories to hapi calls defining your server or plugin.  And as seen in the comments of the [usage example](README.md#routespingerjs), it also infers configuration from filenames where applicable.
+We've worked hard to make haute-couture astute in mapping files and directories to hapi calls defining your server or plugin.  And as seen in the comments of the [usage example](README.md#routespingerjs), it also infers configuration from filenames where applicable.
 
 #### Mapping file contents ⟶ calls to hapi
 
-Here's the intuition for what's happening (it's pretty simple!).  If a file `place/my-file.js` exports `contents`, then haute-couture will make a call on your server `server.place(contents)`.  For example, if `{ method, path, handler }` is exported from `routes/my-route.js`, then haute-couture will define a route for you by calling `server.route({ method, path, handler })`.  This is all configurable as described in [`HauteCouture.compose()`](#await-hautecouturecomposeserver-options-composeoptions), but most of the time that's all that's happening.  You will find that haute-couture is a pretty thin adapter between file contents and your hapi server.
+Here's the intuition for what's happening (it's pretty simple!).  If a file `place/my-file.js` exports `contents`, then haute-couture will make a call on your server `server.place(contents)`.  For example, if `{ method, path, handler }` is exported from `routes/my-route.js`, then haute-couture will define a route for you by calling `server.route({ method, path, handler })`.  The behavior is configurable as described in [`HauteCouture.compose()`](#await-hautecouturecomposeserver-options-composeoptions) using "amendments", but most of the time this is all that's happening.  You will find that haute-couture is a pretty thin adapter between file contents and your hapi server.
 
 #### More on file contents
 
-Files will always export an array of values (representing multiple calls into hapi) or a single value (one call into hapi).  When a hapi method takes more than one argument, a single value consists of an object whose keys are the names of the arguments and whose values are the intended argument values.  The format of the argument values come from the [hapi API](https://github.com/hapijs/hapi/blob/master/API.md) unless otherwise specified.
+Files will always export an array of values (representing multiple calls into hapi) or a single value (one call into hapi).  When a hapi method takes more than one argument, a single value consists of an object whose keys are the names of the arguments and whose values are the intended argument values.  The format of the argument values come from the [hapi API](https://hapi.dev/api/) unless otherwise specified.
 
 For example, a file defining a new server method (representing a call to `server.method(name, method)`) would export an object of the format `{ name, method }`.
 
@@ -201,33 +201,33 @@ Here's the complete rundown of how files and directories are mapped to calls on 
 >  - vision - v5 and v6
 
 #### Path prefix
-> [`server.path(relativeTo)`](https://github.com/hapijs/hapi/blob/master/API.md#server.path())
+> [`server.path(relativeTo)`](https://hapi.dev/api/#server.path())
 
   - **`path.js`** - export `relativeTo` or `function(server, options)` that returns `relativeTo`.
   - **`path/index.js`** - export `relativeTo` or `function(server, options)` that returns `relativeTo`.
 
 #### Provisioning caches
-> [`await server.cache.provision(options)`](https://github.com/hapijs/hapi/blob/master/API.md#server.cache.provision())
+> [`await server.cache.provision(options)`](https://hapi.dev/api/#server.cache.provision())
 
   - **`caches.js`** - export an array of `options` or `function(server, options)` that returns array of `options`.
   - **`caches/index.js`** - export an array of `options` or `function(server, options)` that returns array of `options`.
   - **`caches/some-cache-name.js`** - export `options` or `function(server, options)` that returns `options`.  The cache's `options.name` will be assigned `'cache-name'` from the filename if a name isn't already specified.
 
 #### Plugin registrations
-> [`await server.register(plugins, [options])`](https://github.com/hapijs/hapi/blob/master/API.md#server.register())
+> [`await server.register(plugins, [options])`](https://hapi.dev/api/#server.register())
 
   - **`plugins.js`** - export an array of objects `{ plugins, options }` or `function(server, options)` that returns an array of objects `{ plugins, options }`.
   - **`plugins/index.js`** - export an array of objects or `function(server, options)` that returns an array of objects.
   - **`plugins/plugin-name.js`** - export an object or `function(server, options)` that returns an object. If a plugin isn't specified in `plugins` it will be `require()`d using the filename.  Scoped plugins may also be specified using a dot (`.`) as a separator between the scope and the package name, e.g. `plugins/@my-scope.my-package.js` would register the plugin `require('@my-scope/my-package')`.
 
 #### View manager (for [vision](https://github.com/hapijs/vision))
-> [`server.views(options)`](https://github.com/hapijs/vision/blob/master/API.md#serverviewsoptions)
+> [`server.views(options)`](https://hapi.dev/module/vision/api/#serverviewsoptions)
 
   - **`view-manager.js`** - export `options` or `function(server, options)` that returns `options`.
   - **`view-manager/index.js`** - export `options` or `function(server, options)` that returns `options`.
 
 #### Decorations
-> [`server.decorate(type, property, method, [options])`](https://github.com/hapijs/hapi/blob/master/API.md#server.decorate())
+> [`server.decorate(type, property, method, [options])`](https://hapi.dev/api/#server.decorate())
 
   - **`decorations.js`** - export an array of objects `{ type, property, method, options }` or `function(server, options)` that returns an array of objects.
   - **`decorations/index.js`** - export an array of objects or `function(server, options)` that returns an array of objects.
@@ -235,95 +235,95 @@ Here's the complete rundown of how files and directories are mapped to calls on 
   - **`decorations/[type].decoration-name.js`** - export an object or `function(server, options)` that returns an object. The `type` will additionally be inferred from the filename if it isn't already specified.
 
 #### Exposed properties
-> [`server.expose(key, value)`](https://github.com/hapijs/hapi/blob/master/API.md#server.expose())
+> [`server.expose(key, value)`](https://hapi.dev/api/#server.expose())
 
   - **`expose.js`** - export an array of objects `{ key, value }` or `function(server, options)` that returns an array of objects.
   - **`expose/index.js`** - export an array of objects or `function(server, options)` that returns an array of objects.
   - **`expose/property-name.js`** - export an object or `function(server, options)` that returns an object.  The `key` will be assigned `'propertyName'` camel-cased from the filename if it isn't already specified.
 
 #### Cookies
-> [`server.state(name, [options])`](https://github.com/hapijs/hapi/blob/master/API.md#server.state())
+> [`server.state(name, [options])`](https://hapi.dev/api/#server.state())
 
   - **`cookies.js`** - export an array of objects `{ name, options }` or `function(server, options)` that returns an array of objects.
   - **`cookies/index.js`** - export an array of objects or `function(server, options)` that returns an array of objects.
   - **`cookies/cookie-name.js`** - export an object  or `function(server, options)` that returns an object.  The `name` will be assigned `'cookie-name'` from the filename if it isn't already specified.
 
 #### Model definitions (for [schwifty](https://github.com/BigRoomStudios/schwifty))
-> [`server.registerModel(models)`](https://github.com/hapipal/schwifty/blob/master/API.md#serverregistermodelmodels)
+> [`server.registerModel(models)`](https://hapipal.com/docs/schwifty#serverregistermodelmodels)
 
   - **`models.js`** - export an array of `models` or `function(server, options)` that returns an array of `models`.
   - **`models/index.js`** - export an array of `models` or `function(server, options)` that returns an array of `models`.
   - **`models/model-name.js`** - export `models` or `function(server, options)` that returns `models`.
 
 #### Service definitions (for [schmervice](https://github.com/devinivy/schmervice))
-> [`server.registerService(serviceFactory)`](https://github.com/hapipal/schmervice/blob/master/API.md#serverregisterserviceservicefactory)
+> [`server.registerService(serviceFactory)`](https://hapipal.com/docs/schmervice#serverregisterserviceservicefactory)
 
   - **`services.js`** - export an array of `serviceFactory`s or `function(server, options)` that returns an array of `serviceFactory`s.
   - **`services/index.js`** - export an array of `serviceFactory`s or `function(server, options)` that returns an array of `serviceFactory`s.
   - **`services/service-name.js`** - export `serviceFactory` or `function(server, options)` that returns `serviceFactory`.
 
 #### Globally bound context
-> [`server.bind(context)`](https://github.com/hapijs/hapi/blob/master/API.md#server.bind())
+> [`server.bind(context)`](https://hapi.dev/api/#server.bind())
 
   - **`bind.js`** - export `context` or `function(server, options)` that returns `context`.
   - **`bind/index.js`** - export `context` or `function(server, options)` that returns `context`.
 
 #### Dependencies
-> [`server.dependency(dependencies, [after])`](https://github.com/hapijs/hapi/blob/master/API.md#server.dependency())
+> [`server.dependency(dependencies, [after])`](https://hapi.dev/api/#server.dependency())
 
   - **`dependencies.js`** - export an array of objects `{ dependencies, after }` or `function(server, options)` that returns an array of objects.
   - **`dependencies/index.js`** - export an array of objects or `function(server, options)` that returns an array of objects.
   - **`dependencies/plugin-name.js`** - export an object or `function(server, options)` that returns an object. `dependencies` will be derived from the filename if it is not already specified.
 
 #### Server methods
-> [`server.method(name, method, [options])`](https://github.com/hapijs/hapi/blob/master/API.md#server.method())
+> [`server.method(name, method, [options])`](https://hapi.dev/api/#server.method())
 
   - **`methods.js`** - export an array of objects `{ name, method, options }` or `function(server, options)` that returns an array of objects.
   - **`methods/index.js`** - export an array of objects or `function(server, options)` that returns an array of objects.
   - **`methods/method-name.js`** - export an object or `function(server, options)` that returns an object.  The `name` will be assigned `'methodName'` camel-cased from the filename if it isn't already specified.
 
 #### Server/request extensions
-> [`server.ext(events)`](https://github.com/hapijs/hapi/blob/master/API.md#server.ext())
+> [`server.ext(events)`](https://hapi.dev/api/#server.ext())
 
   - **`extensions.js`** - export an array of `events` or `function(server, options)` that returns an array of `events`.
   - **`extensions/index.js`** - export an array of `events` or `function(server, options)` that returns an array of `events`.
   - **`extensions/[event-type].js`** - export `events` or `function(server, options)` that returns `events`.  The `type` (of each item if there are multiple) will be assigned `[event-type]` camel-cased from the filename if it isn't already specified.  E.g. `onPreHandler`-type events can be placed in `extensions/on-pre-handler.js`.
 
 #### Authentication schemes
-> [`server.auth.scheme(name, scheme)`](https://github.com/hapijs/hapi/blob/master/API.md#server.auth.scheme())
+> [`server.auth.scheme(name, scheme)`](https://hapi.dev/api/#server.auth.scheme())
 
   - **`auth/schemes.js`** - export an array of objects `{ name, scheme }` or `function(server, options)` that returns an array of objects.
   - **`auth/schemes/index.js`** - export an array of objects or `function(server, options)` that returns an array of objects.
   - **`auth/schemes/scheme-name.js`** - export an object or `function(server, options)` that returns an object.  The `name` will be assigned `'scheme-name'` from the filename if it isn't already specified.
 
 #### Authentication strategies
-> [`server.auth.strategy(name, scheme, [options])`](https://github.com/hapijs/hapi/blob/master/API.md#server.auth.strategy())
+> [`server.auth.strategy(name, scheme, [options])`](https://hapi.dev/api/#server.auth.strategy())
 
   - **`auth/strategies.js`** - export an array of objects `{ name, scheme, options }` or `function(server, options)` that returns an array of objects.
   - **`auth/strategies/index.js`** - export an array of objects or `function(server, options)` that returns an array of objects.
   - **`auth/strategies/strategy-name.js`** - export an object or `function(server, options)` that returns an object.  The `name` will be assigned `'strategy-name'` from the filename if it isn't already specified.
 
 #### Default auth strategy
-> [`server.auth.default(options)`](https://github.com/hapijs/hapi/blob/master/API.md#server.auth.default())
+> [`server.auth.default(options)`](https://hapi.dev/api/#server.auth.default())
 
   - **`auth/default.js`** - export `options` or `function(server, options)` that returns `options`.
   - **`auth/default/index.js`** - export `options` or `function(server, options)` that returns `options`.
 
 #### Subscriptions (for [nes](https://github.com/hapijs/nes))
-> [`server.subscription(path, [options])`](https://github.com/hapijs/nes/blob/master/API.md#serversubscriptionpath-options)
+> [`server.subscription(path, [options])`](https://hapi.dev/module/nes/api/#serversubscriptionpath-options)
 
   - **`subscriptions.js`** - export an array of objects `{ path, options }` or `function(server, options)` that returns an array of objects.
   - **`subscriptions/index.js`** - export an array of objects `{ path, options }` or `function(server, options)` that returns an array of objects.
   - **`subscriptions/service-name.js`** - export an object `{ path, options }` or `function(server, options)` that returns an object.
 
 #### Validator (for hapi v19+)
-> [`server.validator(validator)`](https://github.com/hapijs/hapi/blob/master/API.md#server.validator())
+> [`server.validator(validator)`](https://hapi.dev/api/#server.validator())
 
   - **`validator.js`** - export `validator` or `function(server, options)` that returns `validator`.
   - **`validator/index.js`** - export `validator` or `function(server, options)` that returns `validator`.
 
 #### Routes
-> [`server.route(options)`](https://github.com/hapijs/hapi/blob/master/API.md#server.route())
+> [`server.route(options)`](https://hapi.dev/api/#server.route())
 
   - **`routes.js`** - export an array of `options` or `function(server, options)` that returns an array of `options`.
   - **`routes/index.js`** - export an array of `options` or `function(server, options)` that returns an array of `options`.

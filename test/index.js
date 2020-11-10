@@ -948,6 +948,52 @@ describe('HauteCouture', () => {
                 }
             });
         });
+
+        it('sets dirname on items when passed.', () => {
+
+            const manifest = HauteCouture.manifest({
+                routes: false,
+                'funky-routes': { method: 'funkyRoutes' }
+            }, '/some/directory');
+
+            Joi.assert(manifest, Joi.array().items({
+                place: Joi.string().regex(/[\w\.]+/),
+                method: Joi.string().regex(/[\w\.]+/),
+                signature: Joi.array().items(Joi.string().regex(/^\[?\w+\]?$/)),
+                list: Joi.boolean(),
+                useFilename: Joi.func(),
+                recursive: Joi.boolean(),
+                exclude: Joi.func(),
+                include: Joi.func(),
+                meta: Joi.object(),
+                dirname: Joi.valid('/some/directory').required()
+            }));
+
+            const summarize = (item) => `${item.method}() at ${item.place}`;
+            const summary = manifest.map(summarize);
+
+            expect(summary).to.equal([
+                'path() at path',
+                'cache.provision() at caches',
+                'register() at plugins',
+                'views() at view-manager',
+                'decorate() at decorations',
+                'expose() at expose',
+                'state() at cookies',
+                'registerModel() at models',
+                'registerService() at services',
+                'bind() at bind',
+                'dependency() at dependencies',
+                'method() at methods',
+                'ext() at extensions',
+                'auth.scheme() at auth/schemes',
+                'auth.strategy() at auth/strategies',
+                'auth.default() at auth/default',
+                'subscription() at subscriptions',
+                'validator() at validator',
+                'funkyRoutes() at funky-routes'
+            ]);
+        });
     });
 
     describe('.hc.js', () => {
