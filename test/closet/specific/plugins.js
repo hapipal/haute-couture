@@ -7,4 +7,4 @@ internals.plugin = {
     register: (srv, options) => null
 };
 
-module.exports = [{ plugins: internals.plugin }];
+module.exports = [{ plugin: internals.plugin }];

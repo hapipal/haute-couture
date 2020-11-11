@@ -222,17 +222,21 @@ describe('HauteCouture', () => {
 
     it('registers plugins in plugins/.', () => {
 
-        // Plugins specified, but not an array and no `plugin`
-        expect(bigServer.registrations['@hapipal/schwifty']).to.exist();
-
-        // No plugins specified
-        expect(bigServer.registrations['@hapi/vision']).to.exist();
-
-        // No plugins specified, with scoped module
-        expect(bigServer.registrations['hapi-api-version']).to.exist();
-
-        // Passes options, plugins specified as array
-        expect(bigServer.registrations['test-dep']).to.exist();
+        expect(bigServer.registrations).to.include([
+            // { plugin: { plugin: { register } }}
+            '@hapipal/schmervice',
+            // No plugin specified, scoped module
+            '@hapipal/schwifty',
+            // No plugin specified, unscoped module
+            'hapi-api-version',
+            // Capture sawPluginOptions
+            'test-dep',
+            // { name, register }
+            'test-dep-register',
+            // Array of plugins
+            'test-dep-array1',
+            'test-dep-array2'
+        ]);
 
         expect(bigServer.app.sawPluginOptions).to.equal('/options');
     });

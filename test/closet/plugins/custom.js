@@ -11,6 +11,6 @@ internals.plugin = {
 };
 
 module.exports = {
-    plugins: [internals.plugin],
-    options: { routes: { prefix: '/options' } }
+    plugin: internals.plugin,
+    routes: { prefix: '/options' }
 };

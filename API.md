@@ -214,11 +214,11 @@ Here's the complete rundown of how files and directories are mapped to calls on 
   - **`caches/some-cache-name.js`** - export `options` or `function(server, options)` that returns `options`.  The cache's `options.name` will be assigned `'cache-name'` from the filename if a name isn't already specified.
 
 #### Plugin registrations
-> [`await server.register(plugins, [options])`](https://hapi.dev/api/#server.register())
+> [`await server.register(plugins)`](https://hapi.dev/api/#server.register())
 
-  - **`plugins.js`** - export an array of objects `{ plugins, options }` or `function(server, options)` that returns an array of objects `{ plugins, options }`.
-  - **`plugins/index.js`** - export an array of objects or `function(server, options)` that returns an array of objects.
-  - **`plugins/plugin-name.js`** - export an object or `function(server, options)` that returns an object. If a plugin isn't specified in `plugins` it will be `require()`d using the filename.  Scoped plugins may also be specified using a dot (`.`) as a separator between the scope and the package name, e.g. `plugins/@my-scope.my-package.js` would register the plugin `require('@my-scope/my-package')`.
+  - **`plugins.js`** - export an array of `plugins` or `function(server, options)` that returns an array of `plugins`.  Note that `plugins` typically takes the form `{ plugin, options, once, routes }`.
+  - **`plugins/index.js`** - export an array of `plugins` or `function(server, options)` that returns an array of `plugins`.
+  - **`plugins/plugin-name.js`** - export `plugins` or `function(server, options)` that returns `plugins`. If a plugin isn't specified in `plugins` it will be `require()`d using the filename.  Scoped plugins may also be specified using a dot (`.`) as a separator between the scope and the package name, e.g. `plugins/@my-scope.my-package.js` would register the plugin `require('@my-scope/my-package')`.
 
 #### View manager (for [vision](https://github.com/hapijs/vision))
 > [`server.views(options)`](https://hapi.dev/module/vision/api/#serverviewsoptions)
@@ -323,11 +323,11 @@ Here's the complete rundown of how files and directories are mapped to calls on 
   - **`validator/index.js`** - export `validator` or `function(server, options)` that returns `validator`.
 
 #### Routes
-> [`server.route(options)`](https://hapi.dev/api/#server.route())
+> [`server.route(route)`](https://hapi.dev/api/#server.route())
 
-  - **`routes.js`** - export an array of `options` or `function(server, options)` that returns an array of `options`.
-  - **`routes/index.js`** - export an array of `options` or `function(server, options)` that returns an array of `options`.
-  - **`routes/route-id.js`** - export `options` or `function(server, options)` that returns `options`.  If `options` is a single route config object, the route's `config.id` will be assigned `'route-id'` from the filename if it isn't already specified.  The filename could just as easily represent a group of routes (rather than an id) and the file could export an array of route configs.
+  - **`routes.js`** - export an array of `route` or `function(server, options)` that returns an array of `route`.
+  - **`routes/index.js`** - export an array of `route` or `function(server, options)` that returns an array of `route`.
+  - **`routes/route-id.js`** - export `route` or `function(server, options)` that returns `route`.  If `route` is a single route config object, the route's `config.id` will be assigned `'route-id'` from the filename if it isn't already specified.  The filename could just as easily represent a group of routes (rather than an id) and the file could export an array of route configs.
 
 ### Extras
 #### Structure of a [haute](https://github.com/devinivy/haute) manifest item
