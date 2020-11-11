@@ -1,5 +1,5 @@
 {
-  "name": "haute-couture",
+  "name": "@hapipal/haute-couture",
   "version": "3.6.0",
   "description": "File-based hapi plugin composer",
   "main": "lib/index.js",
@@ -46,8 +46,8 @@
     "@hapi/hapi": ">=19 <21",
     "@hapi/nes": ">=11",
     "@hapi/vision": ">=5",
-    "@hapipal/schmervice": ">=6",
-    "@hapipal/schwifty": ">=1"
+    "@hapipal/schmervice": ">=2",
+    "@hapipal/schwifty": ">=6"
   },
   "peerDependenciesMeta": {
     "@hapi/nes": {

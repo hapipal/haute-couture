@@ -1,5 +1,12 @@
-# API Reference
+# API
 
+File-based hapi plugin composer
+
+> **Note**
+>
+> Haute-couture is intended for use with hapi v19+ and nodejs v12+, in addition to several optional peer hapi plugins noted in package.json (_see v3 for lower support_).
+
+## `HauteCouture`
 ### `await HauteCouture.compose(server, options, [composeOptions])`
 
 Composes `server` by making calls into hapi from file and directory contents as described in [Files and directories](#files-and-directories).  For example, the contents of each file in `routes/` may be used to make a call to `server.routes()` and define a hapi route.  The same goes for many other directories, and many other methods in the hapi server/plugin interface [starting here](https://hapi.dev/api/#server.auth.default()).  Typically `HauteCouture.compose()` is called as a subroutine of hapi plugin registration, and `options` are plugin registration options:
@@ -196,7 +203,7 @@ Here's the complete rundown of how files and directories are mapped to calls on 
 >
 > You'll see that this library can be used in conjunction with several hapi plugins.  Here are those plugins and their supported versions.
 >  - schwifty - v6
->  - schmervice - v1 and v2
+>  - schmervice - v2
 >  - nes - v11 and v12
 >  - vision - v5 and v6
 
