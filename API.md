@@ -183,7 +183,7 @@ await HauteCouture.compose(server, options, {
 ```
 
 ### Files and directories
-We've worked hard to make haute-couture astute in mapping files and directories to hapi calls defining your server or plugin.  And as seen in the comments of the [usage example](README.md#routespingerjs), it also infers configuration from filenames where applicable.
+We've worked hard to make haute-couture astute in mapping files and directories to hapi calls defining your server or plugin, on occasion even inferring pieces of configuration from filenames.
 
 #### Mapping file contents ⟶ calls to hapi
 
@@ -201,11 +201,11 @@ Here's the complete rundown of how files and directories are mapped to calls on 
 
 > **Note**
 >
-> You'll see that this library can be used in conjunction with several hapi plugins.  Here are those plugins and their supported versions.
->  - schwifty - v6
->  - schmervice - v2
->  - nes - v11 and v12
->  - vision - v5 and v6
+> You'll see that this library can be used in conjunction with several hapi plugins.  Here are those plugins and their supported versions.  When in doubt, you may reference the peer dependencies listed in this module's package.json.
+>  - [schwifty](https://github.com/hapipal/schwifty) - v6+
+>  - [schmervice](https://github.com/hapipal/schmervice) - v2+
+>  - [nes](https://hapi.dev/module/nes/) - v11+
+>  - [vision](https://hapi.dev/module/vision/) - v5+
 
 #### Path prefix
 > [`server.path(relativeTo)`](https://hapi.dev/api/#server.path())
@@ -323,7 +323,7 @@ Here's the complete rundown of how files and directories are mapped to calls on 
   - **`subscriptions/index.js`** - export an array of objects `{ path, options }` or `function(server, options)` that returns an array of objects.
   - **`subscriptions/service-name.js`** - export an object `{ path, options }` or `function(server, options)` that returns an object.
 
-#### Validator (for hapi v19+)
+#### Validator
 > [`server.validator(validator)`](https://hapi.dev/api/#server.validator())
 
   - **`validator.js`** - export `validator` or `function(server, options)` that returns `validator`.
