@@ -737,6 +737,47 @@ describe('HauteCouture', () => {
 
             expect(() => HauteCouture.amendment('nope')).to.throw('There is no default amendment at "nope".');
         });
+
+        it('can extend defaults by passing options as a function.', () => {
+
+            const opts = ({ list }) => ({
+                list: !list,
+                example: {
+                    $comment: 'Use with nes',
+                    path: '',
+                    options: {}
+                }
+            });
+
+            expect(HauteCouture.amendment('subscriptions', opts)).to.equal({
+                method: 'subscription',
+                signature: ['path', '[options]'],
+                list: false,
+                after: ['plugins'],
+                example: {
+                    $comment: 'Use with nes',
+                    path: '',
+                    options: {}
+                }
+            });
+        });
+
+        it('can extend defaults by passing options as a function (integration).', async (flags) => {
+
+            flags.onCleanup = reset;
+
+            const server = Hapi.server();
+
+            await HauteCouture.compose(server, {}, { dirname: `${__dirname}/closet/decorations-array-amendment` });
+
+            expect(server.decorations).to.equal({
+                handler: [],
+                response: [],
+                request: ['marketplace'],
+                server: ['marketplace'],
+                toolkit: ['marketplace']
+            });
+        });
     });
 
     describe('amendments()', () => {

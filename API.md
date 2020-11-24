@@ -142,7 +142,7 @@ module.exports = {
 
 ### `HauteCouture.amendment(place, [patch])`
 
-Returns the default amendment at `place`.  For example, `HauteCouture.amendment('auth/strategies')` will return the default amendment that defines the call to `server.auth.strategy()`.  When `patch` is specified then it will be used to alter the returned amendment.
+Returns the default amendment at `place`.  For example, `HauteCouture.amendment('auth/strategies')` will return the default amendment that defines the call to `server.auth.strategy()`.  When `patch` is specified then it will be used to alter the returned amendment.  When `patch` is a function then it will be passed the default amendment and should return a patch to alter that amendment as described above.
 
 ```js
 await HauteCouture.compose(server, options, {
