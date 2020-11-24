@@ -238,8 +238,9 @@ Here's the complete rundown of how files and directories are mapped to calls on 
 
   - **`decorations.js`** - export an array of objects `{ type, property, method, options }` or `function(server, options)` that returns an array of objects.
   - **`decorations/index.js`** - export an array of objects or `function(server, options)` that returns an array of objects.
-  - **`decorations/decoration-name.js`** - export an object or `function(server, options)` that returns an object.  The `property` will be assigned `'decorationName'` camel-cased from the filename if it isn't already specified.
-  - **`decorations/[type].decoration-name.js`** - export an object or `function(server, options)` that returns an object. The `type` will additionally be inferred from the filename if it isn't already specified.
+  - **`decorations/decoration-name.js`** - export an object or `function(server, options)` that returns an object.  The `property` will be assigned `'decorationName'` camel-cased from the filename and path parts if it isn't already specified.
+  - **`decorations/[type].decoration-name.js`** - export an object or `function(server, options)` that returns an object. The `type` will be inferred from the filename if it isn't already specified.
+  - **`decorations/[type]/decoration-name.js`** - export an object or `function(server, options)` that returns an object. The `type` will be inferred from the path if it isn't already specified.
 
 #### Exposed properties
 > [`server.expose(key, value)`](https://hapi.dev/api/#server.expose())
@@ -295,6 +296,7 @@ Here's the complete rundown of how files and directories are mapped to calls on 
   - **`extensions.js`** - export an array of `events` or `function(server, options)` that returns an array of `events`.
   - **`extensions/index.js`** - export an array of `events` or `function(server, options)` that returns an array of `events`.
   - **`extensions/[event-type].js`** - export `events` or `function(server, options)` that returns `events`.  The `type` (of each item if there are multiple) will be assigned `[event-type]` camel-cased from the filename if it isn't already specified.  E.g. `onPreHandler`-type events can be placed in `extensions/on-pre-handler.js`.
+  - **`extensions/[event-type]/name.js`** - export `events` or `function(server, options)` that returns `events`.  The `type` (of each item if there are multiple) will be assigned `[event-type]` camel-cased from the path if it isn't already specified.  E.g. `onPreHandler`-type events can be placed in `extensions/on-pre-handler/my-handlers.js`.
 
 #### Authentication schemes
 > [`server.auth.scheme(name, scheme)`](https://hapi.dev/api/#server.auth.scheme())

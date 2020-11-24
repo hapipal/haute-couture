@@ -49,7 +49,7 @@ describe('HauteCouture', () => {
         return Glob.sync(`${__dirname}/closet/**`)
             .map((file) => file.replace(`${__dirname}/closet`, ''))
             .map((file) => file.replace(/^\//, ''))
-            .filter((file) => ['', 'index.js'].indexOf(file) === -1);
+            .filter((file) => !['', 'index.js'].includes(file));
     };
 
     const renamer = new Renamer();
@@ -302,7 +302,6 @@ describe('HauteCouture', () => {
         expect(bigServer.anotherTestDec()).to.equal('server.anotherTestDec()');
     });
 
-
     it('registers extensions in extensions/.', async () => {
 
         bigServer.route({
@@ -320,6 +319,45 @@ describe('HauteCouture', () => {
             'onPreAuth', 'onPostAuth',
             'onPreHandler', 'onPostHandler'
         ]);
+    });
+
+    it('registers extensions deeply with inferred ext type.', async (flags) => {
+
+        flags.onCleanup = reset;
+
+        const server = Hapi.server();
+
+        notUsing(['extensions-deep/extensions/x/not-an-ext.js']);
+
+        await HauteCouture.compose(server, {}, { dirname: `${__dirname}/closet/extensions-deep` });
+
+        expect(server.app).to.equal({});
+
+        await server.initialize();
+
+        expect(server.app).to.only.contain([
+            'x/on-pre-start',
+            'x/on-pre-start.y',
+            'x/on-pre-start/y',
+            'x/has-configured-ext'
+        ]);
+    });
+
+    it('only accepts proper extension types from deep extension file paths.', async (flags) => {
+
+        flags.onCleanup = reset;
+
+        const server = Hapi.server();
+
+        using([
+            'extensions-deep',
+            'extensions-deep/extensions',
+            'extensions-deep/extensions/x',
+            'extensions-deep/extensions/x/not-an-ext.js'
+        ]);
+
+        await expect(HauteCouture.compose(server, {}, { dirname: `${__dirname}/closet/extensions-deep` }))
+            .to.reject(/"type" must be a string/);
     });
 
     it('exposes key-value pairs in expose/.', () => {
@@ -440,8 +478,6 @@ describe('HauteCouture', () => {
     });
 
     it('sets a validator in validator.js', async (flags) => {
-        // Note, this test is only running on latest hapi because server.validator() doesn't
-        // exist until hapi v19, yet we have tests against hapi v18 to test below node v12.
 
         flags.onCleanup = reset;
 
@@ -479,6 +515,68 @@ describe('HauteCouture', () => {
         ]);
 
         await expect(server.register(Closet)).to.reject(/Missing decoration property name/);
+    });
+
+    it('registers decorations deeply with inferred property name and type.', async (flags) => {
+
+        flags.onCleanup = reset;
+
+        notUsing([
+            'decorations-deep/decorations/x/not-a-type.t.js',
+            'decorations-deep/decorations/x/not-a-type/v.js'
+        ]);
+
+        const server = Hapi.server();
+
+        await HauteCouture.compose(server, {}, { dirname: `${__dirname}/closet/decorations-deep` });
+
+        expect(server.decorations).to.equal({
+            handler: [],
+            toolkit: [],
+            request: [
+                'serverY',                  // server/request.y
+                'bySelfHasConfiguredFull',  // x/server/has-configured-full ({ type, property })
+                'xServerHasConfiguredType'  // x/server/has-configured-type ({ type })
+            ],
+            response: [
+                'xW'                        // x/response.w
+            ],
+            server: [
+                'xU',                       // server/x/u
+                'x',                        // server/x
+                'xZ'                        // x/server/z
+            ]
+        });
+    });
+
+    it('only accepts proper decoration types from deep file paths.', async (flags) => {
+
+        flags.onCleanup = reset;
+
+        const server = Hapi.server();
+
+        using([
+            'decorations-deep',
+            'decorations-deep/decorations',
+            'decorations-deep/decorations/x',
+            'decorations-deep/decorations/x/not-a-type',
+            'decorations-deep/decorations/x/not-a-type/v.js'
+        ]);
+
+        await expect(HauteCouture.compose(server, {}, { dirname: `${__dirname}/closet/decorations-deep` }))
+            .to.reject(/Unknown decoration type: null/);
+
+        reset();
+
+        using([
+            'decorations-deep',
+            'decorations-deep/decorations',
+            'decorations-deep/decorations/x',
+            'decorations-deep/decorations/x/not-a-type.t.js'
+        ]);
+
+        await expect(HauteCouture.compose(server, {}, { dirname: `${__dirname}/closet/decorations-deep` }))
+            .to.reject(/Unknown decoration type: null/);
     });
 
     it('rejects when something bad happens.', async () => {
