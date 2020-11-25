@@ -5,9 +5,9 @@
 const Path = require('path');
 const Lab = require('@hapi/lab');
 const Code = require('@hapi/code');
-const Joi = require('@hapi/joi');
 const Renamer = require('renamer');
 const Glob = require('glob');
+const Joi = require('joi');
 const Hapi = require('@hapi/hapi');
 const Nes = require('@hapi/nes');
 const { Team } = require('@hapi/teamwork');
