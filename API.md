@@ -24,7 +24,7 @@ When a call to `HauteCouture.using([dirname], [amendments])` specifies no `amend
 
 #### Amendment example
 
-This example demonstrates how to use a `.hc.js` file in order to swap-out [schwifty's](https://github.com/hapipal/schwifty) handling of [Objection ORM](http://vincit.github.io/objection.js/) models for a much simplified handling of [Mongoose](https://mongoosejs.com) models.  You can even continue to use [`hpal make`](https://github.com/hapipal/hpal#hpal-make) to scaffold your Mongoose models inside the `models/` directory.
+This example demonstrates how to use a `.hc.js` file in order to swap-out [schwifty's](https://github.com/hapipal/schwifty) handling of [Objection ORM](http://vincit.github.io/objection.js/) models for a much simplified handling of [Mongoose](https://mongoosejs.com) models.  You can even continue to use [`hpal make`](https://github.com/hapipal/hpal#hpal-make) to scaffold your Mongoose models inside the `models/` directory. Here is [another example](https://github.com/hk7math/hpal-mongo-example) for reference.
 
 ##### `index.js`
 ```js
