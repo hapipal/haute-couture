@@ -10,7 +10,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "lab -a @hapi/code -t 100 -I \"FinalizationRegistry,WeakRef\" && lab -dlL",
+    "test": "lab -a @hapi/code -t 100 -I \"FinalizationRegistry,WeakRef,AbortController,AbortSignal,EventTarget,Event,MessageChannel,MessagePort,MessageEvent,AggregateError\" && lab -dlL",
     "coveralls": "lab -r lcov | coveralls"
   },
   "repository": {
