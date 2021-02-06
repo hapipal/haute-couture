@@ -407,6 +407,8 @@ describe('HauteCouture', () => {
         expect(bigServer.lookup('arr-routes')).to.not.exist();
         expect(bigServer.match('get', '/arr-route-one')).to.exist();
         expect(bigServer.match('get', '/arr-route-two')).to.exist();
+        expect(bigServer.match('get', '/multi-method-route')).to.exist();
+        expect(bigServer.match('post', '/multi-method-route')).to.exist();
     });
 
     it('defines subscriptions in subscriptions/.', async (flags) => {
