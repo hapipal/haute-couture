@@ -1142,7 +1142,7 @@ describe('HauteCouture', () => {
         });
     });
 
-    describe('.hc.js', () => {
+    describe('.hc file', () => {
 
         it('specifies amendments for the current directory used by haute-couture.', async () => {
 
@@ -1152,6 +1152,29 @@ describe('HauteCouture', () => {
                 name: 'my-hc-plugin',
                 register: HauteCouture.composeWith({
                     dirname: `${__dirname}/closet/hc-file`
+                })
+            };
+
+            await server.register(plugin);
+
+            expect(server.methods.controllerOne()).to.equal('controller-one');
+            expect(server.methods.controllerTwo()).to.equal('controller-two');
+            expect(server.methods.methodOne).to.not.exist();
+            expect(server.methods.methodTwo).to.not.exist();
+        });
+
+        it('supports .hc.ts files.', async (flags) => {
+
+            // Emulate ts-node
+            require.extensions['.ts'] = require.extensions['.js'];
+            flags.onCleanup = () => delete require.extensions['.ts'];
+
+            const server = Hapi.server();
+
+            const plugin = {
+                name: 'my-hc-plugin',
+                register: HauteCouture.composeWith({
+                    dirname: `${__dirname}/closet/hc-file-ts`
                 })
             };
 
