@@ -139,6 +139,18 @@ describe('HauteCouture', () => {
         expect(server.methods.methodTwo).to.not.exist();
     });
 
+    it('throws when failing to call compose().', async () => {
+
+        const server = Hapi.server();
+
+        const plugin = {
+            name: 'my-failing-plugin',
+            register: HauteCouture.compose
+        };
+
+        await expect(server.register(plugin)).to.reject('You may not have called HauteCouture.compose(), which is necessary to determine the correct dirname. Consider using HauteCouture.composeWith() for your purposes.');
+    });
+
     it('can look in specific directory.', async () => {
 
         const server = Hapi.server();
