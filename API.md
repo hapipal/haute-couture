@@ -49,6 +49,8 @@ See the amendment example below for illustration, noting that the format of `.hc
 
 When a call to `HauteCouture.compose(server, options, composeOptions)` specifies no `composeOptions.amendments`, haute-couture will check the relevant directory `composeOptions.dirname` for a file named `.hc.js`.  Any amendments exported by this file are used identically to amendments passed as an argument.  This is a nice way to keep haute-couture-related configuration separate from your plugin code, and also offer a standard way for tools such as the [pal CLI](https://github.com/devinivy/paldo) to cater to your particular usage of haute-couture.
 
+Haute-couture supports other file extensions as well, such as .hs.json and .hc.ts.
+
 #### Amendment example
 
 This example demonstrates how to use a `.hc.js` file in order to swap-out [schwifty's](https://github.com/hapipal/schwifty) handling of [Objection ORM](http://vincit.github.io/objection.js/) models for a much simplified handling of [Mongoose](https://mongoosejs.com) models.  You can even continue to use [`hpal make`](https://github.com/hapipal/hpal#hpal-make) to scaffold your Mongoose models inside the `models/` directory.
