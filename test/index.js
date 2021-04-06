@@ -127,6 +127,30 @@ describe('HauteCouture', () => {
         expect(bigServer.registrations['@hapi/vision']).to.exist();
     });
 
+    it('looks in the caller\'s directory when using composeWith().', async () => {
+
+        const server = Hapi.server();
+
+        await server.register(require('./closet/compose-with-default'));
+
+        expect(server.methods.controllerOne()).to.equal('controller-one');
+        expect(server.methods.controllerTwo()).to.equal('controller-two');
+        expect(server.methods.methodOne).to.not.exist();
+        expect(server.methods.methodTwo).to.not.exist();
+    });
+
+    it('throws when failing to call compose().', async () => {
+
+        const server = Hapi.server();
+
+        const plugin = {
+            name: 'my-failing-plugin',
+            register: HauteCouture.compose
+        };
+
+        await expect(server.register(plugin)).to.reject('You may not have called HauteCouture.compose(), which is necessary to determine the correct dirname. Consider using HauteCouture.composeWith() for your purposes.');
+    });
+
     it('can look in specific directory.', async () => {
 
         const server = Hapi.server();
