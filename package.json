@@ -1,6 +1,6 @@
 {
   "name": "@hapipal/haute-couture",
-  "version": "4.0.1",
+  "version": "4.1.0",
   "description": "File-based hapi plugin composer",
   "main": "lib/index.js",
   "engines": {
