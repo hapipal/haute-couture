@@ -1,7 +1,7 @@
 'use strict';
 
-const Model = require('schwifty').Model;
+const { Model } = require('@hapipal/schwifty');
 
-exports = module.exports = class MyNamedModel extends Model {};
-
-exports.tableName = 'MyNamedModel';
+module.exports = class MyNamedModel extends Model {
+    static tableName = 'MyNamedModel'
+};
