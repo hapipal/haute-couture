@@ -569,8 +569,8 @@ describe('HauteCouture', () => {
                 'xW'                        // x/response.w
             ],
             server: [
-                'xU',                       // server/x/u
                 'x',                        // server/x
+                'xU',                       // server/x/u
                 'xZ'                        // x/server/z
             ]
         });

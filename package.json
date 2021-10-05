@@ -39,7 +39,8 @@
   "dependencies": {
     "@hapi/hoek": "9.x.x",
     "@hapi/topo": "5.x.x",
-    "haute": ">=3.2.x <4",
+    "haute": "4.x.x",
+    "mo-walk": "1.x.x",
     "parent-module": "2.x.x"
   },
   "peerDependencies": {
