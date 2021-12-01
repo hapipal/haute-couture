@@ -40,7 +40,7 @@
     "@hapi/hoek": "9.x.x",
     "@hapi/topo": "5.x.x",
     "haute": "4.x.x",
-    "mo-walk": "1.x.x",
+    "mo-walk": ">=1.1.0 <2",
     "parent-module": "2.x.x"
   },
   "peerDependencies": {
