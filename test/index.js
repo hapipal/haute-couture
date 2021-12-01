@@ -559,7 +559,9 @@ describe('HauteCouture', () => {
 
         expect(server.decorations).to.equal({
             handler: [],
-            toolkit: [],
+            toolkit: [
+                'y'                         // y/index ({ type })
+            ],
             request: [
                 'serverY',                  // server/request.y
                 'bySelfHasConfiguredFull',  // x/server/has-configured-full ({ type, property })
@@ -1176,6 +1178,25 @@ describe('HauteCouture', () => {
                 name: 'my-hc-plugin',
                 register: HauteCouture.composeWith({
                     dirname: `${__dirname}/closet/hc-file`
+                })
+            };
+
+            await server.register(plugin);
+
+            expect(server.methods.controllerOne()).to.equal('controller-one');
+            expect(server.methods.controllerTwo()).to.equal('controller-two');
+            expect(server.methods.methodOne).to.not.exist();
+            expect(server.methods.methodTwo).to.not.exist();
+        });
+
+        it('supports .hc.mjs files.', async (flags) => {
+
+            const server = Hapi.server();
+
+            const plugin = {
+                name: 'my-hc-plugin',
+                register: HauteCouture.composeWith({
+                    dirname: `${__dirname}/closet/hc-file-esm`
                 })
             };
 
