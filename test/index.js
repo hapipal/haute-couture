@@ -725,6 +725,32 @@ describe('HauteCouture', () => {
         ]);
     });
 
+    it('recurses with stopAtIndexes.', async () => {
+
+        const server = Hapi.server();
+
+        const plugin = {
+            name: 'my-recursive-plugin',
+            register: HauteCouture.composeWith({
+                dirname: `${__dirname}/closet/stop-at-indexes`,
+                amendments: {
+                    $default: {
+                        stopAtIndexes: true
+                    }
+                }
+            })
+        };
+
+        await server.register(plugin);
+
+        expect(server.table().map((r) => r.settings.id)).to.equal([
+            'item-one',
+            'one',
+            'two-item-one',
+            'two-e-item-one'
+        ]);
+    });
+
     describe('amendment()', () => {
 
         it('fetches default amendment by place.', () => {
