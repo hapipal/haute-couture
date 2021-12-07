@@ -559,7 +559,9 @@ describe('HauteCouture', () => {
 
         expect(server.decorations).to.equal({
             handler: [],
-            toolkit: [],
+            toolkit: [
+                'y'                         // y/index ({ type })
+            ],
             request: [
                 'serverY',                  // server/request.y
                 'bySelfHasConfiguredFull',  // x/server/has-configured-full ({ type, property })
@@ -569,8 +571,8 @@ describe('HauteCouture', () => {
                 'xW'                        // x/response.w
             ],
             server: [
-                'xU',                       // server/x/u
                 'x',                        // server/x
+                'xU',                       // server/x/u
                 'xZ'                        // x/server/z
             ]
         });
@@ -720,6 +722,32 @@ describe('HauteCouture', () => {
             'one-a-item-one',
             'one-a-item-two',
             'one-b-item-one'
+        ]);
+    });
+
+    it('recurses with stopAtIndexes.', async () => {
+
+        const server = Hapi.server();
+
+        const plugin = {
+            name: 'my-recursive-plugin',
+            register: HauteCouture.composeWith({
+                dirname: `${__dirname}/closet/stop-at-indexes`,
+                amendments: {
+                    $default: {
+                        stopAtIndexes: true
+                    }
+                }
+            })
+        };
+
+        await server.register(plugin);
+
+        expect(server.table().map((r) => r.settings.id)).to.equal([
+            'item-one',
+            'one',
+            'two-item-one',
+            'two-e-item-one'
         ]);
     });
 
@@ -1176,6 +1204,25 @@ describe('HauteCouture', () => {
                 name: 'my-hc-plugin',
                 register: HauteCouture.composeWith({
                     dirname: `${__dirname}/closet/hc-file`
+                })
+            };
+
+            await server.register(plugin);
+
+            expect(server.methods.controllerOne()).to.equal('controller-one');
+            expect(server.methods.controllerTwo()).to.equal('controller-two');
+            expect(server.methods.methodOne).to.not.exist();
+            expect(server.methods.methodTwo).to.not.exist();
+        });
+
+        it('supports .hc.mjs files.', async (flags) => {
+
+            const server = Hapi.server();
+
+            const plugin = {
+                name: 'my-hc-plugin',
+                register: HauteCouture.composeWith({
+                    dirname: `${__dirname}/closet/hc-file-esm`
                 })
             };
 
