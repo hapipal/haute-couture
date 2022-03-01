@@ -3,6 +3,7 @@
   "version": "4.2.0",
   "description": "File-based hapi plugin composer",
   "main": "lib/index.js",
+  "types": "types.d.ts",
   "engines": {
     "node": ">=12"
   },
@@ -80,6 +81,7 @@
     "joi": "17.x.x",
     "knex": "0.21.x",
     "objection": "2.x.x",
-    "renamer": "2.x.x"
+    "renamer": "2.x.x",
+    "@hapipal/types-haute-couture": ">=0.0.1-alpha.1"
   }
 }
