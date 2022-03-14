@@ -48,8 +48,8 @@
     "@hapi/hapi": ">=19 <21",
     "@hapi/nes": ">=11",
     "@hapi/vision": ">=5",
-    "@hapipal/schmervice": ">=2",
-    "@hapipal/schwifty": ">=6"
+    "@hapipal/schmervice": "2.1.0-types.0",
+    "@hapipal/schwifty": "6.2.0-types.1"
   },
   "peerDependenciesMeta": {
     "@hapi/nes": {
