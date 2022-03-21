@@ -3,6 +3,7 @@
   "version": "4.2.0",
   "description": "File-based hapi plugin composer",
   "main": "lib/index.js",
+  "types": "types.d.ts",
   "engines": {
     "node": ">=12"
   },
@@ -47,8 +48,8 @@
     "@hapi/hapi": ">=19 <21",
     "@hapi/nes": ">=11",
     "@hapi/vision": ">=5",
-    "@hapipal/schmervice": ">=2",
-    "@hapipal/schwifty": ">=6"
+    "@hapipal/schmervice": "2.1.0-types.0",
+    "@hapipal/schwifty": "6.2.0-types.1"
   },
   "peerDependenciesMeta": {
     "@hapi/nes": {
@@ -72,8 +73,9 @@
     "@hapi/nes": "12.x.x",
     "@hapi/teamwork": "5.x.x",
     "@hapi/vision": "6.x.x",
-    "@hapipal/schmervice": "2.x.x",
-    "@hapipal/schwifty": "6.x.x",
+    "@hapipal/schmervice": "2.1.0-types.0",
+    "@hapipal/schwifty": "6.2.0-types.1",
+    "@hapipal/types-haute-couture": ">=0.0.1-alpha.1",
     "coveralls": "3.x.x",
     "glob": "7.x.x",
     "hapi-api-version": "2.x.x",
