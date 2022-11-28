@@ -37,14 +37,14 @@
   },
   "homepage": "https://github.com/hapipal/haute-couture#readme",
   "dependencies": {
-    "@hapi/hoek": "9.x.x",
-    "@hapi/topo": "5.x.x",
-    "haute": "4.x.x",
-    "mo-walk": ">=1.1.0 <2",
-    "parent-module": "2.x.x"
+    "@hapi/hoek": "^9.0.0",
+    "@hapi/topo": "^5.0.0",
+    "haute": "^4.0.0",
+    "mo-walk": "^1.1.0",
+    "parent-module": "^2.0.0"
   },
   "peerDependencies": {
-    "@hapi/hapi": ">=19 <21",
+    "@hapi/hapi": ">=19 <22",
     "@hapi/nes": ">=11",
     "@hapi/vision": ">=5",
     "@hapipal/schmervice": ">=2",
@@ -65,21 +65,21 @@
     }
   },
   "devDependencies": {
-    "@hapi/catbox-memory": "5.x.x",
-    "@hapi/code": "8.x.x",
-    "@hapi/hapi": "20.x.x",
-    "@hapi/lab": "24.x.x",
-    "@hapi/nes": "12.x.x",
-    "@hapi/teamwork": "5.x.x",
-    "@hapi/vision": "6.x.x",
-    "@hapipal/schmervice": "2.x.x",
-    "@hapipal/schwifty": "6.x.x",
-    "coveralls": "3.x.x",
-    "glob": "7.x.x",
-    "hapi-api-version": "2.x.x",
-    "joi": "17.x.x",
-    "knex": "0.21.x",
-    "objection": "2.x.x",
-    "renamer": "2.x.x"
+    "@hapi/catbox-memory": "^5.0.0",
+    "@hapi/code": "^8.0.0",
+    "@hapi/hapi": "^20.0.0",
+    "@hapi/lab": "^24.0.0",
+    "@hapi/nes": "^12.0.0",
+    "@hapi/teamwork": "^5.0.0",
+    "@hapi/vision": "^6.0.0",
+    "@hapipal/schmervice": "^2.1.0",
+    "@hapipal/schwifty": "^6.2.0",
+    "coveralls": "^3.0.0",
+    "glob": "^7.0.0",
+    "hapi-api-version": "^2.0.0",
+    "joi": "^17.0.0",
+    "knex": "^0.21.0",
+    "objection": "^2.0.0",
+    "renamer": "^2.0.0"
   }
 }
