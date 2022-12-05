@@ -101,7 +101,7 @@ describe('HauteCouture', () => {
         });
     };
 
-    const bigServer = Hapi.server();
+    const bigServer = Hapi.server({ host: 'localhost' });
 
     before({ timeout: 4000 }, async () => {
 
@@ -132,6 +132,19 @@ describe('HauteCouture', () => {
         const server = Hapi.server();
 
         await server.register(require('./closet/compose-with-default'));
+
+        expect(server.methods.controllerOne()).to.equal('controller-one');
+        expect(server.methods.controllerTwo()).to.equal('controller-two');
+        expect(server.methods.methodOne).to.not.exist();
+        expect(server.methods.methodTwo).to.not.exist();
+    });
+
+    it('looks in the caller\'s directory when using ESM.', async () => {
+
+        const server = Hapi.server();
+
+        const plugin = await import('./closet/hc-file-esm-default/index.mjs');
+        await server.register(plugin);
 
         expect(server.methods.controllerOne()).to.equal('controller-one');
         expect(server.methods.controllerTwo()).to.equal('controller-two');
